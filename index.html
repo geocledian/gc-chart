@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta charset="utf-8">
+  
+  <title>GC chart</title>
+
+  <!--GC chart component begin -->
+
+    <!-- loads also dependent css files via @import -->
+    <link href="css/gc-chart.css" rel="stylesheet">
+    <!-- init script for components -->
+    <script type="text/javascript" src="js/gc-chart-init.js"></script> 
+
+  <!--GC chart component end -->
+
+  <style>
+    body {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      line-height: 1.1em;
+      font-size: 0.9rem;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="gc-app" class="is-mobile section">
+    <div class="">
+      <gc-chart chartid="chart1" 
+      gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+      gc-host="geocledian.com" 
+      gc-parcel-id="4483"
+      mode="one-index" />
+    </div>
+    <div class="" style="padding-top: 40px;">
+      <gc-chart chartid="chart2" 
+        gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+        gc-host="geocledian.com" 
+        gc-parcel-id="4483"
+        mode="many-indices" />
+    </div>
+    <div class="" style="padding-top: 40px;">
+      <gc-chart chartid="chart3" 
+      gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+      gc-host="geocledian.com" 
+      gc-parcel-ids="4483,4486"
+      mode="many-parcels" />
+    </div>
+  </div>
+
+</body>
+
+</html>

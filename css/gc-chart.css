@@ -1,0 +1,442 @@
+/* font-awesome v5.3.1 */
+@import url('https://use.fontawesome.com/releases/v5.3.1/css/all.css');
+/* bulma v0.6.2 */
+@import 'bulma.min.css';
+@import 'bulma-ext/bulma-calendar.min.css';
+@import 'bulma-ext/bulma-checkradio.min.css';
+/* C3.js v0.7.11 */
+@import 'c3.min.css';
+
+.button[gc-chart] {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: rgb(216, 216, 216) !important;
+    margin: 3px !important;
+}
+
+.button>span {
+    margin-left: 3px !important;
+}
+
+.button.is-dark.is-active {
+    background-color: #EF7D00;
+    border-color: transparent;
+    color: #F0F0F0 !important;
+}
+
+.button.is-dark.is-active>svg {
+    color: #F0F0F0 !important;
+}
+
+.button.is-light.is-active {
+    background-color: #EF7D00;
+    border-color: transparent;
+    color: #F0F0F0 !important;
+}
+
+.button.is-light.is-active>svg {
+    color: #F0F0F0 !important;
+}
+
+.is-orange {
+    color: #EF7D00
+        /* #ff9800  (lighter orange)*/
+         !important;
+}
+
+.is-grey {
+    color: #9D9D9C !important;
+}
+
+table>thead>tr>th {
+    background-color: #fafafa;
+    color: #EF7D00 !important;
+}
+
+table {
+    color: #4a4a4a !important;
+}
+
+table>tbody>tr {
+    line-height: 1.3em !important;
+}
+
+#similaritySumTbl {
+    margin-bottom: 0 !important;
+    /* centered table */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* better alginment of field labels and forms */
+#similarityDiv .field-label {
+    flex-grow: 2 !important;
+}
+
+/* better alginment of field labels and forms */
+#phenologyDiv .field-label {
+    flex-grow: 2 !important;
+}
+
+#phenologyResTbl {
+    margin-bottom: 0 !important;
+    /* centered table */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* chart */
+
+#chartContainer {
+    width: auto;
+    height: auto;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+    margin-left: 4px !important;
+    margin-right: 4px !important;
+    margin-bottom: 0px !important;
+}
+
+#chartContainer>div.notification {
+    padding: 1.1rem 1.5rem 1.1rem 1.5rem !important;
+    margin-bottom: 0px !important;
+    line-height: 1.5 !important;
+}
+
+.chartSpinner {
+    position: relative;
+    z-index: 1100;
+    top: 50%;
+    left: 10px;
+}
+
+.chartSpinner>div {
+    background-color: #EF7D00 !important;
+}
+
+.chartOptionsTitle > i {
+    transform: rotate(0deg);
+    transition: all 0.15s ease-in;
+    -webkit-transition: all .15s ease-in;
+}
+
+.chartOptionsTitle:hover {
+    color:#ff9800  !important;
+}
+.chartOptionsTitle > i.is-active {
+    color: #9D9D9C !important;
+    transform: rotate(180deg);
+    transition: all 0.15s ease-in;
+}
+
+.chartOptions {
+    margin: 0.5rem !important;
+}
+
+.chartOptions .field {
+    margin-top: 0.0rem;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+    margin-bottom: 0.0rem;
+}
+
+.chartOptions .field-label {
+    margin: 4px 0px;
+}
+
+#btnExportStats {
+    margin-top: 6px !important;
+    margin-bottom: 0px !important;
+    margin-right: 16px !important;
+    cursor: pointer;
+    position: inherit;
+    left: 95%;
+    top: 6px;
+    z-index: 5000;
+}
+
+.gc-chart {
+    /*max-height: none!important;*/
+    margin-top: 0.5rem;
+    margin-right: 0.25rem;
+    margin-left: 0.25rem;
+    margin-bottom: 0.5rem;
+    height: 360px;
+    display: block;
+
+    /* svg-container 
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: top;
+    overflow: hidden;*/
+}
+
+#chartControlDiv {
+    position: relative;
+    /*z-index: 500;*/
+    background-color: #F0F0F0;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
+    padding-top: calc(0.375em - 1px);
+    line-height: 1.5;
+    padding-bottom: calc(0.375em - 1px);
+}
+
+/*  calendar */
+
+.calendar {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #9D9D9C !important;
+    background-color:/*#E8E8E8*/ #fff !important;
+}
+.calendar-day {
+    font-size: 2rem !important;
+}
+.calendar-month {
+    font-size: 1.3rem !important;
+}
+.calendar-year {
+    font-size: 1.3rem !important;
+}
+.calendar-nav {
+    background-color:/*#E8E8E8*/ #F0F0F0 !important;
+    color:  #EF7D00 !important;
+}
+.calendar-nav > .calendar-nav-year > button {
+   width: 2.2em !important;
+   color:  #EF7D00 !important;
+   border: none !important;
+    /* Fix for Chrome / Safari - does not hurt Firefox or IEEdge */
+    display: block!important;
+}
+.calendar-nav > .calendar-nav-month > button {
+    width: 2.2em !important;
+    color:  #EF7D00 !important;
+    border: none !important;
+    /* Fix for Chrome / Safari - does not hurt Firefox or IEEdge */
+    display: block!important;
+}
+.calendar-date > button.date-item.is-today.is-active {
+    background:  #EF7D00 !important;
+    border-color:  #EF7D00 !important;
+    color:  #fff !important;
+}
+.calendar-date > button.date-item.is-active {
+    background:  #EF7D00 !important;
+    border-color:  #EF7D00 !important;
+}
+.calendar-date > button.date-item.is-today {
+    border-color:  #EF7D00 !important;
+    color:  #EF7D00 !important;
+}
+
+
+.c3 path,
+.c3 line {
+    stroke: #9D9D9C;
+}
+
+.c3-axis-y {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.c3-axis-y2 {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.c3-axis-x {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+.c3-axis-y-label {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.c3-axis-y2-label {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.c3-tooltip-container>.c3-tooltip th {
+    background-color: #F5F5F5;
+    color: #EF7D00 !important;
+}
+
+.c3-axis-x .tick {
+    fill: #9D9D9C;
+}
+
+.c3-axis-y .tick {
+    fill: #9D9D9C;
+}
+
+.c3-axis-y2 .tick {
+    fill: #9D9D9C;
+}
+
+/* formatting selectedRaster marker in chart */
+.c3-xgrid-line.selectedRaster line {
+    stroke: red;
+}
+
+.c3-xgrid-line.selectedRaster text {
+    fill: red;
+}
+
+/* new line in td cell of tooltip*/
+.c3-tooltip td.value {
+    text-align: right;
+    display: table-caption;
+}
+
+/* labels on data points*/
+.c3-chart-text
+
+/*.c3-target-mean*/
+    {
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.c3-circles-meanl8 {
+    stroke: #EF7D00;
+    stroke-width: 1px;
+}
+/* v.0.7.11 renders all data points with 0.5 opacity
+   but opacity: 1.0 is no solution because even no data points are visible then
+.c3-circles-meanl8 > circle {    
+    opacity: 1.0 !important; 
+} */
+
+.c3-circles-means2 {
+    stroke: #EF7D00;
+    stroke-width: 1px;
+}
+
+/* v.0.7.11 renders all data points with 0.5 opacity
+   but opacity: 1.0 is no solution because even no data points are visible then
+.c3-circles-means2 > circle {    
+    /* v.0.7.11 
+    opacity: 1.0 !important;
+}*/
+
+/*.c3-circle {
+    fill: white!important;
+}
+.c3-circles-mean {
+    stroke: #EF7D00!important;
+    stroke-width: 2px;
+}
+*/
+.c3-line-meanl8,
+.c3-line-means2 {
+    stroke-width: 0px !important;
+}
+
+.c3-line-mean {
+    stroke-width: 2px !important;
+}
+
+.c3-line-min {
+    stroke-dasharray: 1.5;
+}
+
+.c3-line-max {
+    stroke-dasharray: 5.5;
+}
+
+/* outline for markers */
+.c3-shapes-marker {
+    stroke: darkgray;
+    stroke-width: 1px;
+}
+
+.button.is-orange.is-loading:after {
+    border-color: transparent transparent #EF7D00 #EF7D00 !important;
+}
+
+/* spinner */
+.spinner {
+    margin: 100px auto;
+    width: 90px;
+    height: 60px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.spinner>div {
+    background-color: #333;
+    height: 100%;
+    width: 6px;
+    display: inline-block;
+
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+    -webkit-animation-delay: -1.1s;
+    animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+
+    0%,
+    40%,
+    100% {
+        -webkit-transform: scaleY(0.4)
+    }
+
+    20% {
+        -webkit-transform: scaleY(1.0)
+    }
+}
+
+@keyframes sk-stretchdelay {
+
+    0%,
+    40%,
+    100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+    }
+
+    20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+    }
+}
+
+/* hotfix for safari 13 bug which causes safari to crash 
+https://bugs.webkit.org/show_bug.cgi?id=202198
+*/
+.select select {
+    text-rendering: auto !important;
+}
