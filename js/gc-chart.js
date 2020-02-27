@@ -434,10 +434,6 @@ Vue.component('gc-chart', {
     /* init chart */
     this.chart = c3.generate({
       bindto: '#chart_'+this.chartid,
-      size: {
-        width: this.chartWidth, 
-        height: this.chartHeight
-      },
       data: {
         x: 'x',
         columns: []
@@ -1330,10 +1326,6 @@ Vue.component('gc-chart', {
       this.chart = c3.generate({
         bindto: '#chart_'+this.chartid,
         //fixHeightResizing: true,
-        size: {
-          width: this.chartWidth,  
-          height: this.chartHeight
-        },
         data: {
             selection: {
                 enabled: true,
