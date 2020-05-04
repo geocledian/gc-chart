@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
- created: 2019-11-04, jsommer
- last update: 2020-02-25, jsommer
+ created:     2019-11-04, jsommer
+ last update: 2020-04-29, jsommer
  version: 0.9
 */
 "use strict";
@@ -78,34 +78,50 @@ Vue.component('gc-chart', {
     gcSelectedProduct: {
       type: String,
       default: ""
+    },
+    gcDatezoomLayout: {
+      type: String,
+      default: 'vertical' // or horizontal
+    },
+    gcAvailableStats: { //only valid for mode 'one-index'!
+      type: String,
+      default: 'mean,min,max,stddev'
+    },
+    gcAvailableOptions: {
+      type: String,
+      default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers'
+    },
+    gcOptionsCollapsed: {
+      type: String,
+      default: 'true' // or false
     }
   },
   template: `<div :id="chartid" class="gc-chart">          
             <div>
-            <p class="chartOptionsTitle is-size-6 is-orange is-inline-block" style="margin-bottom: 1.0rem; cursor: pointer;" 
-                v-on:click="toggleChartOptions">
-               Chart options 
-              <i class="fas fa-angle-down fa-sm"></i>
-            </p>
+              <p class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
+                  v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
+                Chart options 
+                <i :class="[JSON.parse(gcOptionsCollapsed) ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
+              </p>
 
-            <div :id="'chartOptions_'+chartid" class="chartOptions is-horizontal is-flex is-hidden"
-                  style="max-height: 6.6rem !important;">
+              <div :id="'chartOptions_'+chartid" :class="[JSON.parse(gcOptionsCollapsed) ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
+                    style="padding-bottom: 1em; max-height: 6.6rem !important;">
 
-            <div class="field">
-              <div class="field-label"><label class="label has-text-left is-grey">Graph type</label></div>
-              <div class="field-body">
-                <div class="select is-small">
-                <select v-model="selectedGraphType">
-                  <option value="line">Lines</option>
-                  <option value="spline">Splines</option>
-                  <option value="area-spline">Area Splines</option>
-                </select>
+              <div class="field" v-show="availableOptions.includes('graphType')">
+                <div class="field-label is-small"><label class="label has-text-left is-grey">Graph type</label></div>
+                <div class="field-body">
+                  <div class="select is-small">
+                  <select v-model="selectedGraphType">
+                    <option value="line">Lines</option>
+                    <option value="spline">Splines</option>
+                    <option value="area-spline">Area Splines</option>
+                  </select>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="field is-vertical" v-if="mode=='one-index'">
-              <div class="field-label"><label class="label has-text-left is-grey">Hide graphs</label></div>
+            <div class="field is-vertical" v-if="mode=='one-index'" v-show="availableOptions.includes('hideGraphs')">
+              <div class="field-label is-small"><label class="label has-text-left is-grey">Hide graphs</label></div>
               <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
                 <div class="control">
                   <div class="field is-horizontal">
@@ -151,8 +167,8 @@ Vue.component('gc-chart', {
                 </div>
                 </div>
             </div>
-            <div class="field" v-if="mode=='one-index'">
-              <div class="field-label"><label class="label has-text-left is-grey">Marker</label></div>
+            <div class="field" v-if="mode=='one-index'" v-show="availableOptions.includes('markers')">
+              <div class="field-label is-small"><label class="label has-text-left is-grey">Marker</label></div>
               <div class="field-body">
                 <div class="select is-small">
                   <select v-model="selectedMarkerType">
@@ -164,12 +180,13 @@ Vue.component('gc-chart', {
             </div>
 
             <!-- date filter -->
-            <div class="field is-vertical">
-              <div class="field-label">
-                <label class="label is-grey is-small has-text-left"> Date Zoom</label>
-              </div>
-              <div class="field-body is-horizontal">
-                <div class="control has-icons-left" style="padding-bottom: 10px; max-width: 7.4rem;">
+            <div :class="dateZoomLayout[gcDatezoomLayout]"
+                  v-show="availableOptions.includes('dateZoom')">
+              <div class="field">
+                <div class="field field-label is-small">
+                  <label class="label is-grey has-text-left" style="white-space: nowrap;">From</label>
+                </div>
+                <div class="control has-icons-left" style="max-width: 7.4rem;">
                   <input :id="'inpFilterDateFrom_'+this.chartid" type="text" class="input is-small"
                     placeholder="[YYYY-MM-DD]" v-model="chartFromDate">
                   <span class="icon is-small is-left">
@@ -177,8 +194,11 @@ Vue.component('gc-chart', {
                   </span>
                 </div>
               </div>
-              <div class="field-body is-horizontal">
-                <div class="control has-icons-left" style="padding-bottom: 10px; max-width: 7.4rem;">
+              <div class="field">
+                <div class="field field-label is-small">
+                  <label class="label is-grey has-text-left" style="white-space: nowrap;">To</label>
+                </div>
+                <div class="control has-icons-left" style="max-width: 7.4rem;">
                   <input :id="'inpFilterDateTo_'+this.chartid" type="text" class="input is-small"
                         placeholder="[YYYY-MM-DD]"  v-model="chartToDate">
                   <span class="icon is-small is-left">
@@ -200,7 +220,7 @@ Vue.component('gc-chart', {
             <div class="rect5"></div>
           </div>
 
-          <div style="position: relative;">
+          <div style="position: relative; padding-top: 1em;">
           <div :id="'chart_'+chartid" class="gc-chart"></div>
 
           <!-- product selector -->
@@ -263,7 +283,8 @@ Vue.component('gc-chart', {
       internalZoomStartdate: new Date(new Date().getUTCFullYear()-1, 2, 1), // last YEAR-03-01
       internalZoomEnddate: new Date(new Date().getUTCFullYear()-1, 10, 1), // last YEAR-11-01
       inpFilterDateFromPicker: undefined,
-      inpFilterDateToPicker: undefined
+      inpFilterDateToPicker: undefined,
+      dateZoomLayout: { "vertical" : "field is-vertical", "horizontal":  "field is-horizontal" }
     }
   },
   computed: {
@@ -408,6 +429,16 @@ Vue.component('gc-chart', {
       set: function (newValue) {
         //notify root - through props it will cha nge this.gcSelectedProduct
         this.$root.$emit('parcelIdsChange', newValue);
+      }
+    },
+    availableStats: {
+      get: function() {
+        return (this.gcAvailableStats.split(","));
+      }
+    },
+    availableOptions: {
+      get: function() {
+        return (this.gcAvailableOptions.split(","));
       }
     },
   },
@@ -1614,17 +1645,7 @@ Vue.component('gc-chart', {
     },
     /* GUI helper */
     toggleChartOptions: function() {
-      let isGraphOptionsActive = false;
-      isGraphOptionsActive = !(document.getElementById("chartOptions_"+this.chartid).classList.contains("is-hidden"));
-  
-      if (isGraphOptionsActive) {
-          document.getElementById("chartOptions_"+this.chartid).classList.add("is-hidden");
-          document.getElementById(this.chartid).getElementsByClassName("chartOptionsTitle")[0].children[0].classList.remove("is-active");
-      }
-      else {
-          document.getElementById("chartOptions_"+this.chartid).classList.remove("is-hidden");
-          document.getElementById(this.chartid).getElementsByClassName("chartOptionsTitle")[0].children[0].classList.add("is-active");
-      }
+      this.gcOptionsCollapsed = !JSON.parse(this.gcOptionsCollapsed) + "";
     },  
     /* helper functions */
     removeFromArray: function(arry, value) {

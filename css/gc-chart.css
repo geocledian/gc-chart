@@ -116,16 +116,15 @@ table>tbody>tr {
     background-color: #EF7D00 !important;
 }
 
-.chartOptionsTitle > i {
+.gc-options-title > i {
     transform: rotate(0deg);
     transition: all 0.15s ease-in;
-    -webkit-transition: all .15s ease-in;
 }
 
-.chartOptionsTitle:hover {
+.gc-options-title:hover {
     color:#ff9800  !important;
 }
-.chartOptionsTitle > i.is-active {
+.gc-options-title > i.is-active {
     color: #9D9D9C !important;
     transform: rotate(180deg);
     transition: all 0.15s ease-in;

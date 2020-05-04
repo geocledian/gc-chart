@@ -29,25 +29,31 @@
 <body>
   <div id="gc-app" class="is-mobile section">
     <div class="">
-      <gc-chart chartid="chart1" 
-      gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
-      gc-host="geocledian.com" 
-      gc-parcel-id="4483"
-      mode="one-index" />
+      <gc-chart 
+          chartid="chart1" 
+          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+          gc-host="geocledian.com" 
+          gc-parcel-id="4483"
+          mode="one-index" 
+          gc-options-collapsed="false"
+          gc-available-options="optionsTitle,dateZoom"
+          gc-datezoom-layout="horizontal"
+          gc-available-stats="mean"
+      />
     </div>
     <div class="" style="padding-top: 40px;">
-      <gc-chart chartid="chart2" 
+      <!-- <gc-chart chartid="chart2" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
         gc-parcel-id="4483"
-        mode="many-indices" />
+        mode="many-indices" /> -->
     </div>
     <div class="" style="padding-top: 40px;">
-      <gc-chart chartid="chart3" 
+      <!-- <gc-chart chartid="chart3" 
       gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
       gc-host="geocledian.com" 
       gc-parcel-ids="4483,4486"
-      mode="many-parcels" />
+      mode="many-parcels" /> -->
     </div>
   </div>
 
