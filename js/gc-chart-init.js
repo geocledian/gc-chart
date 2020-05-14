@@ -1,15 +1,23 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- last update: 2020-02-21, jsommer
+ last update: 2020-05-14, jsommer
  version: 0.9
 */
 
 // root Vue instance
 var vmRoot;
 
+// global gc locale object
+// every component may append its data to this
+var gcLocales = { en: {}, de: {} };
+
+// global i18n object
+var i18n;
+
 // init dependent javascript libs
 const libs = ['https://unpkg.com/vue@2.6.11/dist/vue.min.js',
+              'https://unpkg.com/vue-i18n@8.17.5/dist/vue-i18n.js',
               'js/d3.v3.min.js', // v4.13.0 
               'js/c3.min.js' // v0.7.11
             ];
@@ -93,13 +101,27 @@ function initComponent() {
     /* 
       inits component
     */
+
+    i18n = new VueI18n({
+      locale: 'en', // set locale
+      fallbackLocale: 'en',
+      messages: gcLocales, // set locale messages
+    })
+
+    // bind index locales to global locales
+    if (typeof indexLocales !== 'undefined') {
+      gcLocales.de.indexLocales = indexLocales.de;
+      gcLocales.en.indexLocales = indexLocales.en;
+    }
+    
     // load map component dynamically
     // change for DEBUG to js/gc-chart.js
-    loadJSscript("js/gc-chart.js", function() {
+    loadJSscript("js/gc-chart.min.js", function() {
         /* when ready, init global vue root instance */
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)
-            el: "#gc-app"
+            el: "#gc-app",
+            i18n: i18n //root i18n
         });
     });
 }

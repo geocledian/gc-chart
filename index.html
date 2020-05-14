@@ -12,7 +12,7 @@
     <!-- loads also dependent css files via @import -->
     <link href="css/gc-chart.css" rel="stylesheet">
     <!-- init script for components -->
-    <script type="text/javascript" src="js/gc-chart-init.js"></script> 
+    <script id="gc-chart-init" type="text/javascript" src="js/gc-chart-init.js"></script> 
 
   <!--GC chart component end -->
 
@@ -33,27 +33,28 @@
           chartid="chart1" 
           gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
           gc-host="geocledian.com" 
-          gc-parcel-id="4483"
-          mode="one-index" 
-          gc-options-collapsed="false"
-          gc-available-options="optionsTitle,dateZoom"
+          gc-parcel-id="4486"
+          mode="one-index"
+          gc-language="de"
           gc-datezoom-layout="horizontal"
           gc-available-stats="mean"
       />
     </div>
-    <div class="" style="padding-top: 40px;">
-      <!-- <gc-chart chartid="chart2" 
+    <div class="" style="margin-top: 40px;">
+      <gc-chart chartid="chart2" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
         gc-parcel-id="4483"
-        mode="many-indices" /> -->
+        gc-language="en"
+        mode="many-indices" />
     </div>
-    <div class="" style="padding-top: 40px;">
-      <!-- <gc-chart chartid="chart3" 
-      gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
-      gc-host="geocledian.com" 
-      gc-parcel-ids="4483,4486"
-      mode="many-parcels" /> -->
+    <div class="" style="margin-top: 40px;">
+      <gc-chart chartid="chart3" 
+        gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+        gc-host="geocledian.com" 
+        gc-parcel-ids="4483,4486"
+        gc-language="de"
+        mode="many-parcels" />
     </div>
   </div>
 
