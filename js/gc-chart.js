@@ -198,11 +198,11 @@ Vue.component('gc-chart', {
   },
   template: `<div :id="chartid" class="gc-chart">          
             <div>
-              <p class="gc-options-title is-size-6 is-inline-block is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
+              <div class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
                   v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
-                  {{ $t('options.title')}} 
+                  {{ $t('options.title') }} 
                 <i :class="[JSON.parse(gcOptionsCollapsed) ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
-              </p>
+              </div>
 
               <div :id="'chartOptions_'+chartid" :class="[JSON.parse(gcOptionsCollapsed) ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
                     style="padding-bottom: 1em; max-height: 6.6rem !important;">
@@ -1789,7 +1789,8 @@ Vue.component('gc-chart', {
           // y2: { show: true}
         },
         zoom: {
-            enabled: true
+            enabled: false, //only by chartFrom and chartTo fields!
+            type: 'drag'
         },
         tooltip: {
           grouped: true,
