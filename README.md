@@ -16,6 +16,29 @@ It is customizeable via HTML attributes and supports the following modes:
 - visualizing mean graphs for a defined remote sensing index and a list of parcels: "many-parcels"
 ![many_parcels](doc/img/many_parcels.png)
 
+The following attributes of the widget are configurable on declaration or may be changed by code:
+- gc-apikey: API Key from geocledian, e.g. "39553fb7-7f6f-4945-9b84-a4c8745bdbec"; default: '39553fb7-7f6f-4945-9b84-a4c8745bdbec'
+- gc-host: base host, e.g. "geocledian.com"; default: 'geocledian.com'
+- gc-filter-string: filter string which may be defined externally; e.g. "&crop=bla"; default: ""
+- gc-offset: offset in request which may be defined externally; e.g. 1000; default: 0
+- gc-limit: limit of total parcels per request which may be defined externally; e.g. 100; default: 250
+- gc-parcels: array of parcel objects to be displayed in the map; may be passed externally or loaded by the widget itself; default: []
+- gc-parcel-id: default: "" 
+- gc-selected-parcel-id: used to highlight a parcel in the map; may be set externally; default: -1
+- gc-parcel-ids: default: "" 
+- gc-available-products: limit the available products, e.g. "ndvi,ndwi"; default: "vitality,ndvi,ndwi,ndre1,ndre2,savi,evi2,cire,npcri,sos,pos,eos"
+- gc-available-options: limit the available options, e.g. "" for not title at all; default: "optionsTitle,graphType,hideGraphs,dateZoom,markers,legend"
+- gc-available-stats: limit the available statistics for one-index mode, e.g. "min,max"; default: "min,max,mean,stddev"
+- gc-mode: choose from "one-index", "many-indices" or "many-parcel"; see above for details; default: "one-index"
+- gc-selected-product: selected product for the comparison of the parcels in the map; may be set externally or by the product selector; default: ""
+- gc-zoom-startdate: startdate as simple ISO date string for zooming into the chart, e.g. '2020-04-01'; default: ""
+- gc-zoom-enddate: enddate as simple ISO date string for zooming into the chart, e.g. '2020-11-01'; default: ""
+- gc-datezoom-layout
+- gc-options-collapsed: start the widget with options collapsed; default: "true"
+- gc-initial-loading: loads the parcels within this map component itself; if set to false the widget waits for gc-parcels to be set; default: "true"
+- gc-selected-source: choose from the satellite sources: 'landsat8', 'sentinel2' or '' (all); default: ""
+- gc-language: initial locale language for translation, e.g. "en" for english; default: "en"
+
 ## Integration
 For the integration of the widget you'll have to follow three steps.
 

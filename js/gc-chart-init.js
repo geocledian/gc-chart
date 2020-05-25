@@ -19,7 +19,8 @@ var i18n;
 const libs = ['https://unpkg.com/vue@2.6.11/dist/vue.min.js',
               'https://unpkg.com/vue-i18n@8.17.5/dist/vue-i18n.js',
               'js/d3.v3.min.js', // v4.13.0 
-              'js/c3.min.js' // v0.7.11
+              'js/c3.min.js', // v0.7.11
+              'css/bulma-ext/bulma-calendar.min.js'
             ];
 
 function gcGetBaseURL() {

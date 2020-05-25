@@ -30,33 +30,34 @@
   <div id="gc-app" class="is-mobile section">
     <div class="">
       <gc-chart 
-          chartid="chart1" 
+          gc-widget-id="chart1" 
           gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
           gc-host="geocledian.com" 
           gc-parcel-id="4486"
-          mode="one-index"
+          gc-mode="one-index"
           gc-language="de"
           gc-datezoom-layout="horizontal"
+          gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom"
           gc-available-stats="mean"
       />
     </div>
     <div class="" style="margin-top: 40px;">
-      <gc-chart chartid="chart2" 
+      <gc-chart gc-widget-id="chart2" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
         gc-parcel-id="4483"
         gc-language="en"
-        mode="many-indices" />
+        gc-mode="many-indices" />
     </div>
     <div class="" style="margin-top: 40px;">
-      <gc-chart chartid="chart3" 
+      <gc-chart gc-widget-id="chart3" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
         gc-parcel-ids="4483,4486"
         gc-language="de"
         gc-available-options="dateZoom,legend"
         gc-options-collapsed="false"
-        mode="many-parcels" />
+        gc-mode="many-parcels" />
     </div>
   </div>
 
