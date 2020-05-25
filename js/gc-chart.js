@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-05-14, jsommer
- version: 0.9
+ last update: 2020-05-26, jsommer
+ version: 0.9.1
 */
 "use strict";
 
