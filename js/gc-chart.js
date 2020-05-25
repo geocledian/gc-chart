@@ -117,9 +117,21 @@ Vue.component('gc-chart', {
       default: '39553fb7-7f6f-4945-9b84-a4c8745bdbec'
     },
     gcHost: {
-      type: String,
-      default: 'geocledian.com'
+        type: String,
+        default: 'geocledian.com'
     },
+    gcProxy: {
+      type: String,
+      default: undefined
+    },
+    gcApiBaseUrl: {
+      type: String,
+      default: "/agknow/api/v3"
+    },
+    gcApiSecure: {
+      type: Boolean,
+      default: true
+    }, 
     gcParcelId: {
       default: -1
     },
@@ -156,8 +168,8 @@ Vue.component('gc-chart', {
       default: "" // name filter
     },
     gcInitialLoading: {
-      type: String,
-      default: "true" // "true": load first parcels by filter or "false": wait for parcelIds to be set later (e.g. from Portfolio)
+      type: Boolean,
+      default: true // true: load first parcels by filter or false: wait for parcelIds to be set later (e.g. from Portfolio)
     },
     gcSelectedParcelId: {
       type: Number,
@@ -354,9 +366,6 @@ Vue.component('gc-chart', {
       internalSelectedProduct: "",
       parcels: [],
       currentRasterIndex: 0,
-      apiKey: this.gcApikey,
-      apiHost: this.gcHost,
-      apiUrl: "https://" + this.gcHost +"/agknow/api/v3",
       offset: 0,
       pagingStep: 1000,
       total_parcel_count: 250,
@@ -406,6 +415,26 @@ Vue.component('gc-chart', {
     }
   },
   computed: {
+    apiKey: {
+      get: function () {
+          return this.gcApikey;
+      }
+    },
+    apiHost: {
+        get: function () {
+            return this.gcHost;
+        }
+    },
+    apiBaseUrl: {
+        get: function () {
+            return this.gcApiBaseUrl;
+      }
+    },
+    apiSecure: {
+      get: function () {
+          return this.gcApiSecure;
+      }
+    },
     currentParcelID:  {
       get: function() {
           return this.gcParcelId;
@@ -426,7 +455,7 @@ Vue.component('gc-chart', {
           // case if parcel ids are not defined - take the first 10 parcels 
           // from the result of the filterString against the API
           if (this.parcelIds.length == 0) {
-            if (this.gcInitialLoading == "true") {
+            if (this.gcInitialLoading == true) {
               /* limited to maximum of 10 parcels if parcelIds are not set ! */
               return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
             } else { 
@@ -669,7 +698,9 @@ Vue.component('gc-chart', {
       this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
     }
     else {
-      this.getAllParcels(undefined, this.offset, this.filterString);
+      if (this.gcInitialLoading == true) {
+        this.getAllParcels(undefined, this.offset, this.filterString);
+      }
     }
 
     //init datepickers - load external Javascript file in this component
@@ -841,7 +872,7 @@ Vue.component('gc-chart', {
     },
     parcelIds: function (newValue, oldValue) {
       //may double loading on start and parcelIdsChange through external component
-      // this.gcInitialLoading is set to "true"
+      // this.gcInitialLoading is set to true
 
       console.debug("event - parcelIdsChange");
 
@@ -999,12 +1030,34 @@ Vue.component('gc-chart', {
     }
   },
   methods: {
+    getApiUrl: function (endpoint) {
+      /* handles requests directly against  geocledian endpoints with API keys
+          or (if gcProxy is set)
+        also requests against the URL of gcProxy prop without API-Key; then
+        the proxy or that URL has to add the api key to the requests against geocledian endpoints
+      */
+      let protocol = 'http';
+
+      if (this.apiSecure) {
+        protocol += 's';
+      }
+
+      // if (this.apiEncodeParams) {
+      //   endpoint = encodeURIComponent(endpoint);
+      // }
+      
+      // with or without apikey depending on gcProxy property
+      return (this.gcProxy ? 
+                protocol + '://' + this.gcProxy + this.apiBaseUrl + endpoint  : 
+                protocol + '://' + this.gcHost + this.apiBaseUrl + endpoint + "?key="+this.apiKey);
+    },
     getAllParcels: function(parcel_id, offset, filterString) {
 
       //download in chunks of n parcels
       let limit = this.pagingStep;
-  
-      let params = "/parcels?key=" + this.apiKey + "&limit="+limit; //set limit to maximum (default 1000)
+
+      const endpoint = "/parcels";
+      let params = "&limit="+limit; //set limit to maximum (default 1000)
   
       if (offset) {
           params = params + "&offset=" +offset;
@@ -1018,7 +1071,7 @@ Vue.component('gc-chart', {
       
       //Show requests on the DEBUG console for developers
       console.debug("getAllParcels()");
-      console.debug("GET " + this.apiUrl + params);
+      console.debug("GET " + this.getApiUrl(endpoint) + params);
   
       xmlHttp.onreadystatechange=function()
       {
@@ -1092,7 +1145,7 @@ Vue.component('gc-chart', {
               
           }
       }.bind(this);
-      xmlHttp.open("GET", this.apiUrl + params, async);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
     // hack; see getAllParcels() for explanation
@@ -1136,8 +1189,8 @@ Vue.component('gc-chart', {
       //show spinner
       document.getElementById("chartSpinner_" + this.gcWidgetId).classList.remove("is-hidden");
 
-      let params = "/parcels/" + parcel_id + "/" + productName + "?key=" +
-        this.apiKey + "&source=" + source +
+      const endpoint = "/parcels/" + parcel_id + "/" + productName;
+      let params = "&source=" + source +
         "&order=date";
 
       let xmlHttp = new XMLHttpRequest();
@@ -1145,7 +1198,7 @@ Vue.component('gc-chart', {
 
       //Show requests on the DEBUG console for developers
       console.debug("getParcelsProductData()");
-      console.debug("GET " + this.apiUrl + params);
+      console.debug("GET " + this.getApiUrl(endpoint) + params);
 
       xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4) {
@@ -1175,7 +1228,7 @@ Vue.component('gc-chart', {
 
         }
       }.bind(this);
-      xmlHttp.open("GET", this.apiUrl + params, async);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
     getCurrentParcel: function () {
@@ -1209,16 +1262,16 @@ Vue.component('gc-chart', {
           productName = "vitality";
       }
       
-      var params = "/parcels/"+parcel_id+"/"+ productName +"?key="+
-                      this.apiKey +"&source="+ source + //landsat8 | sentinel2 | <empty string>
-                      "&order=date&statistics=true"; //statistics are only applicable to vitality product!
+      const endpoint = "/parcels/" + parcel_id + "/" + productName;
+      let params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+                   "&order=date&statistics=true"; //statistics are only applicable to vitality product!
   
-      var xmlHttp = new XMLHttpRequest();
-      var async = true;
+      let xmlHttp = new XMLHttpRequest();
+      let async = true;
   
       //Show requests on the DEBUG console for developers
       console.debug("getIndexStats()");
-      console.debug("GET " + this.apiUrl + params);
+      console.debug("GET " + this.getApiUrl(endpoint) + params);
   
       //clear chart
       this.chart.unload();
@@ -1298,7 +1351,7 @@ Vue.component('gc-chart', {
         }
       }.bind(this);
 
-      xmlHttp.open("GET", this.apiUrl + params, async);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
     createChartData: function() {
