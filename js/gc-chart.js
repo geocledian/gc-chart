@@ -196,8 +196,8 @@ Vue.component('gc-chart', {
       default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers,legend'
     },
     gcOptionsCollapsed: {
-      type: String,
-      default: 'true' // or false
+      type: Boolean,
+      default: true // or false
     },
     gcSelectedSource: {
       type: String,
@@ -213,10 +213,10 @@ Vue.component('gc-chart', {
               <div class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
                   v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
                   {{ $t('options.title') }} 
-                <i :class="[JSON.parse(gcOptionsCollapsed) ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
+                <i :class="[gcOptionsCollapsed ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
               </div>
 
-              <div :id="'chartOptions_'+gcWidgetId" :class="[JSON.parse(gcOptionsCollapsed) ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
+              <div :id="'chartOptions_'+gcWidgetId" :class="[gcOptionsCollapsed ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
                     style="padding-bottom: 1em; max-height: 6.6rem !important;">
 
               <div class="field" v-show="availableOptions.includes('graphType')">
@@ -455,7 +455,7 @@ Vue.component('gc-chart', {
           // case if parcel ids are not defined - take the first 10 parcels 
           // from the result of the filterString against the API
           if (this.parcelIds.length == 0) {
-            if (this.gcInitialLoading == true) {
+            if (this.gcInitialLoading === true) {
               /* limited to maximum of 10 parcels if parcelIds are not set ! */
               return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
             } else { 
@@ -698,7 +698,7 @@ Vue.component('gc-chart', {
       this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
     }
     else {
-      if (this.gcInitialLoading == true) {
+      if (this.gcInitialLoading === true) {
         this.getAllParcels(undefined, this.offset, this.filterString);
       }
     }
@@ -1947,7 +1947,7 @@ Vue.component('gc-chart', {
     },
     /* GUI helper */
     toggleChartOptions: function() {
-      this.gcOptionsCollapsed = !JSON.parse(this.gcOptionsCollapsed) + "";
+      this.gcOptionsCollapsed = !this.gcOptionsCollapsed;
     },  
     /* helper functions */
     removeFromArray: function(arry, value) {
