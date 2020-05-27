@@ -498,13 +498,13 @@ Vue.component('gc-chart', {
       }
     },
     chartWidth: function() {
-        console.debug("clientwidth "+document.getElementById(this.gcWidgetId).clientWidth);
-        console.debug("offsetwidth "+document.getElementById(this.gcWidgetId).offsetWidth);
+        // console.debug("clientwidth "+document.getElementById(this.gcWidgetId).clientWidth);
+        // console.debug("offsetwidth "+document.getElementById(this.gcWidgetId).offsetWidth);
         return parseInt(document.getElementById(this.gcWidgetId).offsetWidth);
     },
     chartHeight: function() {
-        console.debug("clientheight "+document.getElementById(this.gcWidgetId).clientHeight);
-        console.debug("offsetheight "+document.getElementById(this.gcWidgetId).offsetHeight);
+        // console.debug("clientheight "+document.getElementById(this.gcWidgetId).clientHeight);
+        // console.debug("offsetheight "+document.getElementById(this.gcWidgetId).offsetHeight);
         //return parseInt(document.getElementById(this.gcWidgetId).offsetHeight);
         return parseInt(document.getElementById(this.gcWidgetId).style.height);
     },
@@ -623,8 +623,8 @@ Vue.component('gc-chart', {
         // emitting to root instance
         this.$root.$emit("queryDateChange", value);
 
-        // first set to internal - value is being checked in watcher
-        //this.internalQuerydate = value;
+        // save also to internal - value is being checked in watcher
+        this.internalQuerydate = value;
       }
     },
   },
@@ -634,7 +634,7 @@ Vue.component('gc-chart', {
     messages: gcChartLocales
   },
   created() {
-    console.debug("gc-list - created()");
+    console.debug("gc-chart - created()");
     this.changeLanguage(); //initial i18n from prop gcLanguage
   },
   /* when vue component is mounted (ready) on DOM node */
@@ -767,7 +767,7 @@ Vue.component('gc-chart', {
             }
           }
           if (this.gcMode == "many-parcels") {
-            console.debug(this.selectedParcelIds);
+            // console.debug(this.selectedParcelIds);
             for (var i = 0; i < this.selectedParcelIds.length; i++) {
               let parcel_id = this.selectedParcelIds[i];
               //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
@@ -857,7 +857,7 @@ Vue.component('gc-chart', {
           }
         }
         if (this.gcMode == "many-parcels") {
-          console.debug(this.selectedParcelIds);
+          // console.debug(this.selectedParcelIds);
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
             //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
@@ -977,9 +977,7 @@ Vue.component('gc-chart', {
     selectedGraphType: function (newValue, oldValue) {
       if (newValue != oldValue) {
           console.debug("event - selectedGraphTypeChange");
-
-          console.debug("graph type changed!")
-          console.debug(newValue);
+          //console.debug(newValue);
           
           if (this.gcMode == "one-index") {  
             // change for all data except std.dev.
@@ -1045,84 +1043,56 @@ Vue.component('gc-chart', {
       this.initFromDatePicker();
       this.initToDatePicker();
     },
-    // internalQuerydate(newValue, oldValue) {
-
-    //     console.debug("internalQuerydate()");
-    //     console.debug(newValue);
-
-    //     if (newValue != oldValue) {
-
-    //       if (this.gcMode == "one-index") {
-    //         let parcel_id = this.currentParcelID;
-    //         let p = this.getParcel(parcel_id);
-
-    //         let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
-
-    //         //clear all selections also
-    //         this.chart.select(['mean'], [index], true);
-    //       }
-    //       if (this.gcMode == "many-parcels") {
-            
-    //         for (var i = 0; i < this.selectedParcelIds.length; i++) {
-    //           let parcel_id = this.selectedParcelIds[i];
-    //           console.debug(parcel_id);
-    //           let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
-    //           console.debug(p);
-    //           let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
-    //           // do not change the selection of other selection points -> false
-    //           this.chart.select(parcel_id+"", [index], false);
-    //         }
-    //       }
-    //       if (this.gcMode == "many-indices") {
-    //         //clear all selections also
-    //         //chart.select(['mean'], [index], true);
-    //       }
-
-    //       // emitting to root instance
-    //       // TODO only emit if clicked on graph - not
-    //       // when fired through chart.select()!
-    //       this.$root.$emit("queryDateChange", newValue);
-    //     }
-    // },
     gcSelectedDate(newValue, oldValue) {
 
-      console.debug("gcSelectedDate()");
-      console.debug(newValue);
-      console.debug(oldValue);
+      console.debug("gcSelectedDateChange");
+      // console.debug("new: "+newValue);
+      // console.debug("old:" +oldValue);
 
+      // TODO: improve me!
+      // Workaround because selection in chart will result in a toggle selection
+      // when gcSelectedDate is set again externally; so it will look like there is no selection
+      // because of the circular dependency 
+
+      // check if chart already knows about this date (could be set by clicking in the chart)
+      if (newValue === this.internalQuerydate) {
+        console.debug("I'm an ugly workaround, but at least I'm getting things done..");
+        return;
+      }
      //if (newValue != oldValue) {
 
         if (this.gcMode == "one-index") {
           let parcel_id = this.currentParcelID;
           let p = this.getParcel(parcel_id);
-
           //let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
           //TODO
           //clear all selections also
           //this.chart.select(['mean'], [index], true);
         }
         if (this.gcMode == "many-parcels") {
-          // reset selection
-          //TODO: works for external setting of query date
-          // but not when clicking interactively on chart!        
-          // // disable
-          // d3.select('#chart_'+this.gcWidgetId).selectAll(".c3-event-rect")
-          //   .on("click", null);
-          this.chart.unselect();
           // for portfolio use case a query date has to be transformed to the closest exact date
           // of the available time series
           let parcelIndexMap = {};
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
-            console.debug(parcel_id);
+            //console.debug(parcel_id);
             let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
-            console.debug(p);
-            let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
-            parcelIndexMap[parcel_id+""] = index;
-            // // reset selection on same parcel
-            //this.chart.unselect(parcel_id+"");
-            // do not change the selection of other selection points on other parcels-> false
-            this.chart.select(parcel_id+"", [index], false);
+            //console.debug(p);
+            const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)), 
+                                                  new Date(newValue));
+
+            // check if chart already knows about this date (could be set by clicking in the chart)
+            if (exactDate.simpleDate() === this.internalQuerydate) {
+              console.debug("I'm an ugly workaround, but at least I'm getting things done..");
+              return;
+            }
+            else {
+              let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
+              // unselect on this parcel only
+              this.chart.unselect(parcel_id+"");
+              // do not change the selection of other selection points on other parcels-> false
+              this.chart.select(parcel_id+"", [index], false);
+            }
           }
         }
         if (this.gcMode == "many-indices") {
@@ -1219,7 +1189,7 @@ Vue.component('gc-chart', {
                   // set this value as currentParcelID
                   if (parcel_id)  {
                       this.currentParcelID = parcel_id;
-                      console.debug("setting "+ parcel_id +" parcel id as current!");
+                      //console.debug("setting "+ parcel_id +" parcel id as current!");
                       // hack needed to call the change explicitely if the filter includes the first element
                       // of previously unfiltered parcels!
                       // 1=1 -> no change in watch of vuejs
@@ -1257,7 +1227,7 @@ Vue.component('gc-chart', {
     // hack; see getAllParcels() for explanation
     handleCurrentParcelIDchange: function () {
 
-      console.debug("methods - handleCurrentParcelIDchange");
+      console.debug("handleCurrentParcelIDchange");
 
       //only if valid parcel id
       if (this.currentParcelID > 0) {
@@ -1463,8 +1433,8 @@ Vue.component('gc-chart', {
     createChartData: function() {
 
       console.debug("createChartData()");
-      console.debug(this.currentGraphContent);
-      console.debug(this.gcMode);
+      console.debug("chart content: "+this.currentGraphContent);
+      console.debug("chart mode: "+this.gcMode);
 
       let chartType = this.currentGraphContent;
       let columns = [];
@@ -1495,7 +1465,7 @@ Vue.component('gc-chart', {
         if (this.gcMode == "many-indices") {
           // map x axis to values of first available product
           columns[0] = ["x"].concat( this.statisticsMany[this.availableProducts[0]].map( r => r.date) );
-          console.debug("first x axis is "+this.availableProducts[0]);
+          //console.debug("first x axis is "+this.availableProducts[0]);
           //vitality may have other dates than the dynamic indices -> another x axis necessary
           if (this.availableProducts.includes("vitality")){
             columns[1] = ["x3"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
@@ -1629,8 +1599,8 @@ Vue.component('gc-chart', {
             document.getElementById("chart_" + this.gcWidgetId).classList.remove("is-hidden");
 
           }
-          else 
-            console.debug("createChartData() - not ready yet: not all statistics processed!")
+          // else 
+          //   console.debug("createChartData() - not ready yet: not all statistics processed!")
         }
         else {
           this.createChart(columns);
@@ -1840,7 +1810,7 @@ Vue.component('gc-chart', {
                     return color; //default
                 }
             },
-            onselected: function(e, svgElement) {
+            onselected: function(e, svgElement, b, c) {
               console.debug("onselected()");
               // only enabled if current graph content is statistics
               if (this.currentGraphContent == "statistics") {
