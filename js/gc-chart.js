@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-05-26, jsommer
+ last update: 2020-05-27, jsommer
  version: 0.9.1
 */
 "use strict";
@@ -199,13 +199,17 @@ Vue.component('gc-chart', {
       type: Boolean,
       default: true // or false
     },
-    gcSelectedSource: {
+    gcDataSource: {
       type: String,
       default: '' //'landsat8', 'sentinel2' or '' (all)
     },
     gcLanguage: {
       type: String,
       default: 'en' // 'en' | 'de' | 'lt'
+    },
+    gcSelectedDate: { 
+      type: String,
+      default: ''
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">          
@@ -377,7 +381,7 @@ Vue.component('gc-chart', {
       selectedMarkerType: "phenology",
       hiddenStats: [],
       sn_markers: {},
-      selectedDate: "",
+      internalQuerydate: "",
       internalZoomStartdate: "", //TODO: startdate of parcel //new Date(new Date().getUTCFullYear()-1, 2, 1).simpleDate(), // last YEAR-03-01
       internalZoomEnddate: "",   //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
       inpFilterDateFromPicker: undefined,
@@ -485,12 +489,12 @@ Vue.component('gc-chart', {
         this.parcelIds = newValue;
       }
     },
-    selectedSource: {
+    dataSource: {
       get: function() {
-        return this.gcSelectedSource;
+        return this.gcDataSource;
       },
       set: function(value) {
-        this.$root.$emit("selectedSourceChange", value);
+        this.$root.$emit("dataSourceChange", value);
       }
     },
     chartWidth: function() {
@@ -609,7 +613,20 @@ Vue.component('gc-chart', {
         // will always reflect prop's value 
         return this.gcLanguage;
       },
-    }
+    },
+    selectedDate: {
+      get: function() {
+        return this.gcSelectedDate;
+      },
+      set: function(value) {
+        console.log("selectedDate - setter: "+value);
+        // emitting to root instance
+        this.$root.$emit("queryDateChange", value);
+
+        // first set to internal - value is being checked in watcher
+        //this.internalQuerydate = value;
+      }
+    },
   },
   //init internationalization
   i18n: {
@@ -737,7 +754,7 @@ Vue.component('gc-chart', {
         if (this.parcels.length > 0) {
 
           if (this.gcMode == "one-index") {
-            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.selectedSource);
+            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
               if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
@@ -746,17 +763,17 @@ Vue.component('gc-chart', {
               else {
                 this.sn_markers = {};
               }
-              this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.selectedProduct);
+              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
           if (this.gcMode == "many-parcels") {
             console.debug(this.selectedParcelIds);
             for (var i = 0; i < this.selectedParcelIds.length; i++) {
               let parcel_id = this.selectedParcelIds[i];
-              //this.getParcelsProductData(parcel_id, this.selectedProduct, this.selectedSource);
+              //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
               // only load stats if product is not visible
               if (newValue != 'visible') {
-                this.getIndexStats(parcel_id, this.selectedSource, this.selectedProduct);
+                this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
               }
             }
           }
@@ -764,10 +781,10 @@ Vue.component('gc-chart', {
 
           /*if (this.gcMode == "many-indices") {
             for (var i = 0; i < this.availableProducts.length; i++) {
-              //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.selectedSource);
+              //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
               // only load stats if product is not visible
               if (newValue != 'visible') {
-                this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.availableProducts[i]);
+                this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
               }
             }
           }*/
@@ -781,32 +798,32 @@ Vue.component('gc-chart', {
       if (this.parcels.length > 0) {
 
         if (this.gcMode == "one-index") {
-          this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.selectedProduct);
+          this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
         }
         if (this.gcMode == "many-parcels") {
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
-            this.getParcelsProductData(parcel_id, this.selectedProduct, this.selectedSource);
+            this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
-              this.getIndexStats(this.selectedParcelIds[i], this.selectedSource, this.selectedProduct);
+              this.getIndexStats(this.selectedParcelIds[i], this.dataSource, this.selectedProduct);
             }
           }
         }
         if (this.gcMode == "many-indices") {
           for (var i = 0; i < this.availableProducts.length; i++) {
-            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.selectedSource);
+            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
-              this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.availableProducts[i]);
+              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
             }
           }
         }
       }
     },
-    selectedSource: function (newValue, oldValue) {
+    dataSource: function (newValue, oldValue) {
             
-      console.debug("event - selectedSourceChange");
+      console.debug("event - dataSourceChange");
       
       //Legacy code
 
@@ -818,7 +835,7 @@ Vue.component('gc-chart', {
 
       //only if valid parcel id
       if (this.currentParcelID > 0) {
-        this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.selectedSource);
+        this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
           
         //select first element
         this.currentRasterIndex = 0;
@@ -827,7 +844,7 @@ Vue.component('gc-chart', {
       if (this.parcels.length > 0) {
 
         if (this.gcMode == "one-index") {
-          this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.selectedSource);
+          this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
           // only load stats if product is not visible
           if (newValue != 'visible') {
             if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
@@ -836,26 +853,26 @@ Vue.component('gc-chart', {
             else {
               this.sn_markers = {};
             }
-            this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.selectedProduct);
+            this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
           }
         }
         if (this.gcMode == "many-parcels") {
           console.debug(this.selectedParcelIds);
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
-            //this.getParcelsProductData(parcel_id, this.selectedProduct, this.selectedSource);
+            //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
-              this.getIndexStats(parcel_id, this.selectedSource, this.selectedProduct);
+              this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
             }
           }
         }
         if (this.gcMode == "many-indices") {
           for (var i = 0; i < this.availableProducts.length; i++) {
-            //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.selectedSource);
+            //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
-              this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.availableProducts[i]);
+              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
             }
           }
         }
@@ -882,7 +899,7 @@ Vue.component('gc-chart', {
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
             if (parcel_id)
-              this.getIndexStats(parcel_id, this.selectedSource, this.selectedProduct);
+              this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
           }
         }
       }
@@ -1027,6 +1044,95 @@ Vue.component('gc-chart', {
       //reset date pickers
       this.initFromDatePicker();
       this.initToDatePicker();
+    },
+    // internalQuerydate(newValue, oldValue) {
+
+    //     console.debug("internalQuerydate()");
+    //     console.debug(newValue);
+
+    //     if (newValue != oldValue) {
+
+    //       if (this.gcMode == "one-index") {
+    //         let parcel_id = this.currentParcelID;
+    //         let p = this.getParcel(parcel_id);
+
+    //         let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
+
+    //         //clear all selections also
+    //         this.chart.select(['mean'], [index], true);
+    //       }
+    //       if (this.gcMode == "many-parcels") {
+            
+    //         for (var i = 0; i < this.selectedParcelIds.length; i++) {
+    //           let parcel_id = this.selectedParcelIds[i];
+    //           console.debug(parcel_id);
+    //           let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
+    //           console.debug(p);
+    //           let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
+    //           // do not change the selection of other selection points -> false
+    //           this.chart.select(parcel_id+"", [index], false);
+    //         }
+    //       }
+    //       if (this.gcMode == "many-indices") {
+    //         //clear all selections also
+    //         //chart.select(['mean'], [index], true);
+    //       }
+
+    //       // emitting to root instance
+    //       // TODO only emit if clicked on graph - not
+    //       // when fired through chart.select()!
+    //       this.$root.$emit("queryDateChange", newValue);
+    //     }
+    // },
+    gcSelectedDate(newValue, oldValue) {
+
+      console.debug("gcSelectedDate()");
+      console.debug(newValue);
+      console.debug(oldValue);
+
+     //if (newValue != oldValue) {
+
+        if (this.gcMode == "one-index") {
+          let parcel_id = this.currentParcelID;
+          let p = this.getParcel(parcel_id);
+
+          //let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
+          //TODO
+          //clear all selections also
+          //this.chart.select(['mean'], [index], true);
+        }
+        if (this.gcMode == "many-parcels") {
+          // reset selection
+          //TODO: works for external setting of query date
+          // but not when clicking interactively on chart!        
+          // // disable
+          // d3.select('#chart_'+this.gcWidgetId).selectAll(".c3-event-rect")
+          //   .on("click", null);
+          this.chart.unselect();
+          // for portfolio use case a query date has to be transformed to the closest exact date
+          // of the available time series
+          let parcelIndexMap = {};
+          for (var i = 0; i < this.selectedParcelIds.length; i++) {
+            let parcel_id = this.selectedParcelIds[i];
+            console.debug(parcel_id);
+            let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
+            console.debug(p);
+            let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
+            parcelIndexMap[parcel_id+""] = index;
+            // // reset selection on same parcel
+            //this.chart.unselect(parcel_id+"");
+            // do not change the selection of other selection points on other parcels-> false
+            this.chart.select(parcel_id+"", [index], false);
+          }
+        }
+        if (this.gcMode == "many-indices") {
+          //TODO
+          //chart.select('mean', [index], true);
+        }
+
+        // emitting to root instance
+        this.$root.$emit("queryDateChange", newValue);
+      //}
     }
   },
   methods: {
@@ -1167,11 +1273,11 @@ Vue.component('gc-chart', {
         //this.phenology = { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} };
 
         if (this.gcMode == "one-index") {
-          this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.selectedProduct);
+          this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
         }
         if (this.gcMode == "many-indices") {
           for (var i = 0; i < this.availableProducts.length; i++) {
-            this.getIndexStats(this.getCurrentParcel().parcel_id, this.selectedSource, this.availableProducts[i]);
+            this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
           }
         } 
       }
@@ -1179,7 +1285,7 @@ Vue.component('gc-chart', {
         for (var i = 0; i < this.selectedParcelIds.length; i++) {
           let parcel_id = this.selectedParcelIds[i];
           if (parcel_id)
-            this.getIndexStats(parcel_id, this.selectedSource, this.selectedProduct);
+            this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
         }
       }
 
@@ -1640,6 +1746,8 @@ Vue.component('gc-chart', {
         data: {
             selection: {
                 enabled: true,
+                multiple: false,
+                grouped: false,
                 isselectable: function (d) { 
                     // disable selection for marker, similarity
                     if (d.id == "marker" || d.id == "reference (mean)" || d.id == "parcel (mean)")
@@ -1650,8 +1758,6 @@ Vue.component('gc-chart', {
                         return true;
                     }
                 },
-                multiple: false,
-                grouped: false
               },
             // single x axis
             //x: 'x',
@@ -1734,20 +1840,18 @@ Vue.component('gc-chart', {
                     return color; //default
                 }
             },
-            onselected: function (e, svgElement) {
-                
-                console.debug("onselectedChange()");
-                // only enabled if current graph content is statistics
-                if (this.currentGraphContent == "statistics") {
-                    // update timeslider also
-                    //this.currentRasterIndex = e.index;
-                    
+            onselected: function(e, svgElement) {
+              console.debug("onselected()");
+              // only enabled if current graph content is statistics
+              if (this.currentGraphContent == "statistics") {
+                  // update timeslider also
+                  //this.currentRasterIndex = e.index;
+                  // console.debug(e.x);
+                  if (e.x) {
                     // for queryDate of portfolio map
                     this.selectedDate = e.x.simpleDate();
-                    
-                    // emitting to root instance
-                    this.$root.$emit('queryDateChange',this.selectedDate);
-                }
+                  }
+              }
             }.bind(this)
         },
         //nicer splines, default is "cardinal"
@@ -1866,7 +1970,7 @@ Vue.component('gc-chart', {
                   // shows also source in tooltip (e.g. landsat8 or sentinel2)
                   // only on charttype statistics - not for similarity
                   if (this.currentGraphContent == "statistics") {
-                      if (this.selectedSource == "") {
+                      if (this.dataSource == "") {
                           if (id != "marker") { //exlude for markers
                             if (this.gcMode == "one-index") {
                               return value + " ("+this.statistics[index].source + ")";
@@ -2006,6 +2110,10 @@ Vue.component('gc-chart', {
     },
     initFromDatePicker() {
 
+      if (this.inpFilterDateFromPicker) {
+        this.inpFilterDateFromPicker.destroy();
+      }
+
       this.inpFilterDateFromPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateFrom_'+this.gcWidgetId ), {
         startDate: new Date(this.chartFromDate), // Date selected by default
         dateFormat: 'yyyy-mm-dd', // the date format `field` value
@@ -2022,7 +2130,11 @@ Vue.component('gc-chart', {
       });
     },
     initToDatePicker() {
-
+      
+      if (this.inpFilterDateToPicker) {
+        this.inpFilterDateToPicker.destroy();
+      }
+      
       this.inpFilterDateToPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateTo_'+this.gcWidgetId ), {
         startDate: new Date(this.chartToDate), // Date selected by default
         dateFormat: 'yyyy-mm-dd', // the date format `field` value
@@ -2040,6 +2152,24 @@ Vue.component('gc-chart', {
     },
     changeLanguage() {
       this.$i18n.locale = this.currentLanguage;
+    },
+    getClosestDate: function (arr, queryDate) {
+      console.debug("getClosestDate()");
+      /* Returns the closest date in a array of dates
+         with the sort function */
+      let i = arr.sort(function(a, b) {
+        var distancea = Math.abs(queryDate - a);
+        var distanceb = Math.abs(queryDate - b);
+        return distancea - distanceb; // sort a before b when the distance is smaller
+      });
+      return i[0];
+    },
+    getClosestTimeSeriesIndex: function (timeseries, queryDate) {
+      /* returns the nearest Date to the given parcel_id and query date */
+      const exactDate = this.getClosestDate(timeseries.map(d => new Date(d.date)), new Date(queryDate));
+      console.debug("closest date of given date "+ queryDate + " is "+ exactDate.simpleDate());
+      // find the index of the closest date in timeseries now
+      return timeseries.map(d => d.date).indexOf(exactDate.simpleDate());
     }
   },
 });
