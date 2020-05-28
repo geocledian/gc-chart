@@ -619,13 +619,9 @@ Vue.component('gc-chart', {
         return this.gcSelectedDate;
       },
       set: function(value) {
-        console.log("selectedDate - setter: "+value);
-        
-        console.debug(this.chart.selected());
-        // if (value != this.internalQuerydate) {
-          // emitting to root instance 
+        console.debug("selectedDate - setter: "+value);
+        // emitting to root instance 
         this.$root.$emit("queryDateChange", value);
-        // }
       }
     },
   },
@@ -1823,17 +1819,10 @@ Vue.component('gc-chart', {
                   //this.currentRasterIndex = e.index;
                   // console.debug(e.x);
                   if (e.x) {
-
                     // save also to internal - value is being checked in watcher
                     this.internalQuerydate[e.id+""] = e.x;
-
-                    //this.chart.unselect( (e.id+""), [e.index]);
                     // for queryDate of portfolio map
-                    console.debug(this.chart.selected());
-                    setTimeout(function(){ 
-                      this.selectedDate = e.x.simpleDate(); 
-                    }.bind(this), 3000);
-                    
+                    this.selectedDate = e.x.simpleDate(); 
                   }
               }
             }.bind(this)
