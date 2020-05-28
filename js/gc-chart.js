@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-05-27, jsommer
+ last update: 2020-05-28, jsommer
  version: 0.9.1
 */
 "use strict";
@@ -92,14 +92,14 @@ const gcChartLocales = {
       "sos": "Saisonbeginn",
       "pos": "Saisonales Maximum",
       "eos": "Saisonende",
-      "vitality": "Vitalität (Radianz)",
-      "ndvi": "Vitalität (Reflektanz)",
+      "vitality": "NDVI (Radianz)",
+      "ndvi": "NDVI (Reflektanz)",
       "ndre1": "NDRE1",
       "ndre2": "NDRE2",
       "ndwi": "NDWI",
       "savi": "SAVI",
       "evi2": "EVI2",
-      "cire": "Chlorophyllgehalt",
+      "cire": "CIRE",
       "npcri": "NPCRI"
     }
   },
@@ -381,7 +381,7 @@ Vue.component('gc-chart', {
       selectedMarkerType: "phenology",
       hiddenStats: [],
       sn_markers: {},
-      internalQuerydate: "",
+      internalQuerydate: {}, //filled by click in chart only!
       internalZoomStartdate: "", //TODO: startdate of parcel //new Date(new Date().getUTCFullYear()-1, 2, 1).simpleDate(), // last YEAR-03-01
       internalZoomEnddate: "",   //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
       inpFilterDateFromPicker: undefined,
@@ -620,11 +620,12 @@ Vue.component('gc-chart', {
       },
       set: function(value) {
         console.log("selectedDate - setter: "+value);
-        // emitting to root instance
+        
+        console.debug(this.chart.selected());
+        // if (value != this.internalQuerydate) {
+          // emitting to root instance 
         this.$root.$emit("queryDateChange", value);
-
-        // save also to internal - value is being checked in watcher
-        this.internalQuerydate = value;
+        // }
       }
     },
   },
@@ -1049,42 +1050,49 @@ Vue.component('gc-chart', {
       // console.debug("new: "+newValue);
       // console.debug("old:" +oldValue);
 
-      // TODO: improve me!
-      // Workaround because selection in chart will result in a toggle selection
-      // when gcSelectedDate is set again externally; so it will look like there is no selection
-      // because of the circular dependency 
-
-      // check if chart already knows about this date (could be set by clicking in the chart)
-      if (newValue === this.internalQuerydate) {
-        console.debug("I'm an ugly workaround, but at least I'm getting things done..");
-        return;
+      if (this.gcMode == "one-index") {
+        let parcel_id = this.currentParcelID;
+        let p = this.getParcel(parcel_id);
+        //let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
+        //TODO
+        //clear all selections also
+        //this.chart.select(['mean'], [index], true);
       }
-     //if (newValue != oldValue) {
+      if (this.gcMode == "many-parcels") {
+        // for portfolio use case a query date has to be transformed to the closest exact date
+        // of the available time series
+        for (var i = 0; i < this.selectedParcelIds.length; i++) {
+          let parcel_id = this.selectedParcelIds[i];
+          //console.debug(parcel_id);
+          let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
+          //console.debug(p);
+          const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)), 
+                                                new Date(newValue));
 
-        if (this.gcMode == "one-index") {
-          let parcel_id = this.currentParcelID;
-          let p = this.getParcel(parcel_id);
-          //let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
-          //TODO
-          //clear all selections also
-          //this.chart.select(['mean'], [index], true);
-        }
-        if (this.gcMode == "many-parcels") {
-          // for portfolio use case a query date has to be transformed to the closest exact date
-          // of the available time series
-          let parcelIndexMap = {};
-          for (var i = 0; i < this.selectedParcelIds.length; i++) {
-            let parcel_id = this.selectedParcelIds[i];
-            //console.debug(parcel_id);
-            let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
-            //console.debug(p);
-            const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)), 
-                                                  new Date(newValue));
+          // Workaround because selection in chart will result in a toggle selection
+          // when gcSelectedDate is set again externally; so it will look like there is no selection
+          // because of the circular dependency 
 
-            // check if chart already knows about this date (could be set by clicking in the chart)
-            if (exactDate.simpleDate() === this.internalQuerydate) {
-              console.debug("I'm an ugly workaround, but at least I'm getting things done..");
-              return;
+          // AND: chart.selected() sometimes looses its selection data! 
+          // so it is necessary to store the internalQueryDate on the graphs in an own object
+          // check if chart already knows about this date (could be set by clicking in the chart)
+          // if so, don't change the selection at all
+          // console.debug(exactDate.simpleDate());
+          // console.debug(this.internalQuerydate);
+          //console.debug(this.chart.selected().filter(p=>p.id === parcel_id));
+          // let alreadySelected = this.chart.selected()
+          //                         .filter(p=>p.id === parcel_id)
+          //                         .filter(i=>i.hasOwnProperty("x"))
+          //                         .findIndex(i=>i.x.simpleDate() === exactDate.simpleDate());
+          let alreadySelected = false;
+          if (this.internalQuerydate.hasOwnProperty(parcel_id+"")) {
+            alreadySelected = this.internalQuerydate[parcel_id+""].simpleDate() === exactDate.simpleDate();
+          }
+          // console.debug(alreadySelected);
+          if (alreadySelected === true) {
+              console.debug("parcel " +parcel_id + " already has date "+ exactDate.simpleDate()
+                          + " selected. Checking next one..");
+              continue;
             }
             else {
               let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
@@ -1093,16 +1101,13 @@ Vue.component('gc-chart', {
               // do not change the selection of other selection points on other parcels-> false
               this.chart.select(parcel_id+"", [index], false);
             }
-          }
+          // }
         }
-        if (this.gcMode == "many-indices") {
-          //TODO
-          //chart.select('mean', [index], true);
-        }
-
-        // emitting to root instance
-        this.$root.$emit("queryDateChange", newValue);
-      //}
+      }
+      if (this.gcMode == "many-indices") {
+        //TODO
+        //chart.select('mean', [index], true);
+      }
     }
   },
   methods: {
@@ -1818,8 +1823,17 @@ Vue.component('gc-chart', {
                   //this.currentRasterIndex = e.index;
                   // console.debug(e.x);
                   if (e.x) {
+
+                    // save also to internal - value is being checked in watcher
+                    this.internalQuerydate[e.id+""] = e.x;
+
+                    //this.chart.unselect( (e.id+""), [e.index]);
                     // for queryDate of portfolio map
-                    this.selectedDate = e.x.simpleDate();
+                    console.debug(this.chart.selected());
+                    setTimeout(function(){ 
+                      this.selectedDate = e.x.simpleDate(); 
+                    }.bind(this), 3000);
+                    
                   }
               }
             }.bind(this)
