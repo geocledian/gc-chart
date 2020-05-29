@@ -132,10 +132,11 @@ Vue.component('gc-chart', {
       type: Boolean,
       default: true
     }, 
-    gcParcelId: {
+    gcCurrentParcelId: {
+      type: Number,
       default: -1
     },
-    gcParcelIds: {
+    gcVisibleParcelIds: {
       type: String,
       default: ""
     },
@@ -169,11 +170,7 @@ Vue.component('gc-chart', {
     },
     gcInitialLoading: {
       type: Boolean,
-      default: true // true: load first parcels by filter or false: wait for parcelIds to be set later (e.g. from Portfolio)
-    },
-    gcSelectedParcelId: {
-      type: Number,
-      default: -1
+      default: true // true: load first parcels by filter or false: wait for visibleParcelIds to be set later (e.g. from Portfolio)
     },
     gcParcels: { 
       type: Array, 
@@ -441,10 +438,10 @@ Vue.component('gc-chart', {
     },
     currentParcelID:  {
       get: function() {
-          return this.gcParcelId;
+          return this.gcCurrentParcelId;
       },
       set: function(newValue) {
-        this.$root.$emit('selectedParcelIdChange', newValue);
+        this.$root.$emit('currentParcelIdChange', newValue);
       }
     },
     availableProducts: {
@@ -458,36 +455,33 @@ Vue.component('gc-chart', {
           
           // case if parcel ids are not defined - take the first 10 parcels 
           // from the result of the filterString against the API
-          if (this.parcelIds.length == 0) {
+          if (this.visibleParcelIds.length == 0) {
             if (this.gcInitialLoading === true) {
-              /* limited to maximum of 10 parcels if parcelIds are not set ! */
+              /* limited to maximum of 10 parcels if visibleParcelIds are not set ! */
               return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
             } else { 
-                return []; //return empty for waiting on changing parcelids from external setting (e.g. Portfolio)
+                return []; //return empty for waiting on changing visibleParcelIds from external setting (e.g. Portfolio)
             }
           }
           else {
             // case for defined parcel ids
-            if (this.parcelIds.split(",").length <= 10)
-              return this.parcelIds.split(",").map(p=>parseInt(p));
+            if (this.visibleParcelIds.split(",").length <= 10)
+              return this.visibleParcelIds.split(",").map(p=>parseInt(p));
             else
               return []; //empty
           }
         }
         else  { // other graph modes
-          if (this.parcelIds.length == 0) {
-            /* limited to maximum of 10 parcels if parcelIds are not set ! */
+          if (this.visibleParcelIds.length == 0) {
+            /* limited to maximum of 10 parcels if visibleParcelIds are not set ! */
               return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
             //return this.parcels.map(p => p.parcel_id);
           }
           else {
-            return this.parcelIds.split(",").map(p=>parseInt(p)).slice(0,10);
+            return this.visibleParcelIds.split(",").map(p=>parseInt(p)).slice(0,10);
           }
         }
       },
-      set: function (newValue) {
-        this.parcelIds = newValue;
-      }
     },
     dataSource: {
       get: function() {
@@ -589,14 +583,10 @@ Vue.component('gc-chart', {
         this.$root.$emit('selectedProductChange', newValue);
       }
     },
-    parcelIds: {
+    visibleParcelIds: {
       get: function() {
-        return this.gcParcelIds;
+        return this.gcVisibleParcelIds;
       },
-      set: function (newValue) {
-        //notify root - through props it will cha nge this.gcSelectedProduct
-        this.$root.$emit('parcelIdsChange', newValue);
-      }
     },
     availableStats: {
       get: function() {
@@ -884,13 +874,13 @@ Vue.component('gc-chart', {
         this.handleCurrentParcelIDchange(newValue, oldValue);
       }
     },
-    parcelIds: function (newValue, oldValue) {
+    visibleParcelIds: function (newValue, oldValue) {
       //may double loading on start and parcelIdsChange through external component
       // this.gcInitialLoading is set to true
 
       console.debug("event - parcelIdsChange");
 
-      if (this.parcelIds.length > 0) {
+      if (this.visibleParcelIds.length > 0) {
 
         if (this.gcMode == "many-parcels") {
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
@@ -1021,7 +1011,7 @@ Vue.component('gc-chart', {
           this.createChartData();
       }
     },
-    gcSelectedParcelId: function (newValue, oldValue) {
+    gcCurrentParcelId: function (newValue, oldValue) {
       // highlight graph in chart
       this.chart.focus(parseInt(newValue));
     },
@@ -1848,7 +1838,13 @@ Vue.component('gc-chart', {
                       this.chart.toggle("means2");
                   }
                   else { this.chart.toggle(id); }
-                }.bind(this)
+                }.bind(this),
+              onmouseover: function (id) {
+                if (this.gcMode == "many-parcels") {
+                  //send selection of current parcel to root
+                  this.currentParcelID = id;
+                }
+              }.bind(this)
             }
         },
         line: {
