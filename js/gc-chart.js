@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-05-28, jsommer
+ last update: 2020-06-02, jsommer
  version: 0.9.1
 */
 "use strict";
@@ -381,6 +381,7 @@ Vue.component('gc-chart', {
       internalQuerydate: {}, //filled by click in chart only!
       internalZoomStartdate: "", //TODO: startdate of parcel //new Date(new Date().getUTCFullYear()-1, 2, 1).simpleDate(), // last YEAR-03-01
       internalZoomEnddate: "",   //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
+      internalCurrentParcelID: -1, //for internal use of widget only, if not set from outer gcCurrentParcelId prop
       inpFilterDateFromPicker: undefined,
       inpFilterDateToPicker: undefined,
       dateZoomLayout: { "vertical" : "field is-vertical", "horizontal":  "field is-horizontal" },
@@ -438,10 +439,18 @@ Vue.component('gc-chart', {
     },
     currentParcelID:  {
       get: function() {
+        // if parcel id is not set externally via prop, take the internal one!
+        if (this.gcCurrentParcelId === -1)
+          return this.internalCurrentParcelID;
+        else 
           return this.gcCurrentParcelId;
       },
       set: function(newValue) {
+        // always emit to root
         this.$root.$emit('currentParcelIdChange', newValue);
+        // if parcel id is not set externally via prop, take the internal one!
+        if (this.gcCurrentParcelId === -1)
+          this.internalCurrentParcelID = newValue;
       }
     },
     availableProducts: {
@@ -1191,6 +1200,8 @@ Vue.component('gc-chart', {
                       console.debug("setting first parcel as current!");
   
                       this.currentParcelID = this.parcels[0].parcel_id;
+                      console.debug("currentParcelID: "+ this.currentParcelID);
+
                       // hack needed to call the change explicitely if the filter includes the first element
                       // of previously unfiltered parcels!
                       // 1=1 -> no change in watch of vuejs
