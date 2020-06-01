@@ -112,6 +112,7 @@ Please contact [us](mailto:info@geocledian.com) from geocledian.com if you have 
 
 ## Used Libraries
 - [Vue.js](https://www.vuejs.org)
+- [Vue I18n](https://kazupon.github.io/vue-i18n/)
 - [c3.js](https://c3js.org/)
 
 ## Legal: Terms of use from third party data providers
