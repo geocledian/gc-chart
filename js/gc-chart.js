@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-06-02, jsommer
+ last update: 2020-06-04, jsommer
  version: 0.9.1
 */
 "use strict";
@@ -574,6 +574,10 @@ Vue.component('gc-chart', {
     },
     selectedProduct: {
       get: function() {
+        // check for variations & visible products: fallback to vitality
+        if (["variations","visible"].includes(this.gcSelectedProduct) && this.availableProducts.includes("vitality")) {
+          return "vitality";
+        }
         // workaround for external setting of not existent product (sos,eos,pos) 
         // fallback to vitality if present
         if (["sos","eos","pos"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndvi")){
