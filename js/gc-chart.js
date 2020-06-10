@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-06-04, jsommer
- version: 0.9.1
+ last update: 2020-06-09, jsommer
+ version: 0.9.2
 */
 "use strict";
 
@@ -35,7 +35,13 @@ const gcChartLocales = {
       },
       "date_zoom": {
         "from": "From",
-        "to": "To"
+        "to": "To",
+        "date_format_hint": "YYYY-MM-DD"
+      },
+      "mode" : {
+        "label": "Mode",
+        "one_index": "one product, all statistics",
+        "many_indices": "many products, means"
       }
     },
     "statistics": { 
@@ -57,6 +63,11 @@ const gcChartLocales = {
         "evi2": "EVI2",
         "cire": "CIRE",
         "npcri": "NPCRI"
+    },
+    "api_msg": {
+      "unauthorized_key" : "Sorry, the given API key is not authorized!",
+      "invalid_key" : "Sorry, the given API key's validity expired!",
+      "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support."
     }
   },
   "de": {
@@ -79,7 +90,13 @@ const gcChartLocales = {
         },
         "date_zoom": {
           "from": "Von",
-          "to": "Bis"
+          "to": "Bis",
+          "date_format_hint": "JJJJ-MM-TT"
+        },
+        "mode" : {
+          "label": "Modus",
+          "one_index": "ein Produkt, alle Statistikwerte",
+          "many_indices": "mehrere Produkte, Mittelwerte"
         }
     },
     "statistics": { 
@@ -101,6 +118,11 @@ const gcChartLocales = {
       "evi2": "EVI2",
       "cire": "CIRE",
       "npcri": "NPCRI"
+    },
+    "api_msg": {
+      "unauthorized_key" : "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
+      "invalid_key" : "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
+      "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung."
     }
   },
 }
@@ -146,7 +168,7 @@ Vue.component('gc-chart', {
     },
     gcMode: {
       type: String,
-      default: "one-index" // "one-index" || "many-indices" || "many-parcels"
+      default: "" // "one-index" || "many-indices" || "many-parcels"
     },
     gcZoomStartdate:  {
       type: String,
@@ -190,7 +212,7 @@ Vue.component('gc-chart', {
     },
     gcAvailableOptions: {
       type: String,
-      default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers,legend'
+      default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers,legend,productSelector'
     },
     gcOptionsCollapsed: {
       type: Boolean,
@@ -209,15 +231,15 @@ Vue.component('gc-chart', {
       default: ''
     }
   },
-  template: `<div :id="gcWidgetId" class="gc-chart">          
-            <div>
+  template: `<div :id="gcWidgetId" class="gc-chart">    
+
               <div class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
                   v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
                   {{ $t('options.title') }} 
                 <i :class="[gcOptionsCollapsed ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
               </div>
 
-              <div :id="'chartOptions_'+gcWidgetId" :class="[gcOptionsCollapsed ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
+              <div :class="[gcOptionsCollapsed ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
                     style="padding-bottom: 1em; max-height: 6.6rem !important;">
 
               <div class="field" v-show="availableOptions.includes('graphType')">
@@ -233,64 +255,64 @@ Vue.component('gc-chart', {
                 </div>
               </div>
 
-            <div class="field is-vertical" v-if="gcMode=='one-index'" v-show="availableOptions.includes('hideGraphs')">
-              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.hide_graphs.label')}}</label></div>
-              <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
-                <div class="control">
-                  <div class="field is-horizontal">
-                    <div class="field-body">
-                      <div class="control">
-                        <label class="label is-grey is-small">
-                          <input class="is-small" :id="'chkChartHideMean_'+gcWidgetId" type="checkbox" value="mean" v-model="hiddenStats"> {{ $t('statistics.mean')}} </label>
+              <div class="field is-vertical" v-if="this.mode=='one-index'" v-show="availableOptions.includes('hideGraphs')">
+                <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.hide_graphs.label')}}</label></div>
+                <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
+                  <div class="control">
+                    <div class="field is-horizontal">
+                      <div class="field-body">
+                        <div class="control">
+                          <label class="label is-grey is-small">
+                            <input class="is-small" type="checkbox" value="mean" v-model="hiddenStats"> {{ $t('statistics.mean')}} </label>
+                        </div>
                       </div>
-                    </div>
-                  </div>         
-                  <div class="field is-horizontal">
-                    <div class="field-body">
-                      <div class="control">
-                        <label class="label is-small is-grey">
-                          <input class="is-small" :id="'chkChartHideMin_'+gcWidgetId" type="checkbox" value="min" v-model="hiddenStats"> {{ $t('statistics.min')}} </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="field is-horizontal">
-                    <div class="field-body">
-                      <div class="control">
-                        <label class="label is-small is-grey">
-                          <input class="is-small" :id="'chkChartHideMax_'+gcWidgetId" type="checkbox" value="max" v-model="hiddenStats"> {{ $t('statistics.max')}} </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="field is-horizontal">
+                    </div>         
+                    <div class="field is-horizontal">
                       <div class="field-body">
                         <div class="control">
                           <label class="label is-small is-grey">
-                            <input class="is-small" :id="'chkChartHideStdDev_'+gcWidgetId" type="checkbox" value="std.dev." v-model="hiddenStats"> {{ $t('statistics.stddev')}}</label>
+                            <input class="is-small" type="checkbox" value="min" v-model="hiddenStats"> {{ $t('statistics.min')}} </label>
                         </div>
                       </div>
-                  </div>
-                  <div class="field is-horizontal">
-                    <div class="field-body">
-                      <div class="control">
-                        <label class="label is-small is-grey">
-                          <input class="is-small" :id="'chkChartHideMarker_'+gcWidgetId" type="checkbox" value="marker" v-model="hiddenStats"> {{ $t('options.hide_graphs.marker')}}</label>
+                    </div>
+                    <div class="field is-horizontal">
+                      <div class="field-body">
+                        <div class="control">
+                          <label class="label is-small is-grey">
+                            <input class="is-small" type="checkbox" value="max" v-model="hiddenStats"> {{ $t('statistics.max')}} </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                          <div class="control">
+                            <label class="label is-small is-grey">
+                              <input class="is-small" type="checkbox" value="std.dev." v-model="hiddenStats"> {{ $t('statistics.stddev')}}</label>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="field is-horizontal">
+                      <div class="field-body">
+                        <div class="control">
+                          <label class="label is-small is-grey">
+                            <input class="is-small" type="checkbox" value="marker" v-model="hiddenStats"> {{ $t('options.hide_graphs.marker')}}</label>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                </div>
-            </div>
-            <div class="field" v-if="gcMode=='one-index'" v-show="availableOptions.includes('markers')">
-              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.marker.label')}}</label></div>
-              <div class="field-body">
-                <div class="select is-small">
-                  <select v-model="selectedMarkerType">
-                    <option value="phenology">{{ $t('options.marker.phenology')}}</option>
-                    <option value="sn_marker">{{ $t('options.marker.sn_marker')}}</option>
-                  </select>
+                  </div>
               </div>
-            </div>  
-            </div>
+              <div class="field" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
+                <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.marker.label')}}</label></div>
+                <div class="field-body">
+                  <div class="select is-small">
+                    <select v-model="selectedMarkerType">
+                      <option value="phenology">{{ $t('options.marker.phenology')}}</option>
+                      <option value="sn_marker">{{ $t('options.marker.sn_marker')}}</option>
+                    </select>
+                </div>
+              </div>  
+              </div>
 
             <!-- date filter -->
             <div :class="dateZoomLayout[gcDatezoomLayout]"
@@ -301,7 +323,7 @@ Vue.component('gc-chart', {
                 </div>
                 <div class="control has-icons-left" style="max-width: 7.4rem;">
                   <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" class="input is-small"
-                    placeholder="[YYYY-MM-DD]" v-model="chartFromDate">
+                      :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'" v-model="chartFromDate">
                   <span class="icon is-small is-left">
                       <i class="fas fa-clock fa-lg"></i>
                   </span>
@@ -313,19 +335,30 @@ Vue.component('gc-chart', {
                 </div>
                 <div class="control has-icons-left" style="max-width: 7.4rem;">
                   <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" class="input is-small"
-                        placeholder="[YYYY-MM-DD]"  v-model="chartToDate">
+                      :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'"  v-model="chartToDate">
                   <span class="icon is-small is-left">
                       <i class="fas fa-clock fa-lg"></i>
                   </span>
                 </div>
               </div>  
             </div>
-          </div>
+            
+            <!-- mode selector -->
+            <div class="field" v-show="this.availableOptions.includes('modeSelector') && this.mode != 'many-parcels'">
+              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.mode.label')}}</label></div>
+              <div class="select is-small">
+                <select v-model="mode">
+                  <option value="one-index">{{ $t('options.mode.one_index')}}</option>
+                  <option value="many-indices">{{ $t('options.mode.many_indices')}}</option>
+                </select>
+              </div>
+            </div><!-- mode selector -->
+
           </div><!-- chart settings -->
 
-          <div :id="'chartNotice_'+gcWidgetId" class="content is-hidden"></div>
+          <div class="content" v-show="this.api_err_msg.length > 0"></div>
 
-          <div :id="'chartSpinner_'+gcWidgetId" class="chartSpinner spinner is-hidden">
+          <div class="chartSpinner spinner" v-show="this.isloading">
             <div class="rect1"></div>
             <div class="rect2"></div>
             <div class="rect3"></div>
@@ -334,31 +367,31 @@ Vue.component('gc-chart', {
           </div>
 
           <div style="position: relative;">
-          <div :id="'chart_'+gcWidgetId" class="gc-chart"></div>
+            <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div>
 
-          <!-- product selector -->
-          <div class="field product-selector is-hidden" style="position: absolute; right: 0rem; top: -1.2rem;">
-          <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
-            <div class="field-body has-text-bold">
-              <div class="select is-normal" v-if="gcMode!='many-indices'">
-              <select v-model="selectedProduct" title="Choose a product!">
-                <option v-for="p in availableProducts" v-bind:value="p">
-                  <span>{{ $t('products.'+p)}}</span>
-                </option>
-                </select>
+            <!-- product selector -->
+            <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector')">
+            <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
+              <div class="field-body has-text-bold">
+                <div class="select is-small" v-if="this.mode!='many-indices'">
+                <select v-model="selectedProduct" title="Choose a product!">
+                  <option v-for="p in availableProducts" v-bind:value="p">
+                    <span>{{ $t('products.'+p)}}</span>
+                  </option>
+                  </select>
+                </div>
               </div>
-            </div>
-          </div> <!-- product selector -->
+            </div> <!-- product selector -->
 
-          </div>
+          </div> <!-- chart & product selector -->
+
           <!-- watermark -->
           <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: 0.1rem;">
-            <span style="verticalalign: top; font-size: 0.7rem;">powered by</span><br>
+            <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
 
-          </div>
-          <!-- chart -->`,
+          </div><!-- gcWidget -->`,
   data: function () {
     return {
       chart: undefined,
@@ -368,7 +401,7 @@ Vue.component('gc-chart', {
       parcels: [],
       currentRasterIndex: 0,
       offset: 0,
-      pagingStep: 1000,
+      pagingStep: 250,
       total_parcel_count: 250,
       chartLegendVisible: true,
       similarity : { content_parcel : [], content_reference: [], similarity: {}, summary: {}, classification: {} },
@@ -379,11 +412,13 @@ Vue.component('gc-chart', {
       hiddenStats: [],
       sn_markers: {},
       internalQuerydate: {}, //filled by click in chart only!
+      selectedChartId: "", // filled by click in chart when in one-index or many-indices mode
       internalZoomStartdate: "", //TODO: startdate of parcel //new Date(new Date().getUTCFullYear()-1, 2, 1).simpleDate(), // last YEAR-03-01
       internalZoomEnddate: "",   //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
       internalCurrentParcelID: -1, //for internal use of widget only, if not set from outer gcCurrentParcelId prop
       inpFilterDateFromPicker: undefined,
       inpFilterDateToPicker: undefined,
+      internalMode: "one-index",
       dateZoomLayout: { "vertical" : "field is-vertical", "horizontal":  "field is-horizontal" },
       d3locales: { "de": {
                       "decimal": ",",
@@ -413,7 +448,9 @@ Vue.component('gc-chart', {
                       "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
                       "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
                     },
-      }
+      },
+      isloading: false, // indicates if data is being loaded or not
+      api_err_msg: "", // if there is an error from the API, it will stored here; if length > 0 it will be displayed
     }
   },
   computed: {
@@ -460,7 +497,7 @@ Vue.component('gc-chart', {
     },
     selectedParcelIds: {
       get: function () {
-        if (this.gcMode == "many-parcels") {
+        if (this.mode == "many-parcels") {
           
           // case if parcel ids are not defined - take the first 10 parcels 
           // from the result of the filterString against the API
@@ -627,6 +664,19 @@ Vue.component('gc-chart', {
         this.$root.$emit("queryDateChange", value);
       }
     },
+    mode: {
+      get: function() {
+        if (this.gcMode.length > 0)
+          return this.gcMode;
+        else
+          return this.internalMode;
+      },
+      set: function(value) {
+        this.internalMode = value;
+        // notify root
+        this.$root.$emit('chartModeChange', value);
+      }
+    },
   },
   //init internationalization
   i18n: {
@@ -652,21 +702,20 @@ Vue.component('gc-chart', {
       }
     }.bind(this));
 
-    //console.log(this);
-    document.getElementById("chart_" + this.gcWidgetId).classList.add("is-hidden");
-    document.getElementById("chartSpinner_" + this.gcWidgetId).classList.remove("is-hidden");
-
     //overwrite statisticsMany
-    if (this.gcMode == "many-indices") {
+    if (this.mode == "many-indices") {
       this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
     }
-    if (this.gcMode == "many-parcels") {
+    if (this.mode == "many-parcels") {
       this.statisticsMany = [];
     }
     //set first of available products to the selected one
-    if (this.gcMode == "one-index" || this.gcMode == "many-parcels") {
+    if (this.mode == "one-index" || this.mode == "many-parcels") {
       this.selectedProduct = this.availableProducts[0];
     }
+
+    // show loading spinner, hide chart
+    this.isloading = true;
 
     /* init chart */
     //set i18n for time x axis
@@ -719,10 +768,6 @@ Vue.component('gc-chart', {
         this.getAllParcels(undefined, this.offset, this.filterString);
       }
     }
-
-    //init datepickers - load external Javascript file in this component
-    this.initFromDatePicker();
-    this.initToDatePicker();
   
   },
   watch: {
@@ -753,7 +798,7 @@ Vue.component('gc-chart', {
 
         if (this.parcels.length > 0) {
 
-          if (this.gcMode == "one-index") {
+          if (this.mode == "one-index") {
             this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
@@ -766,7 +811,7 @@ Vue.component('gc-chart', {
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
-          if (this.gcMode == "many-parcels") {
+          if (this.mode == "many-parcels") {
             // console.debug(this.selectedParcelIds);
             for (var i = 0; i < this.selectedParcelIds.length; i++) {
               let parcel_id = this.selectedParcelIds[i];
@@ -779,7 +824,7 @@ Vue.component('gc-chart', {
           }
           //should never reach here because selectedProduct should not be set in this gcMode!
 
-          /*if (this.gcMode == "many-indices") {
+          /*if (this.mode == "many-indices") {
             for (var i = 0; i < this.availableProducts.length; i++) {
               //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
               // only load stats if product is not visible
@@ -797,10 +842,10 @@ Vue.component('gc-chart', {
 
       if (this.parcels.length > 0) {
 
-        if (this.gcMode == "one-index") {
+        if (this.mode == "one-index") {
           this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
         }
-        if (this.gcMode == "many-parcels") {
+        if (this.mode == "many-parcels") {
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
             this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
@@ -810,7 +855,7 @@ Vue.component('gc-chart', {
             }
           }
         }
-        if (this.gcMode == "many-indices") {
+        if (this.mode == "many-indices") {
           for (var i = 0; i < this.availableProducts.length; i++) {
             this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
             // only load stats if product is not visible
@@ -825,57 +870,8 @@ Vue.component('gc-chart', {
             
       console.debug("event - dataSourceChange");
       
-      //Legacy code
-
-      /*let p = this.getCurrentParcel();
-      p.timeSeries = [];
-
-      //TODO activate / deactivate dynamic S2 indices dependent on data source
-      // toggle_products_data_source_compatibility(newValue);
-
-      //only if valid parcel id
-      if (this.currentParcelID > 0) {
-        this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
-          
-        //select first element
-        this.currentRasterIndex = 0;
-      }*/
-
       if (this.parcels.length > 0) {
-
-        if (this.gcMode == "one-index") {
-          this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
-          // only load stats if product is not visible
-          if (newValue != 'visible') {
-            if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
-              //this.getMarkers(this.getCurrentParcel().parcel_id);
-            }
-            else {
-              this.sn_markers = {};
-            }
-            this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
-          }
-        }
-        if (this.gcMode == "many-parcels") {
-          // console.debug(this.selectedParcelIds);
-          for (var i = 0; i < this.selectedParcelIds.length; i++) {
-            let parcel_id = this.selectedParcelIds[i];
-            //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
-            // only load stats if product is not visible
-            if (newValue != 'visible') {
-              this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
-            }
-          }
-        }
-        if (this.gcMode == "many-indices") {
-          for (var i = 0; i < this.availableProducts.length; i++) {
-            //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
-            // only load stats if product is not visible
-            if (newValue != 'visible') {
-              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
-            }
-          }
-        }
+        this.refreshData();
       }
 
     },
@@ -883,7 +879,7 @@ Vue.component('gc-chart', {
 
       console.debug("event - currentParcelIDChange");
       //only for certain modes refresh
-      if (this.gcMode == "one-index" || this.gcMode == "many-indices") {
+      if (this.mode == "one-index" || this.mode == "many-indices") {
         this.handleCurrentParcelIDchange(newValue, oldValue);
       }
     },
@@ -895,7 +891,7 @@ Vue.component('gc-chart', {
 
       if (this.visibleParcelIds.length > 0) {
 
-        if (this.gcMode == "many-parcels") {
+        if (this.mode == "many-parcels") {
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
             if (parcel_id)
@@ -942,7 +938,7 @@ Vue.component('gc-chart', {
           // create chart from values, if they change
           this.createChartData();
 
-          if (this.gcMode == "many-indices") {
+          if (this.mode == "many-indices") {
             // only if there are values
             if (newValue[this.availableProducts[0]][0]) {
               if (!this.isDateValid(this.chartFromDate)) // first date of first product
@@ -979,7 +975,7 @@ Vue.component('gc-chart', {
           console.debug("event - selectedGraphTypeChange");
           //console.debug(newValue);
           
-          if (this.gcMode == "one-index") {  
+          if (this.mode == "one-index") {  
             // change for all data except std.dev.
             this.chart.transform(newValue, "mean");
             this.chart.transform(newValue, "min");
@@ -987,7 +983,7 @@ Vue.component('gc-chart', {
             this.chart.transform(newValue, "parcel (mean)");
             this.chart.transform(newValue, "reference (mean)");
           }
-          if (this.gcMode == "many-indices") {
+          if (this.mode == "many-indices") {
             this.chart.transform(newValue, "ndvi");
             this.chart.transform(newValue, "ndwi");
             this.chart.transform(newValue, "ndre1");
@@ -998,7 +994,7 @@ Vue.component('gc-chart', {
             this.chart.transform(newValue, "npcri");
             this.chart.transform(newValue, "vitality");
           }
-          if (this.gcMode == "many-parcels") {
+          if (this.mode == "many-parcels") {
             for (var i = 0; i < this.selectedParcelIds.length; i++) {
               this.chart.transform(newValue, this.selectedParcelIds[i]);
             }
@@ -1040,24 +1036,83 @@ Vue.component('gc-chart', {
       } 
       catch (ex) {}
       //reset date pickers
-      this.initFromDatePicker();
-      this.initToDatePicker();
+      this.initDatePickers();
     },
     gcSelectedDate(newValue, oldValue) {
+      /* This is nightmare code, beware! 
+      
+          Workaround because selection in c3.js chart will result in a toggle selection
+          when gcSelectedDate is set again externally (vue prop - root is in control); 
+          so it will look like there is no selection because of the circular dependency.
 
+          AND: c3.js chart.selected() sometimes looses its selection data! 
+          so it is necessary to store a map (internalQueryDate) on the graphs in an own object
+          and check if chart already knows about this date (could be set by clicking in the chart)
+          if so, don't change the selection at all
+
+      */
       console.debug("gcSelectedDateChange");
-      // console.debug("new: "+newValue);
-      // console.debug("old:" +oldValue);
 
-      if (this.gcMode == "one-index") {
-        let parcel_id = this.currentParcelID;
-        let p = this.getParcel(parcel_id);
-        //let index = this.getClosestTimeSeriesIndex(p.timeseries, newValue);
-        //TODO
-        //clear all selections also
-        //this.chart.select(['mean'], [index], true);
+      if (this.mode == "one-index") {
+
+        // if not set, just assign the first of availableStats
+        // and check if its not hidden
+        if (this.selectedChartId.length == 0) {
+          for (var i = 0; i < this.availableStats.length; i++) {
+            let stat = this.availableStats[i];
+            if (!this.hiddenStats.includes(stat)) {
+              this.selectedChartId = stat;
+              break;
+            }
+          }
+        }
+        console.debug(this.statistics);
+        const exactDate = this.getClosestDate(this.statistics.map(d => new Date(d.date)), 
+                                                new Date(newValue));
+        let alreadySelected = false;
+        if (this.internalQuerydate.hasOwnProperty(this.selectedChartId)) {
+          alreadySelected = this.internalQuerydate[this.selectedChartId].simpleDate() === exactDate.simpleDate();
+        }
+        // console.debug(alreadySelected);
+        if (alreadySelected === true) {
+            console.debug(this.selectedChartId + " already has date "+ exactDate.simpleDate()
+                        + " selected. Checking next one..");
+            return;
+        }
+        else {
+          let index = this.getClosestTimeSeriesIndex(this.statistics, newValue);
+          // reset selection of other selection points -> true
+          this.chart.select(this.selectedChartId, [index], true);
+        }
       }
-      if (this.gcMode == "many-parcels") {
+      if (this.mode == "many-indices") {
+
+        for (var i = 0; i < this.availableProducts.length; i++) {
+          let product = this.availableProducts[i];
+
+          const exactDate = this.getClosestDate(this.statisticsMany[product].map(d => new Date(d.date)), 
+                                                new Date(newValue));
+
+          let alreadySelected = false;
+          if (this.internalQuerydate.hasOwnProperty(product)) {
+            alreadySelected = this.internalQuerydate[product].simpleDate() === exactDate.simpleDate();
+          }
+          // console.debug(alreadySelected);
+          if (alreadySelected === true) {
+              console.debug(product + " already has date "+ exactDate.simpleDate()
+                          + " selected. Checking next one..");
+              continue;
+          }
+          else {
+            let index = this.getClosestTimeSeriesIndex(this.statisticsMany[product], newValue);
+            // unselect on this product only
+            this.chart.unselect(product);
+            // reset selection of other selection points -> true
+            this.chart.select(product, [index], false);
+          }
+        }
+      }
+      if (this.mode == "many-parcels") {
         // for portfolio use case a query date has to be transformed to the closest exact date
         // of the available time series
         for (var i = 0; i < this.selectedParcelIds.length; i++) {
@@ -1068,21 +1123,6 @@ Vue.component('gc-chart', {
           const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)), 
                                                 new Date(newValue));
 
-          // Workaround because selection in chart will result in a toggle selection
-          // when gcSelectedDate is set again externally; so it will look like there is no selection
-          // because of the circular dependency 
-
-          // AND: chart.selected() sometimes looses its selection data! 
-          // so it is necessary to store the internalQueryDate on the graphs in an own object
-          // check if chart already knows about this date (could be set by clicking in the chart)
-          // if so, don't change the selection at all
-          // console.debug(exactDate.simpleDate());
-          // console.debug(this.internalQuerydate);
-          //console.debug(this.chart.selected().filter(p=>p.id === parcel_id));
-          // let alreadySelected = this.chart.selected()
-          //                         .filter(p=>p.id === parcel_id)
-          //                         .filter(i=>i.hasOwnProperty("x"))
-          //                         .findIndex(i=>i.x.simpleDate() === exactDate.simpleDate());
           let alreadySelected = false;
           if (this.internalQuerydate.hasOwnProperty(parcel_id+"")) {
             alreadySelected = this.internalQuerydate[parcel_id+""].simpleDate() === exactDate.simpleDate();
@@ -1103,9 +1143,24 @@ Vue.component('gc-chart', {
           // }
         }
       }
-      if (this.gcMode == "many-indices") {
-        //TODO
-        //chart.select('mean', [index], true);
+    },
+    mode(newValue, oldValue) {
+      
+      //re init because mode has changed!
+      if (this.mode == "many-indices") {
+        this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
+      }
+      if (this.mode == "many-parcels") {
+        this.statisticsMany = [];
+      }
+      //set first of available products to the selected one
+      if (this.mode == "one-index" || this.mode == "many-parcels") {
+        this.selectedProduct = this.availableProducts[0];
+      }
+
+      //refresh data
+      if (this.parcels.length > 0) {
+        this.refreshData();
       }
     }
   },
@@ -1134,7 +1189,7 @@ Vue.component('gc-chart', {
     getAllParcels: function(parcel_id, offset, filterString) {
 
       //download in chunks of n parcels
-      let limit = this.pagingStep;
+      let limit = 6000; //this.pagingStep;
 
       const endpoint = "/parcels";
       let params = "&limit="+limit; //set limit to maximum (default 1000)
@@ -1160,17 +1215,17 @@ Vue.component('gc-chart', {
               var tmp  = JSON.parse(xmlHttp.responseText);
   
               if (tmp.content == "key is not authorized") {
-                  // show message, hide spinner
-                  document.getElementById("chartNotice_" + this.gcWidgetId).innerHTML = "Sorry, the given API key is not authorized!<br> Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for a valid API key.";
-                  document.getElementById("chartNotice_" + this.gcWidgetId).classList.remove("is-hidden");
-                  document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
+                  // show message, hide spinner, don't show chart
+                  this.api_err_msg = this.$t('api_msg.unauthorized_key') + "<br>" + this.$t('api_msg.support');
+                  this.isloading = false;
+                  //document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
                   return;
               }
               if (tmp.content == 	"api key validity expired") {
-                  // show message, hide spinner
-                  document.getElementById("chartNotice_" + this.gcWidgetId).innerHTML = "Sorry, the given API key's validity expired!<br> Please contact <a href='https://www.geocledian.com'>geo|cledian</a>for a valid API key.";
-                  document.getElementById("chartNotice_" + this.gcWidgetId).classList.remove("is-hidden");
-                  document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
+                  // show message, hide spinner, don't show chart
+                  this.api_err_msg = this.$t('api_msg.invalid_key') + "<br>" + this.$t('api_msg.support');
+                  this.isloading = false;
+                  //document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
                   return;
               }
   
@@ -1188,7 +1243,7 @@ Vue.component('gc-chart', {
               }
 
               try {
-                if (this.gcMode == "one-index" || this.gcMode == "many-indices") {
+                if (this.mode == "one-index" || this.mode == "many-indices") {
                   // if parcel_id was given as an argument to the function
                   // set this value as currentParcelID
                   if (parcel_id)  {
@@ -1248,16 +1303,16 @@ Vue.component('gc-chart', {
         // thus phenology must be called by user
         //this.phenology = { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} };
 
-        if (this.gcMode == "one-index") {
+        if (this.mode == "one-index") {
           this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
         }
-        if (this.gcMode == "many-indices") {
+        if (this.mode == "many-indices") {
           for (var i = 0; i < this.availableProducts.length; i++) {
             this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
           }
         } 
       }
-      if (this.gcMode == "many-parcels") {
+      if (this.mode == "many-parcels") {
         for (var i = 0; i < this.selectedParcelIds.length; i++) {
           let parcel_id = this.selectedParcelIds[i];
           if (parcel_id)
@@ -1269,7 +1324,7 @@ Vue.component('gc-chart', {
     getParcelsProductData: function (parcel_id, productName, source) {
 
       //show spinner
-      document.getElementById("chartSpinner_" + this.gcWidgetId).classList.remove("is-hidden");
+      this.isloading = true;
 
       const endpoint = "/parcels/" + parcel_id + "/" + productName;
       let params = "&source=" + source +
@@ -1305,7 +1360,7 @@ Vue.component('gc-chart', {
             //disableTimeSlider(false);
 
             //hide spinner
-            document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
+            this.isloading = false;
           }
 
         }
@@ -1331,10 +1386,8 @@ Vue.component('gc-chart', {
     },
     getIndexStats: function(parcel_id, source, product) {
 
-      document.getElementById("chartNotice_"+this.gcWidgetId).classList.add("is-hidden");
-      document.getElementById(this.gcWidgetId).getElementsByClassName('product-selector')[0].classList.add('is-hidden');
-      document.getElementById("chart_" + this.gcWidgetId).classList.add("is-hidden");
-      document.getElementById("chartSpinner_" + this.gcWidgetId).classList.remove("is-hidden");
+      this.isloading = true; // hide controls with this boolean
+      this.api_err_msg = ""; // empty api messages
   
       let productName = product;
   
@@ -1372,13 +1425,13 @@ Vue.component('gc-chart', {
                 this.currentGraphContent = "statistics";
 
                 // only chart data is necessary here
-                if (this.gcMode == "one-index") {
+                if (this.mode == "one-index") {
                   this.statistics = tmp.content;
                   //set initial internal dates from time series
                   this.internalZoomStartdate = this.statistics[0].date;
                   this.internalZoomEnddate = this.statistics[this.statistics.length-1].date;
                 }
-                if (this.gcMode == "many-parcels") {
+                if (this.mode == "many-parcels") {
                   //Vue.set(row, "timeSeries", []);
                   //row.timeSeries.push({"statistics": tmp.content, "product": product});
                   
@@ -1422,13 +1475,17 @@ Vue.component('gc-chart', {
                   
                   //console.debug(this.statisticsMany);
                 }
-                if (this.gcMode == "many-indices") {
+                if (this.mode == "many-indices") {
                   this.statisticsMany[productName] = tmp.content;
                   //set initial internal dates from time series
                   this.internalZoomStartdate = this.statisticsMany[productName][0].date;
                   this.internalZoomEnddate = this.statisticsMany[productName][this.statisticsMany[productName].length-1].date;
                 }
 
+                //init datepickers now as the timeseries is ready
+                // load external Javascript file has to exists prior to this!
+                // should be handled in an init script
+                this.initDatePickers();
             }
         }
       }.bind(this);
@@ -1440,13 +1497,13 @@ Vue.component('gc-chart', {
 
       console.debug("createChartData()");
       console.debug("chart content: "+this.currentGraphContent);
-      console.debug("chart mode: "+this.gcMode);
+      console.debug("chart mode: "+this.mode);
 
       let chartType = this.currentGraphContent;
       let columns = [];
 
       if (chartType == "statistics") {
-        if (this.gcMode == "one-index") {
+        if (this.mode == "one-index") {
           if (this.statistics.length > 0) {
 
             let filteredStats = this.statistics.filter(s=>s.statistics != null);                       
@@ -1468,7 +1525,7 @@ Vue.component('gc-chart', {
                                                                     }.bind(this)));
           }
         }
-        if (this.gcMode == "many-indices") {
+        if (this.mode == "many-indices") {
           // map x axis to values of first available product
           columns[0] = ["x"].concat( this.statisticsMany[this.availableProducts[0]].map( r => r.date) );
           //console.debug("first x axis is "+this.availableProducts[0]);
@@ -1494,7 +1551,7 @@ Vue.component('gc-chart', {
           columns[10] = ["vitality"].concat( this.statisticsMany["vitality"].map( r => this.formatDecimal(r.statistics.mean, 3)));*/
 
         }
-        if (this.gcMode == "many-parcels") {
+        if (this.mode == "many-parcels") {
 
           // map x axis to values of first available parcel
           /*let parcel_id = this.selectedParcelIds[0];
@@ -1589,20 +1646,20 @@ Vue.component('gc-chart', {
             console.error(err);
         }
 
-        document.getElementById("chartNotice_"+this.gcWidgetId).classList.add("is-hidden");
+        this.api_err_msg = ""; // empty api messages
+
         /*
         document.getElementById("similaritySummaryDiv").classList.add("is-hidden");
         document.getElementById("phenologyResultsDiv").classList.add("is-hidden");*/
 
-        if (this.gcMode == "many-parcels") {
+        if (this.mode == "many-parcels") {
           //create chart when all data is ready - not earlier as this leads to undefined entries in data array
           // error: t[i] is undefined in c3.js
           // columns.length is double the size of the selectedParcelIds (x array + y array)
           if ( columns.length == this.selectedParcelIds.length*2) {
             
             this.createChart(columns);
-            document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
-            document.getElementById("chart_" + this.gcWidgetId).classList.remove("is-hidden");
+            this.isloading = false;
 
           }
           // else 
@@ -1610,8 +1667,7 @@ Vue.component('gc-chart', {
         }
         else {
           this.createChart(columns);
-          document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
-          document.getElementById("chart_" + this.gcWidgetId).classList.remove("is-hidden");
+          this.isloading = false;
         }
 
         // if not changed, the values default to seeding/harvest date of parcel
@@ -1631,8 +1687,7 @@ Vue.component('gc-chart', {
               let columns = [];
   
               this.createChart(columns);
-              document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
-              document.getElementById("chart_" + this.gcWidgetId).classList.remove("is-hidden");
+              this.isloading = false;
               //prepareSimilarityData();
               
           }
@@ -1649,7 +1704,7 @@ Vue.component('gc-chart', {
                             'parcel (mean)': this.selectedGraphType , 'reference (mean)' : this.selectedGraphType,
                             'marker': 'scatter'
                         };
-      if (this.gcMode == "one-index") {
+      if (this.mode == "one-index") {
         xs_options = {
           "mean": "x",
           "means2": "x",
@@ -1662,20 +1717,24 @@ Vue.component('gc-chart', {
           "marker" : "x2",
         }
       }
-      if (this.gcMode == "many-indices") {
+      if (this.mode == "many-indices") {
 
         for (var i=0; i < this.availableProducts.length; i++) {
           const product = this.availableProducts[i];
-          if (product != "vitality")
+          if (product != "vitality") {
             xs_options[product] = "x";
-          else
+            types_options[product] = this.selectedGraphType;
+          }
+          else {
             xs_options[product] = "x3";
+            types_options[product] = this.selectedGraphType;
+          }
         }
         xs_options["parcel (mean)"] = "x";
         xs_options["reference (mean)"] = "x2";
       }
 
-      if (this.gcMode == "many-parcels") {
+      if (this.mode == "many-parcels") {
 
         for (var i=0; i < this.selectedParcelIds.length; i++) {
           const parcel_id = this.selectedParcelIds[i];
@@ -1686,7 +1745,7 @@ Vue.component('gc-chart', {
       }
 
       var axis_label;
-      if (this.gcMode == "one-index") {
+      if (this.mode == "one-index") {
         if (this.selectedProduct == "vitality" || this.selectedProduct == "variations" ||  this.selectedProduct == "visible") {
             axis_label = this.$t("products.ndvi");
         }
@@ -1825,7 +1884,11 @@ Vue.component('gc-chart', {
                   // console.debug(e.x);
                   if (e.x) {
                     // save also to internal - value is being checked in watcher
+                    // if (this.mode === "many-parcels") {
                     this.internalQuerydate[e.id+""] = e.x;
+                    // }
+                    this.selectedChartId = e.id;
+
                     // for queryDate of portfolio map
                     this.selectedDate = e.x.simpleDate(); 
                   }
@@ -1842,7 +1905,7 @@ Vue.component('gc-chart', {
             hide: !this.availableOptions.includes('legend'),
             item: {
               onclick: function (id) {
-                  if (this.gcMode == "many-parcels") {
+                  if (this.mode == "many-parcels") {
                     //disable toggle!
                     return;
                   }
@@ -1855,7 +1918,7 @@ Vue.component('gc-chart', {
                   else { this.chart.toggle(id); }
                 }.bind(this),
               onmouseover: function (id) {
-                if (this.gcMode == "many-parcels") {
+                if (this.mode == "many-parcels") {
                   //send selection of current parcel to root
                   this.currentParcelID = id;
                 }
@@ -1923,7 +1986,12 @@ Vue.component('gc-chart', {
                   fit: false, //false means evenly spaced- ticks - otherwise the time spans will be honored between dates 
                   format: "%e %b %y"
                   //format: function (x) { return x.getFullYear(); }
-              }
+              },
+               //timeseries -> milliseconds as units; 1814400000 -> 3 weeks
+              padding: {
+                right: 1814400000,
+                left: 1814400000
+              },
           },
           y: {
               label: {text: axis_label,
@@ -1956,13 +2024,13 @@ Vue.component('gc-chart', {
                   if (this.currentGraphContent == "statistics") {
                       if (this.dataSource == "") {
                           if (id != "marker") { //exlude for markers
-                            if (this.gcMode == "one-index") {
+                            if (this.mode == "one-index") {
                               return value + " ("+this.statistics[index].source + ")";
                             } 
-                            if (this.gcMode == "many-indices") {
+                            if (this.mode == "many-indices") {
                               return value + " ("+this.statisticsMany[id][index].source + ")";
                             }
-                            if (this.gcMode == "many-parcels") {
+                            if (this.mode == "many-parcels") {
                               return value + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
                             }
                           }
@@ -2031,7 +2099,44 @@ Vue.component('gc-chart', {
       });
 
       // show product selector
-      document.getElementById(this.gcWidgetId).getElementsByClassName('product-selector')[0].classList.remove('is-hidden');
+      this.isloading = false;
+
+    },
+    refreshData() {
+
+      if (this.mode == "one-index") {
+        this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
+        // only load stats if product is not visible
+        if (this.selectedProduct != 'visible') {
+          if (!this.hiddenStats.includes("marker")) {
+            //this.getMarkers(this.getCurrentParcel().parcel_id);
+          }
+          else {
+            this.sn_markers = {};
+          }
+          this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
+        }
+      }
+      if (this.mode == "many-parcels") {
+        // console.debug(this.selectedParcelIds);
+        for (var i = 0; i < this.selectedParcelIds.length; i++) {
+          let parcel_id = this.selectedParcelIds[i];
+          //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
+          // only load stats if product is not visible
+          if (newValue != 'visible') {
+            this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
+          }
+        }
+      }
+      if (this.mode == "many-indices") {
+        for (var i = 0; i < this.availableProducts.length; i++) {
+          //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
+          // only load stats if product is not visible
+          if (this.availableProducts[i] != 'visible') {
+            this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
+          }
+        }
+      }
     },
     /* GUI helper */
     toggleChartOptions: function() {
@@ -2092,13 +2197,15 @@ Vue.component('gc-chart', {
         callback();
       };
     },
-    initFromDatePicker() {
+    initDatePickers() {
 
       if (this.inpFilterDateFromPicker) {
         this.inpFilterDateFromPicker.destroy();
       }
 
       this.inpFilterDateFromPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateFrom_'+this.gcWidgetId ), {
+        minDate: new Date(this.chartFromDate),
+        maxDate: new Date(this.chartToDate),
         startDate: new Date(this.chartFromDate), // Date selected by default
         dateFormat: 'yyyy-mm-dd', // the date format `field` value
         lang: this.currentLanguage, // internationalization
@@ -2112,14 +2219,14 @@ Vue.component('gc-chart', {
                     this.chartFromDate = a.toISOString().split("T")[0]; //ISO String splits at T between date and time
                     }.bind(this),
       });
-    },
-    initToDatePicker() {
-      
+
       if (this.inpFilterDateToPicker) {
         this.inpFilterDateToPicker.destroy();
       }
       
       this.inpFilterDateToPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateTo_'+this.gcWidgetId ), {
+        minDate: new Date(this.chartFromDate),
+        maxDate: new Date(this.chartToDate),
         startDate: new Date(this.chartToDate), // Date selected by default
         dateFormat: 'yyyy-mm-dd', // the date format `field` value
         lang: this.currentLanguage, // internationalization
