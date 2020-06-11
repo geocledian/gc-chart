@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-06-09, jsommer
+ last update: 2020-06-10, jsommer
  version: 0.9.2
 */
 "use strict";
@@ -356,7 +356,7 @@ Vue.component('gc-chart', {
 
           </div><!-- chart settings -->
 
-          <div class="content" v-show="this.api_err_msg.length > 0"></div>
+          <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
 
           <div class="chartSpinner spinner" v-show="this.isloading">
             <div class="rect1"></div>
@@ -366,7 +366,7 @@ Vue.component('gc-chart', {
             <div class="rect5"></div>
           </div>
 
-          <div style="position: relative;">
+          <div style="position: relative;" style="padding-top: 0.1em;" v-show="this.api_err_msg.length==0">
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div>
 
             <!-- product selector -->
@@ -689,6 +689,9 @@ Vue.component('gc-chart', {
   },
   /* when vue component is mounted (ready) on DOM node */
   mounted: function () {
+
+    // listen on size change handler
+    this.$root.$on("containerSizeChange", this.containerSizeChange);
 
     // init hidden stats  
     let allStats = ["mean","min","max","std.dev.","marker"];
@@ -1218,14 +1221,12 @@ Vue.component('gc-chart', {
                   // show message, hide spinner, don't show chart
                   this.api_err_msg = this.$t('api_msg.unauthorized_key') + "<br>" + this.$t('api_msg.support');
                   this.isloading = false;
-                  //document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
                   return;
               }
               if (tmp.content == 	"api key validity expired") {
                   // show message, hide spinner, don't show chart
                   this.api_err_msg = this.$t('api_msg.invalid_key') + "<br>" + this.$t('api_msg.support');
                   this.isloading = false;
-                  //document.getElementById("chartSpinner_" + this.gcWidgetId).classList.add("is-hidden");
                   return;
               }
   
@@ -2142,6 +2143,10 @@ Vue.component('gc-chart', {
     toggleChartOptions: function() {
       this.gcOptionsCollapsed = !this.gcOptionsCollapsed;
     },  
+    containerSizeChange(size) {
+      /* handles the resize of the chart if parent container size changes */
+      this.chart.resize();
+    },
     /* helper functions */
     removeFromArray: function(arry, value) {
       let index = arry.indexOf(value);
