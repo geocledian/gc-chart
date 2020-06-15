@@ -399,7 +399,6 @@ Vue.component('gc-chart', {
       statisticsMany : [],
       internalSelectedProduct: "",
       parcels: [],
-      currentRasterIndex: 0,
       offset: 0,
       pagingStep: 250,
       total_parcel_count: 250,
@@ -826,16 +825,9 @@ Vue.component('gc-chart', {
             }
           }
           //should never reach here because selectedProduct should not be set in this gcMode!
-
-          /*if (this.mode == "many-indices") {
-            for (var i = 0; i < this.availableProducts.length; i++) {
-              //this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
-              // only load stats if product is not visible
-              if (newValue != 'visible') {
-                this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
-              }
-            }
-          }*/
+          if (this.mode == "many-indices") {
+            return;
+          }
         }
       }
     },
@@ -905,16 +897,6 @@ Vue.component('gc-chart', {
       else
         this.chart.unload();
 
-    },
-    currentRasterIndex: function (newValue, oldValue) {
-            
-      if (newValue != oldValue) {
-          console.debug("event - currentRasterIndexChange");
-
-          //if (this.getCurrentRaster() && chart) {
-          //    chartUpdateCurrentMarker();
-          //}
-      }
     },
     statistics: function (newValue, oldValue) {
 
@@ -1042,16 +1024,17 @@ Vue.component('gc-chart', {
       this.initDatePickers();
     },
     gcSelectedDate(newValue, oldValue) {
-      /* This is nightmare code, beware! 
-      
-          Workaround because selection in c3.js chart will result in a toggle selection
+      /*       
+          Workaround!
+          
+          Any selection in c3.js chart (programmatically or via UI) will result in a toggle selection
           when gcSelectedDate is set again externally (vue prop - root is in control); 
-          so it will look like there is no selection because of the circular dependency.
+          Thus it will be selected and deselected right after it -> result no selection at all.
+          AND: c3.js chart.selected() was not reliable - it sometimes looses its selection data! 
 
-          AND: c3.js chart.selected() sometimes looses its selection data! 
-          so it is necessary to store a map (internalQueryDate) on the graphs in an own object
-          and check if chart already knows about this date (could be set by clicking in the chart)
-          if so, don't change the selection at all
+          So it is necessary to store a map (internalQueryDate) on the graphs in a custom object
+          and check if the chart already knows about this date (could be set by clicking in the chart)
+          if so, don't change the selection again.
 
       */
       console.debug("gcSelectedDateChange");
@@ -1136,14 +1119,13 @@ Vue.component('gc-chart', {
                           + " selected. Checking next one..");
               continue;
             }
-            else {
-              let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
-              // unselect on this parcel only
-              this.chart.unselect(parcel_id+"");
-              // do not change the selection of other selection points on other parcels-> false
-              this.chart.select(parcel_id+"", [index], false);
-            }
-          // }
+          else {
+            let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
+            // unselect on this parcel only
+            this.chart.unselect(parcel_id+"");
+            // do not change the selection of other selection points on other parcels-> false
+            this.chart.select(parcel_id+"", [index], false);
+          }
         }
       }
     },
@@ -1350,15 +1332,6 @@ Vue.component('gc-chart', {
             // one parcel can have 1-n rasters of the same product (time series!)
             // add all rasters (=time series)
             Vue.set(row, "timeSeries", tmp.content); //url + tmp.content[0].png + "?key=" + key);
-
-            //set max value of timeslider
-            //document.getElementById("inpTimeSlider").max = tmp.content.length -1;
-
-            //show raster in map
-            //this.showCurrentRaster();
-
-            //enable time slider buttons
-            //disableTimeSlider(false);
 
             //hide spinner
             this.isloading = false;
@@ -1880,9 +1853,6 @@ Vue.component('gc-chart', {
               console.debug("onselected()");
               // only enabled if current graph content is statistics
               if (this.currentGraphContent == "statistics") {
-                  // update timeslider also
-                  //this.currentRasterIndex = e.index;
-                  // console.debug(e.x);
                   if (e.x) {
                     // save also to internal - value is being checked in watcher
                     // if (this.mode === "many-parcels") {
