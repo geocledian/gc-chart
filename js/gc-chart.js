@@ -116,10 +116,10 @@ const gcChartLocales = {
       "ndvi": "NDVI",
       "ndre1": "NDRE1",
       "ndre2": "NDRE2",
-      "ndwi": "NDWI",
+      "ndwi": "Wassergehalt",
       "savi": "SAVI",
       "evi2": "EVI2",
-      "cire": "CIRE",
+      "cire": "Blattfläche",
       "npcri": "NPCRI"
     },
     "api_msg": {
