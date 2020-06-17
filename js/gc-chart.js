@@ -113,10 +113,10 @@ const gcChartLocales = {
       "ndvi": "NDVI",
       "ndre1": "NDRE1",
       "ndre2": "NDRE2",
-      "ndwi": "NDWI",
+      "ndwi": "Wassergehalt",
       "savi": "SAVI",
       "evi2": "EVI2",
-      "cire": "CIRE",
+      "cire": "Blattfläche",
       "npcri": "NPCRI"
     },
     "api_msg": {
@@ -1721,7 +1721,7 @@ Vue.component('gc-chart', {
       var axis_label;
       if (this.mode == "one-index") {
         if (this.selectedProduct == "vitality" || this.selectedProduct == "variations" ||  this.selectedProduct == "visible") {
-            axis_label = this.$t("products.ndvi");
+            axis_label = this.$t("products.vitality");
         }
         else {
             axis_label = this.$t("products."+ this.selectedProduct);
