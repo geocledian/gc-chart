@@ -804,12 +804,12 @@ Vue.component('gc-chart', {
             this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
-              if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
+              //if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
                 //this.getMarkers(this.getCurrentParcel().parcel_id);
-              }
-              else {
-                this.sn_markers = {};
-              }
+              //}
+              // else {
+              //   this.sn_markers = {};
+              // }
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
