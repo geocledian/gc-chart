@@ -88,19 +88,19 @@ Then you may create the widget(s) with custom HTML tags anywhere in the body sec
   <gc-chart gc-widget-id="chart1" 
             gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
             gc-host="geocledian.com" 
-            gc-parcel-id="4483"
+            gc-current-parcel-id="4483"
             gc-mode="one-index">
   </gc-chart>
   <gc-chart gc-widget-id="chart2" 
             gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
             gc-host="geocledian.com" 
-            gc-parcel-id="4483"
+            gc-current-parcel-id="4483"
             gc-mode="many-indices">
   </gc-chart>
   <gc-chart gc-widget-id="chart3" 
             gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
             gc-host="geocledian.com" 
-            gc-parcel-ids="4483,4486"
+            gc-visible-parcel-ids="4483,4486"
             gc-mode="many-parcels">
   </gc-chart>
 </div>

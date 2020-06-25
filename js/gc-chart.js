@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-06-10, jsommer
- version: 0.9.2
+ last update: 2020-06-25, jsommer
+ version: 0.9.3
 */
 "use strict";
 
@@ -321,24 +321,18 @@ Vue.component('gc-chart', {
                 <div class="field field-label is-small">
                   <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.from')}}</label>
                 </div>
-                <div class="control has-icons-left" style="max-width: 7.4rem;">
-                  <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" class="input is-small"
+                <div class="control" style="max-width: 5rem;">
+                  <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" :class="[!chartFromDate ? 'is-danger' : '', 'input','is-small']"
                       :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'" v-model="chartFromDate">
-                  <span class="icon is-small is-left">
-                      <i class="fas fa-clock fa-lg"></i>
-                  </span>
                 </div>
               </div>
               <div class="field">
                 <div class="field field-label is-small">
                   <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.to')}}</label>
                 </div>
-                <div class="control has-icons-left" style="max-width: 7.4rem;">
-                  <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" class="input is-small"
+                <div class="control" style="max-width: 5rem;">
+                  <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" :class="[!chartToDate ? 'is-danger' : '', 'input','is-small']"
                       :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'"  v-model="chartToDate">
-                  <span class="icon is-small is-left">
-                      <i class="fas fa-clock fa-lg"></i>
-                  </span>
                 </div>
               </div>  
             </div>
@@ -366,7 +360,7 @@ Vue.component('gc-chart', {
             <div class="rect5"></div>
           </div>
 
-          <div style="position: relative;" style="padding-top: 0.1em;" v-show="this.api_err_msg.length==0">
+          <div style="position: relative;" v-show="this.api_err_msg.length==0">
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div>
 
             <!-- product selector -->
@@ -374,10 +368,10 @@ Vue.component('gc-chart', {
             <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
               <div class="field-body has-text-bold">
                 <div class="select is-small" v-if="this.mode!='many-indices'">
-                <select v-model="selectedProduct" title="Choose a product!">
-                  <option v-for="p in availableProducts" v-bind:value="p">
-                    <span>{{ $t('products.'+p)}}</span>
-                  </option>
+                  <select v-model="selectedProduct" title="Choose a product!">
+                    <option v-for="p in availableProducts" v-bind:value="p">
+                      <span>{{ $t('products.'+p)}}</span>
+                    </option>
                   </select>
                 </div>
               </div>
@@ -575,14 +569,14 @@ Vue.component('gc-chart', {
         }
       },
       set: function (newValue) {
-        if (this.isDateValid(newValue)) {
+        //if (this.isDateValid(newValue)) {
           //should set gcZoomStartdate from root to the new value
           this.$root.$emit("chartFromDateChange", newValue);
           this.internalZoomStartdate = newValue;
 
           if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
             this.chart.zoom([this.chartFromDate, this.chartToDate]);
-        }
+        // }
       }
     },
     chartToDate: {
@@ -598,14 +592,14 @@ Vue.component('gc-chart', {
         }
       },
       set: function (newValue) {
-        if (this.isDateValid(newValue)) {
+        // if (this.isDateValid(newValue)) {
           //should set gcZoomEnddate from root to the new value
           this.$root.$emit("chartToDateChange", newValue);
           this.internalZoomEnddate = newValue;
 
           if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
             this.chart.zoom([this.chartFromDate, this.chartToDate]);
-        }
+        // }
       }
     },
     selectedProduct: {
@@ -777,20 +771,42 @@ Vue.component('gc-chart', {
             
       console.debug("event - chartFromDateChange");
       if (this.isDateValid(newValue)) {
-        if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {
-            if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-              this.chart.zoom([this.chartFromDate, this.chartToDate]);
+        //special case: chartToDate is also undefined
+        if (!this.chartFromDate) {
+          if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {
+              if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+                this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          }
+          else {
+            //revert date to old
+            this.chartFromDate = undefined;
+          }
         }
+      }
+      else {
+        //revert date to old
+        this.chartFromDate = undefined;
       }
     },
     chartToDate: function (newValue, oldValue) {
 
         console.debug("event - chartToDateChange");
         if (this.isDateValid(newValue)) {
-          if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {
-              if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-                this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          //special case: chartToDate is also undefined
+          if (!this.chartToDate) {
+            if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {
+                if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+                  this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            }
+            else {
+              //revert date to old
+              this.chartToDate = undefined;
+            }
           }
+        }
+        else {
+          //revert date to old
+          this.chartToDate = undefined;
         }
     },
     selectedProduct: function (newValue, oldValue) {
@@ -798,9 +814,8 @@ Vue.component('gc-chart', {
       if (newValue != oldValue) {
         console.debug("event - selectedProductChange");
 
-        if (this.parcels.length > 0) {
-
-          if (this.mode == "one-index") {
+        if (this.mode == "one-index") {
+          if (this.getCurrentParcel()) {
             this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
@@ -813,21 +828,21 @@ Vue.component('gc-chart', {
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
-          if (this.mode == "many-parcels") {
-            // console.debug(this.selectedParcelIds);
-            for (var i = 0; i < this.selectedParcelIds.length; i++) {
-              let parcel_id = this.selectedParcelIds[i];
-              //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
-              // only load stats if product is not visible
-              if (newValue != 'visible') {
-                this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
-              }
+        }
+        if (this.mode == "many-parcels") {
+          // console.debug(this.selectedParcelIds);
+          for (var i = 0; i < this.selectedParcelIds.length; i++) {
+            let parcel_id = this.selectedParcelIds[i];
+            //this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
+            // only load stats if product is not visible
+            if (newValue != 'visible') {
+              this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
             }
           }
-          //should never reach here because selectedProduct should not be set in this gcMode!
-          if (this.mode == "many-indices") {
-            return;
-          }
+        }
+        //should never reach here because selectedProduct should not be set in this gcMode!
+        if (this.mode == "many-indices") {
+          return;
         }
       }
     },
@@ -914,6 +929,14 @@ Vue.component('gc-chart', {
       //TODO will also be triggered in chartFromDate / chartToDate setter
       if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
         this.chart.zoom([this.chartFromDate, this.chartToDate]);
+
+      if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+        //update min/max date for date selector: first and last item of timeseries
+        this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[0].date);
+        this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
+        this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[0].date);
+        this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
+      }
     },  
     statisticsMany: {
       handler: function (newValue, oldValue) {
@@ -931,6 +954,48 @@ Vue.component('gc-chart', {
               if (!this.isDateValid(this.chartToDate)) // last date of first product
                 this.chartToDate = newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date;
             }
+            if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+              //update min/max date for date selector: first and last item of timeseries
+              // take the timeseries of the first available product
+              try {
+                this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
+                this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
+                this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
+                this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date);
+              }
+              catch (ex) { console.warn("Error getting values of statistics in many-indices mode."); }
+            }
+          }
+
+          if (this.mode == "many-parcels") {
+            // get min & max of all parcels for selected product
+            // initial values of first parcel
+            try {
+              let timeseries = newValue[0][this.selectedProduct];
+              let minDate = new Date(timeseries[0].date);
+              let maxDate = new Date(timeseries[timeseries.length-1].date);
+              for(let i=0; i< this.selectedParcelIds.length; i++) {
+
+                let timeseries = newValue[i][this.selectedProduct];
+                let testMinDate = new Date(timeseries[0].date);
+                if (testMinDate < minDate) {
+                  minDate = testMinDate;
+                }
+                let testMaxDate = new Date(timeseries[timeseries.length-1].date);
+                if (testMaxDate > maxDate) {
+                  maxDate = testMaxDate;
+                }
+              }
+              if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+                console.debug(newValue);
+                //update min/max date for date selector
+                this.inpFilterDateFromPicker.options["minDate"] = minDate;
+                this.inpFilterDateFromPicker.options["maxDate"] = maxDate;
+                this.inpFilterDateToPicker.options["minDate"] = minDate;
+                this.inpFilterDateToPicker.options["maxDate"] = maxDate;
+              }
+            }
+            catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); }
           }
 
           // zoom in any case on valid date
@@ -1953,6 +2018,8 @@ Vue.component('gc-chart', {
           x: {
               type: 'timeseries',
               tick: {
+                  rotate: 60,
+                  multiline: true,
                   //format: '%d.%m.%Y',
                   fit: false, //false means evenly spaced- ticks - otherwise the time spans will be honored between dates 
                   format: "%e %b %y"

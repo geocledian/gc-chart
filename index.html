@@ -33,18 +33,17 @@
           gc-widget-id="chart1" 
           gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
           gc-host="geocledian.com" 
-          gc-parcel-id="4486"
-          gc-mode="one-index"
+          gc-current-parcel-id="129813"
           gc-language="de"
           gc-datezoom-layout="horizontal"
-          gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom"
+          gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom,productSelector"
       />
     </div>
     <div class="" style="margin-top: 40px;">
       <gc-chart gc-widget-id="chart2" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
-        gc-parcel-id="4483"
+        gc-current-parcel-id="129813"
         gc-language="en"
         gc-mode="many-indices" />
     </div>
@@ -52,9 +51,9 @@
       <gc-chart gc-widget-id="chart3" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
-        gc-parcel-ids="4483,4486"
+        gc-visible-parcel-ids="4483,4486"
         gc-language="de"
-        gc-available-options="dateZoom,legend"
+        gc-available-options="dateZoom,legend,productSelector"
         :gc-options-collapsed=false
         gc-mode="many-parcels" />
     </div>
