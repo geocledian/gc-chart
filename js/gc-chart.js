@@ -580,8 +580,8 @@ Vue.component('gc-chart', {
           this.$root.$emit("chartFromDateChange", newValue);
           this.internalZoomStartdate = newValue;
 
-          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-          //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+            this.chart.zoom([this.chartFromDate, this.chartToDate]);
         // }
       }
     },
@@ -603,8 +603,8 @@ Vue.component('gc-chart', {
           this.$root.$emit("chartToDateChange", newValue);
           this.internalZoomEnddate = newValue;
 
-          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-          //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+            this.chart.zoom([this.chartFromDate, this.chartToDate]);
         // }
       }
     },
@@ -778,7 +778,7 @@ Vue.component('gc-chart', {
       console.debug("event - chartFromDateChange");
       if (this.isDateValid(newValue)) {
         //special case: chartToDate is also undefined
-        if (this.chartToDate) {
+        if (!this.chartFromDate) {
           if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {
               if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
                 this.chart.zoom([this.chartFromDate, this.chartToDate]);
@@ -799,7 +799,7 @@ Vue.component('gc-chart', {
         console.debug("event - chartToDateChange");
         if (this.isDateValid(newValue)) {
           //special case: chartToDate is also undefined
-          if (this.chartFromDate) {
+          if (!this.chartToDate) {
             if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {
                 if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
                   this.chart.zoom([this.chartFromDate, this.chartToDate]);
