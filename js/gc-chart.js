@@ -68,6 +68,9 @@ const gcChartLocales = {
       "unauthorized_key" : "Sorry, the given API key is not authorized!",
       "invalid_key" : "Sorry, the given API key's validity expired!",
       "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support."
+    },
+    "productSelector" : {
+      "tooltip" : "Choose a product!"
     }
   },
   "de": {
@@ -123,6 +126,9 @@ const gcChartLocales = {
       "unauthorized_key" : "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
       "invalid_key" : "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
       "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung."
+    },
+    "productSelector" : {
+      "tooltip" : "Bitte Produkt wählen!"
     }
   },
 }
@@ -368,7 +374,7 @@ Vue.component('gc-chart', {
             <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
               <div class="field-body has-text-bold">
                 <div class="select is-small" v-if="this.mode!='many-indices'">
-                  <select v-model="selectedProduct" title="Choose a product!">
+                  <select v-model="selectedProduct" :title="this.$t('productSelector.tooltip')">
                     <option v-for="p in availableProducts" v-bind:value="p">
                       <span>{{ $t('products.'+p)}}</span>
                     </option>
@@ -574,8 +580,8 @@ Vue.component('gc-chart', {
           this.$root.$emit("chartFromDateChange", newValue);
           this.internalZoomStartdate = newValue;
 
-          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-            this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+          //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
         // }
       }
     },
@@ -597,8 +603,8 @@ Vue.component('gc-chart', {
           this.$root.$emit("chartToDateChange", newValue);
           this.internalZoomEnddate = newValue;
 
-          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-            this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+          //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
         // }
       }
     },
@@ -772,7 +778,7 @@ Vue.component('gc-chart', {
       console.debug("event - chartFromDateChange");
       if (this.isDateValid(newValue)) {
         //special case: chartToDate is also undefined
-        if (!this.chartFromDate) {
+        if (this.chartToDate) {
           if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {
               if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
                 this.chart.zoom([this.chartFromDate, this.chartToDate]);
@@ -793,7 +799,7 @@ Vue.component('gc-chart', {
         console.debug("event - chartToDateChange");
         if (this.isDateValid(newValue)) {
           //special case: chartToDate is also undefined
-          if (!this.chartToDate) {
+          if (this.chartFromDate) {
             if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {
                 if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
                   this.chart.zoom([this.chartFromDate, this.chartToDate]);
@@ -2034,6 +2040,7 @@ Vue.component('gc-chart', {
           y: {
               label: {text: axis_label,
                       position: 'outer-top'},
+              // no fixed values: dynamically scaling
               //max: 1.5,
               // min: 0,
               padding: {top:10, bottom:0}
