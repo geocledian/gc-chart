@@ -1257,10 +1257,10 @@ Vue.component('gc-chart', {
       //Show requests on the DEBUG console for developers
       console.debug("getAllParcels()");
       console.debug("GET " + this.getApiUrl(endpoint) + params);
-  
+
       xmlHttp.onreadystatechange=function()
       {
-          if (xmlHttp.readyState==4)
+          if (xmlHttp.readyState==4 && xmlHttp.status == 200)
           {
               var tmp  = JSON.parse(xmlHttp.responseText);
   
@@ -1331,6 +1331,9 @@ Vue.component('gc-chart', {
           }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
+        
+      xmlHttp.setRequestHeader("Access-Control-Allow-Origin", "https://cl-host04-api.geocledian.com")
+
       xmlHttp.send();
     },
     // hack; see getAllParcels() for explanation

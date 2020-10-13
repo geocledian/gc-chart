@@ -122,7 +122,8 @@ function initComponent() {
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)
             el: "#gc-app",
-            i18n: i18n //root i18n
+            i18n: i18n, //root i18n
+            // check for selectedProduct changes!
         });
     });
 }
