@@ -117,7 +117,7 @@ function initComponent() {
     
     // load map component dynamically
     // change for DEBUG to js/gc-chart.js
-    loadJSscript("js/gc-chart.js", function() {
+    loadJSscript("js/gc-chart.min.js", function() {
         /* when ready, init global vue root instance */
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)
