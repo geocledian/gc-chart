@@ -50,8 +50,11 @@ This widget is customizeable via HTML attributes and supports the setting of the
 - gc-parcels: array of parcel objects; may be passed externally or loaded by the widget itself; default: []
 - gc-current-parcel-id: used to highlight a parcel in the chart; may be set externally - only for mode "one-index" or "many-indices"; default: -1
 - gc-visible-parcel-ids: array of parcel ids, which contain the parcel ids for visualizing only this subset in the chart - not all from parcels array, e.g. "$root.selectedParcelIds"; default: []
-- gc-zoom-startdate: startdate as simple ISO date string for zooming into the chart, e.g. '2020-04-01'; default: ""
-- gc-zoom-enddate: enddate as simple ISO date string for zooming into the chart, e.g. '2020-11-01'; default: ""
+- gc-zoom-startdate: startdate as simple ISO date string for zooming into the chart, e.g. '$root.chartFromDate'; default: ""
+- gc-zoom-enddate: enddate as simple ISO date string for zooming into the chart, e.g. '$root.chartToDate'; default: ""
+
+> Note: for proper handling of gc-zoom-startdate and gc-zoom-enddate you'll have to adjust the data members (chartFromDate, chartToDate) in the outer root vue instance (e.g. gc-chart-init.js for standalone mode).
+
 - gc-initial-loading: loads the parcels within this map component itself; if set to false the widget waits for gc-parcels to be set; default: "true"
 
 >Note: As there are defaults you will only have to set an attribute to change the default internal value.

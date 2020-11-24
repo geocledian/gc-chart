@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-06-25, jsommer
- version: 0.9.3
+ last update: 2020-11-24, jsommer
+ version: 0.9.4
 */
 "use strict";
 
@@ -36,7 +36,8 @@ const gcChartLocales = {
       "date_zoom": {
         "from": "From",
         "to": "To",
-        "date_format_hint": "YYYY-MM-DD"
+        "date_format_hint": "YYYY-MM-DD",
+        "invalid_date_range": "Invalid date range!"
       },
       "mode" : {
         "label": "Mode",
@@ -64,13 +65,17 @@ const gcChartLocales = {
         "cire": "CIRE",
         "npcri": "NPCRI"
     },
-    "api_msg": {
+    "status_msg": {
       "unauthorized_key" : "Sorry, the given API key is not authorized!",
       "invalid_key" : "Sorry, the given API key's validity expired!",
-      "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support."
+      "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support.",
+      "parcel_id_not_found" : "Parcel ID not found!"
     },
     "productSelector" : {
       "tooltip" : "Choose a product!"
+    },
+    "chart": {
+      "no_data_msg" : "No data available"
     }
   },
   "de": {
@@ -94,7 +99,8 @@ const gcChartLocales = {
         "date_zoom": {
           "from": "Von",
           "to": "Bis",
-          "date_format_hint": "JJJJ-MM-TT"
+          "date_format_hint": "JJJJ-MM-TT",
+          "invalid_date_range": "Datumsbereich ungültig!"
         },
         "mode" : {
           "label": "Modus",
@@ -122,13 +128,17 @@ const gcChartLocales = {
       "cire": "Blattfläche",
       "npcri": "NPCRI"
     },
-    "api_msg": {
+    "status_msg": {
       "unauthorized_key" : "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
       "invalid_key" : "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
-      "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung."
+      "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung.",
+      "parcel_id_not_found" : "Parcel ID nicht gefunden!"
     },
     "productSelector" : {
       "tooltip" : "Bitte Produkt wählen!"
+    },
+    "chart": {
+      "no_data_msg" : "Keine Daten verfügbar",
     }
   },
 }
@@ -328,8 +338,11 @@ Vue.component('gc-chart', {
                   <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.from')}}</label>
                 </div>
                 <div class="control" style="max-width: 5rem;">
-                  <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" :class="[!chartFromDate ? 'is-danger' : '', 'input','is-small']"
+                <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" :class="[chartFromDate >= chartToDate ? 'is-danger has-text-weight-bold has-text-danger' : '', 'input','is-small']"
                       :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'" v-model="chartFromDate">
+                <span style="margin-block-start: 0.25em;" class="tag is-light is-danger" v-show="chartFromDate >= chartToDate">
+                  {{ $t("options.date_zoom.invalid_date_range") }}
+                </span>
                 </div>
               </div>
               <div class="field">
@@ -337,7 +350,7 @@ Vue.component('gc-chart', {
                   <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.to')}}</label>
                 </div>
                 <div class="control" style="max-width: 5rem;">
-                  <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" :class="[!chartToDate ? 'is-danger' : '', 'input','is-small']"
+                  <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" :class="[chartFromDate >= chartToDate ? 'is-danger has-text-weight-bold has-text-danger' : '', 'input','is-small']"
                       :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'"  v-model="chartToDate">
                 </div>
               </div>  
@@ -370,7 +383,7 @@ Vue.component('gc-chart', {
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div>
 
             <!-- product selector -->
-            <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector')">
+            <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
             <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
               <div class="field-body has-text-bold">
                 <div class="select is-small" v-if="this.mode!='many-indices'">
@@ -417,6 +430,8 @@ Vue.component('gc-chart', {
       internalCurrentParcelID: -1, //for internal use of widget only, if not set from outer gcCurrentParcelId prop
       inpFilterDateFromPicker: undefined,
       inpFilterDateToPicker: undefined,
+      minDate: undefined, 
+      maxDate: undefined,
       internalMode: "one-index",
       dateZoomLayout: { "vertical" : "field is-vertical", "horizontal":  "field is-horizontal" },
       d3locales: { "de": {
@@ -563,11 +578,84 @@ Vue.component('gc-chart', {
       }
     },
     chartFromDate: {
+      /* The following logic is necessary because of the requirements:
+         - embedded usage of the chart widget in another application, which sets the zoom dates:
+           possibility to set zoom date for chart via props (e.g. declaration in the HTML tag of the widget)
+           --> gcZoomStartdate
+         - standalone mode: no external setters of the chart zoom dates; the own controls 
+           will be used for setting the dates
+           --> chartFromDate
+         - date has to be valid for zooming
+         - date has to be in the range of the time series; 
+           otherwise fall back to the first date of the time series for the start date
+
+        Note: zooming will be handled in the watcher!
+      */
       get: function() {
         // either outer zoom date
         if (this.gcZoomStartdate.length > 0) {
-          if (this.isDateValid(this.gcZoomStartdate))
-            return this.gcZoomStartdate;
+          if (this.isDateValid(this.gcZoomStartdate)) {
+            // if date is within time series range
+            if (this.mode === "one-index") {
+              const dates = this.statistics.map(d => new Date(d.date));
+              if (this.isDateWithinRange(dates, this.gcZoomStartdate))
+                return this.gcZoomStartdate;
+              else // min date of dates
+                return dates[0];
+            }
+            if (this.mode === "many-indices") {
+              let isWithinRange = false;
+              const allDates = [];
+              for (var i = 0; i < this.availableProducts.length; i++) {
+                const product = this.availableProducts[i];
+                const dates = this.statisticsMany[product].map(d => new Date(d.date));
+                allDates.concat(dates);
+                isWithinRange = this.isDateWithinRange(dates, this.gcZoomStartdate);
+                if (isWithinRange == true) {
+                  return this.gcZoomStartdate;
+                }
+              }
+              if (isWithinRange === false) {
+                return allDates.sort()[0]; // min date of all dates
+              }
+            }
+            if (this.mode === "many-parcels") {
+              let isWithinRange = false;
+              let allDates = [];
+              for (var i = 0; i < this.selectedParcelIds.length; i++) {
+                let parcel_id = this.selectedParcelIds[i];
+                console.debug(parcel_id)
+                const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
+                if (parcel === undefined) {
+                  console.debug("parcel not found!")
+                  return
+                }
+                const timeseries = parcel[this.selectedProduct];
+                if (timeseries == undefined) {
+                  console.debug("time series not found!")
+                  console.debug(parcel)
+                  console.debug(this.selectedProduct)
+                  return
+                }
+                const dates = timeseries.map(d => new Date(d.date));
+                allDates = allDates.concat(dates);
+                isWithinRange = this.isDateWithinRange(dates, this.gcZoomStartdate);
+                if (isWithinRange === true) {
+                  console.debug("gcZoomStartdate in range!")
+                  console.debug(this.gcZoomStartdate)
+                  return this.gcZoomStartdate;
+                }
+              }
+              if (isWithinRange === false) {
+                console.debug("gcZoomStartdate not in range!");
+                const d = allDates.sort((a,b)=> a-b)[0];
+                if (d !== undefined) {
+                  console.debug("returning "+ d.simpleDate());
+                  return d.simpleDate(); // min date of all dates
+                }
+              }
+            }
+          }
         }// or internal zoom date
         else {
           if (this.isDateValid(this.internalZoomStartdate))
@@ -575,22 +663,94 @@ Vue.component('gc-chart', {
         }
       },
       set: function (newValue) {
-        //if (this.isDateValid(newValue)) {
+        console.debug("chartFromDate setter: "+ newValue)
+        if (this.isDateValid(newValue)) {
           //should set gcZoomStartdate from root to the new value
           this.$root.$emit("chartFromDateChange", newValue);
+          // okay for different usage modes (embedded vs standalone)
           this.internalZoomStartdate = newValue;
-
-          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-            this.chart.zoom([this.chartFromDate, this.chartToDate]);
-        // }
+        }
       }
     },
     chartToDate: {
+      /* The following logic is necessary because of the requirements:
+         - embedded usage of the chart widget in another application, which sets the zoom dates:
+           possibility to set zoom date for chart via props (e.g. declaration in the HTML tag of the widget)
+           --> gcZoomEnddate
+         - standalone mode: no external setters of the chart zoom dates; the own controls 
+           will be used for setting the dates
+           --> chartToDate
+         - date has to be valid for zooming
+         - date has to be in the range of the time series; 
+           otherwise fall back to the last date of the time series for the end date
+
+        Note: zooming will be handled in the watcher!
+      */
       get: function() {
         // either outer zoom date
-        if (this.gcZoomStartdate.length > 0) {
-          if (this.isDateValid(this.gcZoomEnddate))
-            return this.gcZoomEnddate;
+        if (this.gcZoomEnddate.length > 0) {
+          if (this.isDateValid(this.gcZoomEnddate)) {
+            // if date is within time series range
+            if (this.mode === "one-index") {
+              const dates = this.statistics.map(d => new Date(d.date));
+              if (this.isDateWithinRange(dates, this.gcZoomEnddate))
+                return this.gcZoomStartdate;
+              else // min date of dates
+                return dates[0];
+            }
+            if (this.mode === "many-indices") {
+              let isWithinRange = false;
+              let allDates = [];
+              for (var i = 0; i < this.availableProducts.length; i++) {
+                const product = this.availableProducts[i];
+                const dates = this.statisticsMany[product].map(d => new Date(d.date));
+                allDates = allDates.concat(dates);
+                isWithinRange = this.isDateWithinRange(dates, this.gcZoomEnddate);
+                if (isWithinRange === true) {
+                  return this.gcZoomEnddate;
+                }
+              }
+              if (isWithinRange === false) {
+                return allDates.sort()[allDates.length-1]; // max date of all dates
+              }
+            }
+            if (this.mode === "many-parcels") {
+              let isWithinRange = false;
+              let allDates = [];
+              for (var i = 0; i < this.selectedParcelIds.length; i++) {
+                let parcel_id = this.selectedParcelIds[i];
+                console.debug(parcel_id)
+                const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
+                if (parcel === undefined) {
+                  console.debug("parcel not found!")
+                  return
+                }
+                const timeseries = parcel[this.selectedProduct];
+                if (timeseries == undefined) {
+                  console.debug("time series not found!")
+                  console.debug(parcel)
+                  console.debug(this.selectedProduct)
+                  return
+                }
+                const dates = timeseries.map(d => new Date(d.date));
+                allDates = allDates.concat(dates);
+                isWithinRange = this.isDateWithinRange(dates, this.gcZoomEnddate);
+                if (isWithinRange == true) {
+                  console.debug("gcZoomEnddate in range!")
+                  console.debug(this.gcZoomEnddate)
+                  return this.gcZoomEnddate;
+                }
+              }
+              if (isWithinRange === false) {
+                console.debug("gcZoomEnddate not in range!")
+                const d = allDates.sort((a,b)=> a-b)[allDates.length-1];
+                if (d !== undefined) {
+                  console.debug("returning "+ d.simpleDate());
+                  return d.simpleDate(); // max date of all dates
+                }
+              }
+            }
+          }
         }// or internal zoom date
         else {
           if (this.isDateValid(this.internalZoomEnddate))
@@ -598,14 +758,13 @@ Vue.component('gc-chart', {
         }
       },
       set: function (newValue) {
-        // if (this.isDateValid(newValue)) {
-          //should set gcZoomEnddate from root to the new value
+        console.debug("chartToDate setter: "+ newValue)
+        if (this.isDateValid(newValue)) {
+          // should set gcZoomEnddate from root to the new value
           this.$root.$emit("chartToDateChange", newValue);
+          // for different usage modes (embedded vs standalone)
           this.internalZoomEnddate = newValue;
-
-          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-            this.chart.zoom([this.chartFromDate, this.chartToDate]);
-        // }
+        }
       }
     },
     selectedProduct: {
@@ -677,7 +836,7 @@ Vue.component('gc-chart', {
       }
     },
   },
-  //init internationalization
+  // init internationalization
   i18n: {
     locale: this.currentLanguage,
     messages: gcChartLocales
@@ -704,14 +863,14 @@ Vue.component('gc-chart', {
       }
     }.bind(this));
 
-    //overwrite statisticsMany
+    // overwrite statisticsMany
     if (this.mode == "many-indices") {
       this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
     }
     if (this.mode == "many-parcels") {
       this.statisticsMany = [];
     }
-    //set first of available products to the selected one
+    // set first of available products to the selected one
     if (this.mode == "one-index" || this.mode == "many-parcels") {
       this.selectedProduct = this.availableProducts[0];
     }
@@ -720,9 +879,10 @@ Vue.component('gc-chart', {
     this.isloading = true;
 
     /* init chart */
-    //set i18n for time x axis
+    // set i18n for time x axis
     d3.timeFormatDefaultLocale(this.d3locales[this.currentLanguage]);
 
+    // generate empty chart
     this.chart = c3.generate({
       bindto: '#chart_'+this.gcWidgetId,
       data: {
@@ -753,15 +913,15 @@ Vue.component('gc-chart', {
     });
 
     /* watermark */
-    /*d3.select(this.chart.internal.config.bindto)
-      .style ("background-image", "url('img/logo_opaque_50.png')")
-      .style ("background-size", "220px")
-      .style("background-repeat", "no-repeat")
-      .style("background-position-x", "100%")
-      .style("background-position-y", "85%")
-    ;*/
+    // d3.select(this.chart.internal.config.bindto)
+    //   .style ("background-image", "url('img/logo_opaque_50.png')")
+    //   .style ("background-size", "220px")
+    //   .style("background-repeat", "no-repeat")
+    //   .style("background-position-x", "100%")
+    //   .style("background-position-y", "85%")
+    // ;
     
-    //initial loading data
+    // initial loading data
     if (this.currentParcelID > 0) {
       this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
     }
@@ -777,20 +937,25 @@ Vue.component('gc-chart', {
             
       console.debug("event - chartFromDateChange");
       if (this.isDateValid(newValue)) {
-        //special case: chartToDate is also undefined
-        if (!this.chartFromDate) {
-          if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {
-              if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-                this.chart.zoom([this.chartFromDate, this.chartToDate]);
+        // special case: chartToDate may be undefined
+        if (this.chartToDate !== undefined) {
+          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
+            if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {  
+              this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            }
           }
           else {
-            //revert date to old
+            // revert date to old
+            // this.chartFromDate = oldValue;
+            // or clear date
             this.chartFromDate = undefined;
           }
         }
       }
       else {
-        //revert date to old
+        // revert date to old
+        // this.chartFromDate = oldValue;
+        // or clear date
         this.chartFromDate = undefined;
       }
     },
@@ -798,20 +963,25 @@ Vue.component('gc-chart', {
 
         console.debug("event - chartToDateChange");
         if (this.isDateValid(newValue)) {
-          //special case: chartToDate is also undefined
-          if (!this.chartToDate) {
-            if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {
-                if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-                  this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          // special case: chartFromDate may be undefined
+          if (this.chartFromDate !== undefined) {
+            if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
+              if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {  
+                this.chart.zoom([this.chartFromDate, this.chartToDate]);
+              }
             }
             else {
-              //revert date to old
+              // revert date to old
+              // this.chartToDate = oldValue;
+              // or clear date
               this.chartToDate = undefined;
             }
           }
         }
         else {
-          //revert date to old
+          // revert date to old
+          // this.chartToDate = oldValue;
+          // or clear date
           this.chartToDate = undefined;
         }
     },
@@ -926,22 +1096,27 @@ Vue.component('gc-chart', {
       // create chart from values, if they change
       this.createChartData();
 
-      if (!this.isDateValid(this.chartFromDate))
-        this.chartFromDate = newValue[0].date;
-      if (!this.isDateValid(this.chartToDate))
-        this.chartToDate = newValue[newValue.length-1].date;
-      
-      // zoom in any case 
-      //TODO will also be triggered in chartFromDate / chartToDate setter
-      if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-        this.chart.zoom([this.chartFromDate, this.chartToDate]);
-
-      if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
-        //update min/max date for date selector: first and last item of timeseries
-        this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[0].date);
-        this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
-        this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[0].date);
-        this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
+      try {
+        // TODO: only if gcZoomStartdate is not set!
+        if (this.gcZoomStartdate === "") {
+          if (!this.isDateValid(this.chartFromDate))
+            this.chartFromDate = newValue[0].date;
+        }
+        // TODO: only if gcZoomEnddate is not set!
+        if (this.gcZoomEnddate === "") {
+          if (!this.isDateValid(this.chartToDate))
+            this.chartToDate = newValue[newValue.length-1].date;
+        }
+        // save first & last of time series
+        this.minDate = new Date(newValue[0].date);
+        this.maxDate = new Date(newValue[newValue.length-1].date);
+        
+        // TODO will also be triggered in chartFromDate / chartToDate setter
+        if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
+          this.chart.zoom([this.chartFromDate, this.chartToDate]);
+      } catch (ex)
+      {
+        console.warn(ex);
       }
     },  
     statisticsMany: {
@@ -964,10 +1139,18 @@ Vue.component('gc-chart', {
               //update min/max date for date selector: first and last item of timeseries
               // take the timeseries of the first available product
               try {
-                this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
-                this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
-                this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
-                this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date);
+                let minDate = new Date(newValue[this.availableProducts[0]][0].date);
+                let maxDate = new Date(newValue[newValue.length-1].date);
+
+                // save overall min & max Date
+                this.minDate = minDate;
+                this.maxDate = maxDate;
+                
+                // TODO: check old code!
+                // this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
+                // this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
+                // this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
+                // this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date);
               }
               catch (ex) { console.warn("Error getting values of statistics in many-indices mode."); }
             }
@@ -992,14 +1175,9 @@ Vue.component('gc-chart', {
                   maxDate = testMaxDate;
                 }
               }
-              if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
-                console.debug(newValue);
-                //update min/max date for date selector
-                this.inpFilterDateFromPicker.options["minDate"] = minDate;
-                this.inpFilterDateFromPicker.options["maxDate"] = maxDate;
-                this.inpFilterDateToPicker.options["minDate"] = minDate;
-                this.inpFilterDateToPicker.options["maxDate"] = maxDate;
-              }
+              // save overall min & max Date
+              this.minDate = minDate;
+              this.maxDate = maxDate;
             }
             catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); }
           }
@@ -1078,7 +1256,11 @@ Vue.component('gc-chart', {
     },
     gcCurrentParcelId: function (newValue, oldValue) {
       // highlight graph in chart
-      this.chart.focus(parseInt(newValue));
+      if (parseInt(newValue) > 0)
+        this.chart.focus(parseInt(newValue));
+      else {
+        this.chart.revert(); // reset focus for all!
+      }
     },
     currentLanguage(newValue, oldValue) {
       this.changeLanguage();
@@ -1218,6 +1400,21 @@ Vue.component('gc-chart', {
       if (this.parcels.length > 0) {
         this.refreshData();
       }
+    },
+    minDate (newValue, oldValue) {
+      if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+        // console.debug(newValue);
+        // update min/max date for date selector
+        this.inpFilterDateFromPicker.options["minDate"] = newValue;
+        this.inpFilterDateToPicker.options["minDate"] = newValue;
+      }
+    },
+    maxDate (newValue, oldValue) {
+      if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+        // update min/max date for date selector
+        this.inpFilterDateFromPicker.options["maxDate"] = newValue;
+        this.inpFilterDateToPicker.options["maxDate"] = newValue;
+      }
     }
   },
   methods: {
@@ -1272,13 +1469,13 @@ Vue.component('gc-chart', {
   
               if (tmp.content == "key is not authorized") {
                   // show message, hide spinner, don't show chart
-                  this.api_err_msg = this.$t('api_msg.unauthorized_key') + "<br>" + this.$t('api_msg.support');
+                  this.api_err_msg = this.$t('status_msg.unauthorized_key') + "<br>" + this.$t('status_msg.support');
                   this.isloading = false;
                   return;
               }
               if (tmp.content == 	"api key validity expired") {
                   // show message, hide spinner, don't show chart
-                  this.api_err_msg = this.$t('api_msg.invalid_key') + "<br>" + this.$t('api_msg.support');
+                  this.api_err_msg = this.$t('status_msg.invalid_key') + "<br>" + this.$t('status_msg.support');
                   this.isloading = false;
                   return;
               }
@@ -1286,8 +1483,9 @@ Vue.component('gc-chart', {
               this.parcels = [];
   
               if (tmp.content.length == 0) {
-                  //clear details and map
-                  //clearGUI();
+                  // show empty chart with no data msg
+                  this.createChartData();
+                  this.isloading = false;
                   return;
               }
   
@@ -1357,14 +1555,22 @@ Vue.component('gc-chart', {
         // thus phenology must be called by user
         //this.phenology = { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} };
 
-        if (this.mode == "one-index") {
-          this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
-        }
-        if (this.mode == "many-indices") {
-          for (var i = 0; i < this.availableProducts.length; i++) {
-            this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
+        let currentParcel = this.getCurrentParcel();
+        if (currentParcel !== undefined) {
+          if (this.mode == "one-index") {
+            this.getIndexStats(currentParcel.parcel_id, this.dataSource, this.selectedProduct);
           }
-        } 
+          if (this.mode == "many-indices") {
+            for (var i = 0; i < this.availableProducts.length; i++) {
+              this.getIndexStats(currentParcel.parcel_id, this.dataSource, this.availableProducts[i]);
+            }
+          } 
+        }
+        else {
+          this.api_err_msg = this.$t("status_msg.parcel_id_not_found");
+          this.isloading = false;
+          return;
+        }
       }
       if (this.mode == "many-parcels") {
         for (var i = 0; i < this.selectedParcelIds.length; i++) {
@@ -1373,11 +1579,10 @@ Vue.component('gc-chart', {
             this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
         }
       }
-
     },
     getParcelsProductData: function (parcel_id, productName, source) {
 
-      //show spinner
+      // show spinner
       this.isloading = true;
 
       const endpoint = "/parcels/" + parcel_id + "/" + productName;
@@ -1403,8 +1608,10 @@ Vue.component('gc-chart', {
             // one parcel can have 1-n rasters of the same product (time series!)
             // add all rasters (=time series)
             Vue.set(row, "timeSeries", tmp.content); //url + tmp.content[0].png + "?key=" + key);
-
-            //hide spinner
+          }
+          else {
+            // show empty chart with no data msg
+            this.createChartData();
             this.isloading = false;
           }
 
@@ -1431,7 +1638,7 @@ Vue.component('gc-chart', {
     },
     getIndexStats: function(parcel_id, source, product) {
 
-      this.isloading = true; // hide controls with this boolean
+      this.isloading = true; // hide chart with this boolean
       this.api_err_msg = ""; // empty api messages
   
       let productName = product;
@@ -1472,25 +1679,17 @@ Vue.component('gc-chart', {
                 // only chart data is necessary here
                 if (this.mode == "one-index") {
                   this.statistics = tmp.content;
-                  //set initial internal dates from time series
-                  this.internalZoomStartdate = this.statistics[0].date;
-                  this.internalZoomEnddate = this.statistics[this.statistics.length-1].date;
                 }
                 if (this.mode == "many-parcels") {
-                  //Vue.set(row, "timeSeries", []);
-                  //row.timeSeries.push({"statistics": tmp.content, "product": product});
-                  
+
                   let parcel = this.statisticsMany.find(p=>parseInt(p.parcel_id) == parseInt(parcel_id));
 
                   if (parcel) {
-                    //console.debug("before update - this.statisticsMany.length: " +this.statisticsMany.length);
-                    //console.debug("parcel_id: " +parcel_id);
+
                     let idx = this.statisticsMany.indexOf(parcel);
                     parcel[productName] = tmp.content;
-                    //existent -> update with new product
-                    //console.debug("idx: " + idx);
+                    // existent -> update with new product
                     this.statisticsMany.splice(idx, 1, parcel);
-                    //console.debug("after update - this.statisticsMany.length: " +this.statisticsMany.length);
                   }
                   else {
                     //console.debug("before insert - this.statisticsMany.length: " +this.statisticsMany.length);
@@ -1501,36 +1700,20 @@ Vue.component('gc-chart', {
                     this.statisticsMany.push(parcel);
                     //console.debug("after insert - this.statisticsMany.length: " +this.statisticsMany.length);
                   }
-                  // check for min / max date of parcels
-                  // may be overwritten by the following parcel
-                  let minDate = parcel[productName][0].date;
-                  let maxDate = parcel[productName][tmp.content.length-1].date;
-                  // first ones
-                  if (this.internalZoomStartdate === "")
-                    this.internalZoomStartdate = minDate;
-                  if (this.internalZoomEnddate === "")
-                    this.internalZoomEnddate = maxDate;
-
-                  if (minDate < this.internalZoomStartdate) {
-                    this.internalZoomStartdate = minDate;
-                  }
-                  if (maxDate > this.internalZoomEnddate) {
-                    this.internalZoomEnddate = maxDate;
-                  }
-                  
-                  //console.debug(this.statisticsMany);
                 }
                 if (this.mode == "many-indices") {
                   this.statisticsMany[productName] = tmp.content;
-                  //set initial internal dates from time series
-                  this.internalZoomStartdate = this.statisticsMany[productName][0].date;
-                  this.internalZoomEnddate = this.statisticsMany[productName][this.statisticsMany[productName].length-1].date;
                 }
 
-                //init datepickers now as the timeseries is ready
+                // init datepickers now as the timeseries is ready
                 // load external Javascript file has to exists prior to this!
                 // should be handled in an init script
                 this.initDatePickers();
+            }
+            else {
+              // show empty chart with no data msg
+              this.createChartData();
+              this.isloading = false;
             }
         }
       }.bind(this);
@@ -1539,10 +1722,7 @@ Vue.component('gc-chart', {
       xmlHttp.send();
     },
     createChartData: function() {
-
       console.debug("createChartData()");
-      console.debug("chart content: "+this.currentGraphContent);
-      console.debug("chart mode: "+this.mode);
 
       let chartType = this.currentGraphContent;
       let columns = [];
@@ -1585,15 +1765,16 @@ Vue.component('gc-chart', {
             //place the new column after the existing one(s)
             columns[columns.length] = [product].concat( filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3)));
           }
-          /*columns[2] = ["ndvi"].concat( this.statisticsMany["ndvi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[3] = ["ndre1"].concat( this.statisticsMany["ndre1"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[4] = ["ndre2"].concat( this.statisticsMany["ndre2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[5] = ["ndwi"].concat( this.statisticsMany["ndwi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[6] = ["cire"].concat( this.statisticsMany["cire"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[7] = ["savi"].concat( this.statisticsMany["savi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[8] = ["evi2"].concat( this.statisticsMany["evi2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[9] = ["npcri"].concat( this.statisticsMany["npcri"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          columns[10] = ["vitality"].concat( this.statisticsMany["vitality"].map( r => this.formatDecimal(r.statistics.mean, 3)));*/
+          // style:
+          // columns[2] = ["ndvi"].concat( this.statisticsMany["ndvi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[3] = ["ndre1"].concat( this.statisticsMany["ndre1"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[4] = ["ndre2"].concat( this.statisticsMany["ndre2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[5] = ["ndwi"].concat( this.statisticsMany["ndwi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[6] = ["cire"].concat( this.statisticsMany["cire"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[7] = ["savi"].concat( this.statisticsMany["savi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[8] = ["evi2"].concat( this.statisticsMany["evi2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[9] = ["npcri"].concat( this.statisticsMany["npcri"].map( r => this.formatDecimal(r.statistics.mean, 3)));
+          // columns[10] = ["vitality"].concat( this.statisticsMany["vitality"].map( r => this.formatDecimal(r.statistics.mean, 3)));
 
         }
         if (this.mode == "many-parcels") {
@@ -1698,43 +1879,25 @@ Vue.component('gc-chart', {
         document.getElementById("phenologyResultsDiv").classList.add("is-hidden");*/
 
         if (this.mode == "many-parcels") {
-          //create chart when all data is ready - not earlier as this leads to undefined entries in data array
+          // create chart when all data is ready - not earlier as this leads to undefined entries in data array
           // error: t[i] is undefined in c3.js
           // columns.length is double the size of the selectedParcelIds (x array + y array)
-          if ( columns.length == this.selectedParcelIds.length*2) {
-            
+          if (columns.length === this.selectedParcelIds.length*2) {
             this.createChart(columns);
-            this.isloading = false;
-
           }
           // else 
           //   console.debug("createChartData() - not ready yet: not all statistics processed!")
         }
         else {
           this.createChart(columns);
-          this.isloading = false;
         }
-
-        // if not changed, the values default to seeding/harvest date of parcel
-        // so it does not harm if phenology is not clicked
-        /*if ( isDateValid(document.getElementById("inpPhenologyStartDate").value) &&
-              isDateValid(document.getElementById("inpPhenologyEndDate").value) ) {
-                this.chartFromDate = document.getElementById("inpPhenologyStartDate").value;
-                this.chartToDate = document.getElementById("inpPhenologyEndDate").value;
-        }*/
-        
-        //chartUpdateCurrentMarker();
       }
       if (chartType == "similarity") {
           
           if (this.similarity.content_parcel.length > 0) {
-  
               let columns = [];
-  
               this.createChart(columns);
-              this.isloading = false;
               //prepareSimilarityData();
-              
           }
       }
     },
@@ -1801,26 +1964,12 @@ Vue.component('gc-chart', {
       else {
         axis_label = "Index ["+ this.$t("statistics.mean") +"]";
       }
-
-      // console.debug("data: ");
-      // console.debug(data);
-      // console.debug("xs: ");
-      // console.debug(xs_options);
   
       //set i18n for time x axis
       d3.timeFormatDefaultLocale(this.d3locales[this.currentLanguage]);
 
+      // generate without data
       this.chart = c3.generate({
-        // onrendered: function() {
-        //   //console.debug("CHART RENDERED!")
-        //   // TODO preserve chart from and to zoom if set
-        //   //   try {
-        //   //     //zoom to previous zoom selection!
-        //   //     if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-        //   //       this.chart.zoom([this.chartFromDate, this.chartToDate]);
-        //   //   } catch (ex) { }
-        //   // 
-        // }.bind(this),
         bindto: '#chart_'+this.gcWidgetId,
         //fixHeightResizing: true,
         data: {
@@ -1838,7 +1987,7 @@ Vue.component('gc-chart', {
                         return true;
                     }
                 },
-              },
+            },
             // single x axis
             //x: 'x',
             // multiple x axis mapping
@@ -1864,6 +2013,11 @@ Vue.component('gc-chart', {
                 "evi2": this.$t("products.evi2"),
                 "cire": this.$t("products.cire"),
                 "npcri": this.$t("products.npcri")
+            },
+            empty: {
+              label: {
+                  text: this.$t("chart.no_data_msg")
+              }
             },
             //hide: [ data[3], data[4] ], //hide min and max
             hide: this.hiddenStats,
@@ -2143,9 +2297,15 @@ Vue.component('gc-chart', {
         }
       });
 
-      // show product selector
-      this.isloading = false;
-
+      // then load data
+      this.chart.load({
+        columns: data.columns,
+        done: function() {
+          // hide spinner after data is loaded
+          this.isloading = false;
+        }.bind(this)
+      });
+      
     },
     refreshData() {
 
@@ -2236,6 +2396,20 @@ Vue.component('gc-chart', {
       else {
           return false;
       }
+    },
+    isDateWithinRange: function (arr, date_str) {
+      // function assumes sorted array of strings
+      // that can be converted to date objects
+
+      let test_date = new Date(date_str);
+      let min_date = new Date(arr[0]);
+      let max_date = new Date(arr[arr.length-1]);
+    
+      if ( (test_date.getTime() >= min_date.getTime()) && (test_date.getTime() <= max_date.getTime()) )
+        return true
+      else
+        return false
+    
     },
     loadJSscript: function (url, callback) {
       let script = document.createElement("script");  // create a script DOM node

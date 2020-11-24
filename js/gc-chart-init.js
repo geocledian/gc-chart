@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- last update: 2020-05-14, jsommer
- version: 0.9
+ last update: 2020-11-24, jsommer
+ version: 0.9.1
 */
 
 // root Vue instance
@@ -117,12 +117,31 @@ function initComponent() {
     
     // load map component dynamically
     // change for DEBUG to js/gc-chart.js
-    loadJSscript("js/gc-chart.min.js", function() {
+    loadJSscript("js/gc-chart.js", function() {
         /* when ready, init global vue root instance */
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)
             el: "#gc-app",
-            i18n: i18n //root i18n
+            i18n: i18n, //root i18n
+            data: {
+              // for external control of gcZoomStartdate and gcZoomEnddate
+              chartFromDate: "",
+              chartToDate: ""
+            },
+            // for external control of gcZoomStartdate and gcZoomEnddate add listener here!
+            mounted() {
+              // chart updates back to root
+              this.$on('chartFromDateChange', this.chartFromDateChange);
+              this.$on('chartToDateChange', this.chartToDateChange);
+            },
+            methods: {
+              chartFromDateChange: function (newValue) {
+                this.chartFromDate = newValue;
+              },
+              chartToDateChange: function (newValue) {
+                this.chartToDate = newValue;
+              },
+            }
         });
     });
 }
