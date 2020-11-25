@@ -1160,12 +1160,20 @@ Vue.component('gc-chart', {
             // get min & max of all parcels for selected product
             // initial values of first parcel
             try {
-              let timeseries = newValue[0][this.selectedProduct];
-              let minDate = new Date(timeseries[0].date);
-              let maxDate = new Date(timeseries[timeseries.length-1].date);
+              // let timeseries = newValue[0][this.selectedProduct];
+              // let minDate = new Date(timeseries[0].date);
+              // let maxDate = new Date(timeseries[timeseries.length-1].date);
+              let minDate = new Date();
+              let maxDate = new Date();
               for(let i=0; i< this.selectedParcelIds.length; i++) {
+                
+                const statsElement = newValue[i];
+                if (statsElement === undefined)
+                  continue; 
+                const timeseries = statsElement[this.selectedProduct];
+                if (timeseries.length === 0)
+                  continue;
 
-                let timeseries = newValue[i][this.selectedProduct];
                 let testMinDate = new Date(timeseries[0].date);
                 if (testMinDate < minDate) {
                   minDate = testMinDate;
@@ -1179,7 +1187,7 @@ Vue.component('gc-chart', {
               this.minDate = minDate;
               this.maxDate = maxDate;
             }
-            catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); }
+            catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); console.error(ex);}
           }
 
           // zoom in any case on valid date
@@ -1602,18 +1610,18 @@ Vue.component('gc-chart', {
           let tmp = JSON.parse(xmlHttp.responseText);
           let row = this.getCurrentParcel();
 
-          if (tmp.content.length > 0) {
+          // if (tmp.content.length > 0) {
             // add new attributes via Vue.set
 
             // one parcel can have 1-n rasters of the same product (time series!)
             // add all rasters (=time series)
             Vue.set(row, "timeSeries", tmp.content); //url + tmp.content[0].png + "?key=" + key);
-          }
-          else {
-            // show empty chart with no data msg
-            this.createChartData();
-            this.isloading = false;
-          }
+          // }
+          // else {
+          // // show empty chart with no data msg
+            // this.createChartData();
+            // this.isloading = false;
+          // }
 
         }
       }.bind(this);
@@ -1671,50 +1679,45 @@ Vue.component('gc-chart', {
             var tmp  = JSON.parse(xmlHttp.responseText);
             var row = this.getParcel(parcel_id);
             
-            if (tmp.content.length > 0) {
-              
-                // which one is active
-                this.currentGraphContent = "statistics";
+            // note that even an empty reponse will work in the following lines
+            // just producing empty arrays
 
-                // only chart data is necessary here
-                if (this.mode == "one-index") {
-                  this.statistics = tmp.content;
-                }
-                if (this.mode == "many-parcels") {
+            // which one is active stats or phenology?
+            this.currentGraphContent = "statistics";
 
-                  let parcel = this.statisticsMany.find(p=>parseInt(p.parcel_id) == parseInt(parcel_id));
-
-                  if (parcel) {
-
-                    let idx = this.statisticsMany.indexOf(parcel);
-                    parcel[productName] = tmp.content;
-                    // existent -> update with new product
-                    this.statisticsMany.splice(idx, 1, parcel);
-                  }
-                  else {
-                    //console.debug("before insert - this.statisticsMany.length: " +this.statisticsMany.length);
-                    //console.debug("parcel_id: " +parcel_id);
-                    parcel =  {"parcel_id": parseInt(parcel_id)};
-                    parcel[productName] = tmp.content;
-                    //new -> insert
-                    this.statisticsMany.push(parcel);
-                    //console.debug("after insert - this.statisticsMany.length: " +this.statisticsMany.length);
-                  }
-                }
-                if (this.mode == "many-indices") {
-                  this.statisticsMany[productName] = tmp.content;
-                }
-
-                // init datepickers now as the timeseries is ready
-                // load external Javascript file has to exists prior to this!
-                // should be handled in an init script
-                this.initDatePickers();
+            // only chart data is necessary here
+            if (this.mode == "one-index") {
+              this.statistics = tmp.content;
             }
-            else {
-              // show empty chart with no data msg
-              this.createChartData();
-              this.isloading = false;
+            if (this.mode == "many-parcels") {
+
+              let parcel = this.statisticsMany.find(p=>parseInt(p.parcel_id) == parseInt(parcel_id));
+
+              if (parcel) {
+
+                let idx = this.statisticsMany.indexOf(parcel);
+                parcel[productName] = tmp.content;
+                // existent -> update with new product
+                this.statisticsMany.splice(idx, 1, parcel);
+              }
+              else {
+                //console.debug("before insert - this.statisticsMany.length: " +this.statisticsMany.length);
+                //console.debug("parcel_id: " +parcel_id);
+                parcel =  {"parcel_id": parseInt(parcel_id)};
+                parcel[productName] = tmp.content;
+                //new -> insert
+                this.statisticsMany.push(parcel);
+                //console.debug("after insert - this.statisticsMany.length: " +this.statisticsMany.length);
+              }
             }
+            if (this.mode == "many-indices") {
+              this.statisticsMany[productName] = tmp.content;
+            }
+
+            // init datepickers now as the timeseries is ready
+            // load external Javascript file has to exists prior to this!
+            // should be handled in an init script
+            this.initDatePickers();
         }
       }.bind(this);
 
@@ -1883,10 +1886,20 @@ Vue.component('gc-chart', {
           // error: t[i] is undefined in c3.js
           // columns.length is double the size of the selectedParcelIds (x array + y array)
           if (columns.length === this.selectedParcelIds.length*2) {
-            this.createChart(columns);
+            // clean array: remove empty time series (which have length == 1 because of the id of the axis and the parcel_id)
+            const cleanedColumns = [];
+            for (var i=0;i<columns.length;i++) {
+              if (columns[i].length > 1)
+                cleanedColumns.push(columns[i]);
+            }
+            console.debug(cleanedColumns);
+            this.createChart(cleanedColumns);
           }
-          // else 
-          //   console.debug("createChartData() - not ready yet: not all statistics processed!")
+          else {
+            console.debug("createChartData() - not ready yet: not all statistics processed!")
+            console.debug(columns);
+            console.debug(numberOfDataArrays);
+          }
         }
         else {
           this.createChart(columns);
@@ -2299,12 +2312,13 @@ Vue.component('gc-chart', {
 
       // then load data
       this.chart.load({
-        columns: data.columns,
+        columns: data,
         done: function() {
           // hide spinner after data is loaded
           this.isloading = false;
         }.bind(this)
       });
+    
       
     },
     refreshData() {
