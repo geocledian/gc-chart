@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created:     2019-11-04, jsommer
- last update: 2020-11-24, jsommer
+ last update: 2020-11-27, jsommer
  version: 0.9.4
 */
 "use strict";
@@ -611,7 +611,7 @@ Vue.component('gc-chart', {
                 const dates = this.statisticsMany[product].map(d => new Date(d.date));
                 allDates.concat(dates);
                 isWithinRange = this.isDateWithinRange(dates, this.gcZoomStartdate);
-                if (isWithinRange == true) {
+                if (isWithinRange === true) {
                   return this.gcZoomStartdate;
                 }
               }
@@ -624,7 +624,7 @@ Vue.component('gc-chart', {
               let allDates = [];
               for (var i = 0; i < this.selectedParcelIds.length; i++) {
                 let parcel_id = this.selectedParcelIds[i];
-                console.debug(parcel_id)
+                // console.debug(parcel_id)
                 const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
                 if (parcel === undefined) {
                   console.debug("parcel not found!")
@@ -735,7 +735,7 @@ Vue.component('gc-chart', {
                 const dates = timeseries.map(d => new Date(d.date));
                 allDates = allDates.concat(dates);
                 isWithinRange = this.isDateWithinRange(dates, this.gcZoomEnddate);
-                if (isWithinRange == true) {
+                if (isWithinRange === true) {
                   console.debug("gcZoomEnddate in range!")
                   console.debug(this.gcZoomEnddate)
                   return this.gcZoomEnddate;
@@ -1006,6 +1006,12 @@ Vue.component('gc-chart', {
           }
         }
         if (this.mode == "many-parcels") {
+          // important: empty first 
+          // otherwise statistics updates wil don't fire on each updated in getIndexStats
+          // which leads to flickering zoom in the chart
+
+          this.statisticsMany = [];
+
           // console.debug(this.selectedParcelIds);
           for (var i = 0; i < this.selectedParcelIds.length; i++) {
             let parcel_id = this.selectedParcelIds[i];
@@ -1097,23 +1103,19 @@ Vue.component('gc-chart', {
       this.createChartData();
 
       try {
-        // TODO: only if gcZoomStartdate is not set!
-        if (this.gcZoomStartdate === "") {
-          if (!this.isDateValid(this.chartFromDate))
-            this.chartFromDate = newValue[0].date;
-        }
-        // TODO: only if gcZoomEnddate is not set!
-        if (this.gcZoomEnddate === "") {
-          if (!this.isDateValid(this.chartToDate))
-            this.chartToDate = newValue[newValue.length-1].date;
-        }
         // save first & last of time series
         this.minDate = new Date(newValue[0].date);
         this.maxDate = new Date(newValue[newValue.length-1].date);
-        
-        // TODO will also be triggered in chartFromDate / chartToDate setter
-        if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-          this.chart.zoom([this.chartFromDate, this.chartToDate]);
+
+        // only if gcZoomStartdate is not set!
+        if (this.gcZoomStartdate === "") {
+            this.chartFromDate = this.minDate.simpleDate();
+        }
+        // only if gcZoomEnddate is not set!
+        if (this.gcZoomEnddate === "") {
+            this.chartToDate = this.maxDate.simpleDate();
+        }
+
       } catch (ex)
       {
         console.warn(ex);
@@ -1130,10 +1132,12 @@ Vue.component('gc-chart', {
           if (this.mode == "many-indices") {
             // only if there are values
             if (newValue[this.availableProducts[0]][0]) {
-              if (!this.isDateValid(this.chartFromDate)) // first date of first product
-                this.chartFromDate = newValue[this.availableProducts[0]][0].date;
-              if (!this.isDateValid(this.chartToDate)) // last date of first product
-                this.chartToDate = newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date;
+              // only if gcZoomStartdate is not set!
+              if (this.gcZoomStartdate === "")
+                this.chartFromDate = newValue[this.availableProducts[0]][0].date; // set to the first date of the first product
+              // only if gcZoomEnddate is not set!
+              if (this.gcZoomEnddate === "")
+                this.chartToDate = newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date; // set to the last date of the first product
             }
             if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
               //update min/max date for date selector: first and last item of timeseries
@@ -1146,11 +1150,6 @@ Vue.component('gc-chart', {
                 this.minDate = minDate;
                 this.maxDate = maxDate;
                 
-                // TODO: check old code!
-                // this.inpFilterDateFromPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
-                // this.inpFilterDateFromPicker.options["maxDate"] = new Date(newValue[newValue.length-1].date);
-                // this.inpFilterDateToPicker.options["minDate"] = new Date(newValue[this.availableProducts[0]][0].date);
-                // this.inpFilterDateToPicker.options["maxDate"] = new Date(newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date);
               }
               catch (ex) { console.warn("Error getting values of statistics in many-indices mode."); }
             }
@@ -1160,9 +1159,6 @@ Vue.component('gc-chart', {
             // get min & max of all parcels for selected product
             // initial values of first parcel
             try {
-              // let timeseries = newValue[0][this.selectedProduct];
-              // let minDate = new Date(timeseries[0].date);
-              // let maxDate = new Date(timeseries[timeseries.length-1].date);
               let minDate = new Date();
               let maxDate = new Date();
               for(let i=0; i< this.selectedParcelIds.length; i++) {
@@ -1186,6 +1182,15 @@ Vue.component('gc-chart', {
               // save overall min & max Date
               this.minDate = minDate;
               this.maxDate = maxDate;
+
+              // only if gcZoomStartdate is not set!
+              if (this.gcZoomStartdate === "") {
+                  this.chartFromDate = this.minDate.simpleDate();
+              }
+              // only if gcZoomEnddate is not set!
+              if (this.gcZoomEnddate === "") {
+                  this.chartToDate = this.maxDate.simpleDate();
+              }
             }
             catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); console.error(ex);}
           }
@@ -1313,7 +1318,7 @@ Vue.component('gc-chart', {
             }
           }
         }
-        console.debug(this.statistics);
+        // console.debug(this.statistics);
         const exactDate = this.getClosestDate(this.statistics.map(d => new Date(d.date)), 
                                                 new Date(newValue));
         let alreadySelected = false;
@@ -1892,13 +1897,12 @@ Vue.component('gc-chart', {
               if (columns[i].length > 1)
                 cleanedColumns.push(columns[i]);
             }
-            console.debug(cleanedColumns);
+            // console.debug(cleanedColumns);
             this.createChart(cleanedColumns);
           }
           else {
             console.debug("createChartData() - not ready yet: not all statistics processed!")
-            console.debug(columns);
-            console.debug(numberOfDataArrays);
+            // console.debug(columns);
           }
         }
         else {
@@ -2495,9 +2499,11 @@ Vue.component('gc-chart', {
     getClosestTimeSeriesIndex: function (timeseries, queryDate) {
       /* returns the nearest Date to the given parcel_id and query date */
       const exactDate = this.getClosestDate(timeseries.map(d => new Date(d.date)), new Date(queryDate));
-      console.debug("closest date of given date "+ queryDate + " is "+ exactDate.simpleDate());
-      // find the index of the closest date in timeseries now
-      return timeseries.map(d => d.date).indexOf(exactDate.simpleDate());
+      if (exactDate !== undefined) {
+        console.debug("closest date of given date "+ queryDate + " is "+ exactDate.simpleDate());
+        // find the index of the closest date in timeseries now
+        return timeseries.map(d => d.date).indexOf(exactDate.simpleDate());
+      }
     }
   },
 });
