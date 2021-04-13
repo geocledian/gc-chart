@@ -29,30 +29,74 @@
 <body>
   <div id="gc-app" class="is-mobile section">
     <div class="">
-      <gc-chart 
+      <!-- <gc-chart 
           gc-widget-id="chart1" 
-          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec"
+          gc-api-base-url="/agknow/api/v3"
           gc-host="geocledian.com" 
           gc-current-parcel-id="129813"
           gc-language="de"
           gc-datezoom-layout="horizontal"
           gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom,productSelector,modeSelector"
-      />
+      /> -->
+      <gc-chart 
+          gc-widget-id="chart3" 
+          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec"
+          gc-api-base-url="/agknow/api/v4"
+          gc-host="geocledian.com" 
+          gc-current-parcel-id="129813"
+          gc-language="de"
+          gc-datezoom-layout="horizontal"
+          gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom,productSelector,modeSelector"
+      />  
+      <!-- <gc-chart gc-widget-id="chart2" 
+        gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec"
+        gc-api-base-url="/agknow/api/v3"
+        gc-host="geocledian.com" 
+        gc-current-parcel-id="129813"
+        gc-language="en"
+        gc-datezoom-layout="horizontal"
+        gc-mode="many-indices" /> -->
     </div>
     <div class="" style="margin-top: 40px;">
-      <gc-chart gc-widget-id="chart2" 
-        gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+      <!-- <gc-chart 
+          gc-widget-id="chart3" 
+          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec"
+          gc-api-base-url="/agknow/api/v4"
+          gc-host="geocledian.com" 
+          gc-current-parcel-id="129813"
+          gc-language="de"
+          gc-datezoom-layout="horizontal"
+          gc-available-options="optionsTitle,graphType,hideGraphs,dateZoom,productSelector,modeSelector"
+      /> -->
+      <gc-chart gc-widget-id="chart4" 
+        gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec"
+        gc-api-base-url="/agknow/api/v4"
         gc-host="geocledian.com" 
         gc-current-parcel-id="129813"
         gc-language="en"
         gc-datezoom-layout="horizontal"
         gc-mode="many-indices" />
+
+        <!-- <gc-chart gc-widget-id="chart5" 
+          gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
+          gc-host="geocledian.com" 
+          gc-visible-parcel-ids="4483,4486"
+          gc-api-base-url="/agknow/api/v3"
+          gc-language="de"
+          gc-available-options="dateZoom,legend,productSelector"
+          :gc-zoom-startdate="$root.chartFromDate"
+          :gc-zoom-enddate="$root.chartToDate"
+          :gc-options-collapsed="false"
+          gc-datezoom-layout="horizontal"
+          gc-mode="many-parcels" /> -->
     </div>
     <div class="" style="margin-top: 40px;">
-      <gc-chart gc-widget-id="chart3" 
+      <gc-chart gc-widget-id="chart6" 
         gc-apikey="39553fb7-7f6f-4945-9b84-a4c8745bdbec" 
         gc-host="geocledian.com" 
         gc-visible-parcel-ids="4483,4486"
+        gc-api-base-url="/agknow/api/v4"
         gc-language="de"
         gc-available-options="dateZoom,legend,productSelector"
         :gc-zoom-startdate="$root.chartFromDate"

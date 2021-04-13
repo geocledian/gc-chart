@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
- created:     2019-11-04, jsommer
- last update: 2020-11-27, jsommer
+ created: 2019-11-04, jsommer
+ updated: 2021-04-13, jsommer
  version: 0.9.4
 */
 "use strict";
@@ -488,6 +488,16 @@ Vue.component('gc-chart', {
           return this.gcApiSecure;
       }
     },
+    apiMajorVersion: {
+      get () {
+        if (this.apiBaseUrl === "/agknow/api/v3") {
+          return 3
+        }
+        if (this.apiBaseUrl === "/agknow/api/v4") {
+          return 4
+        }
+      }
+    },
     currentParcelID:  {
       get: function() {
         // if parcel id is not set externally via prop, take the internal one!
@@ -834,7 +844,7 @@ Vue.component('gc-chart', {
         // notify root
         this.$root.$emit('chartModeChange', value);
       }
-    },
+    }
   },
   // init internationalization
   i18n: {
@@ -1593,14 +1603,31 @@ Vue.component('gc-chart', {
         }
       }
     },
-    getParcelsProductData: function (parcel_id, productName, source) {
+    getParcelsProductData: function (parcel_id, product, source) {
 
       // show spinner
       this.isloading = true;
 
-      const endpoint = "/parcels/" + parcel_id + "/" + productName;
-      let params = "&source=" + source +
-        "&order=date";
+      const endpoint = "/parcels/" + parcel_id + "/" + product;
+      let params;
+
+      if (this.apiMajorVersion == 3) {
+        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+        "&order=date&statistics=true";
+      }
+      // no empty params for API v4!
+      if (this.apiMajorVersion == 4) {
+        if (["ndre1", "ndre2", "cire"].includes(product)) {
+          source = "sentinel2" // always sentinel2 for red edge indices
+        }
+        else {
+          if (source.length == 0) {
+            source = "combined"
+          }
+        }
+        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+          "&order=date&statistics=true";
+      }
 
       let xmlHttp = new XMLHttpRequest();
       let async = true;
@@ -1663,8 +1690,26 @@ Vue.component('gc-chart', {
       }
       
       const endpoint = "/parcels/" + parcel_id + "/" + productName;
-      let params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-                   "&order=date&statistics=true"; //statistics are only applicable to vitality product!
+
+      let params;
+      if (this.apiMajorVersion == 3) {
+        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+        "&order=date&statistics=true";
+      }
+      // no empty params for API v4!
+      if (this.apiMajorVersion == 4) {
+        if (["ndre1", "ndre2", "cire"].includes(product)) {
+          source = "sentinel2" // always sentinel2 for red edge indices
+        }
+        else {
+          if (source.length == 0) {
+            source = "combined"
+          }
+        }
+        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+          "&order=date&statistics=true";
+      }
+
   
       let xmlHttp = new XMLHttpRequest();
       let async = true;
