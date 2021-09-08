@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-04-13, jsommer
+ updated: 2021-09-06, jsommer
  version: 0.9.1
 */
 
@@ -18,8 +18,8 @@ var i18n;
 // init dependent javascript libs
 const libs = ['https://unpkg.com/vue@2.6.11/dist/vue.min.js',
               'https://unpkg.com/vue-i18n@8.17.5/dist/vue-i18n.js',
-              'js/d3.v3.min.js', // v4.13.0 
-              'js/c3.min.js', // v0.7.11
+              'js/d3.v6.min.js', // v6.7.0
+              'js/billboard.min.js', // v3.1.5
               'css/bulma-ext/bulma-calendar.min.js'
             ];
 
@@ -117,7 +117,7 @@ function initComponent() {
     
     // load map component dynamically
     // change for DEBUG to js/gc-chart.js
-    loadJSscript("js/gc-chart.min.js", function() {
+    loadJSscript("js/gc-chart.js", function() {
         /* when ready, init global vue root instance */
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)

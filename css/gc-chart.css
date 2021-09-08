@@ -4,8 +4,8 @@
 @import 'bulma.min.css';
 @import 'bulma-ext/bulma-calendar.min.css';
 @import 'bulma-ext/bulma-checkradio.min.css';
-/* C3.js v0.7.11 */
-@import 'c3.min.css';
+/* billboard.js v3.5.1 */
+@import 'billboard.min.css';
 
 .button[gc-chart] {
     border-width: 1px !important;
@@ -236,134 +236,144 @@ table>tbody>tr {
 }
 
 
-.c3 path,
-.c3 line {
+.bb path,
+.bb line {
     stroke: #9D9D9C;
 }
 
-.c3-axis-y {
+.bb-axis-y {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 12px;
 }
 
-.c3-axis-y2 {
+.bb-axis-y2 {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 12px;
 }
 
-.c3-axis-x {
+.bb-axis-x {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 12px;
 }
 
-.c3-axis-y-label {
+.bb-axis-y-label {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: bold;
 }
 
-.c3-axis-y2-label {
+.bb-axis-y2-label {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: bold;
 }
 
-.c3-tooltip-container>.c3-tooltip th {
+.bb-tooltip-container>.bb-tooltip th {
     background-color: #F5F5F5;
     color: #EF7D00 !important;
 }
 
-.c3-axis-x .tick {
+.bb-axis-x .tick {
     fill: #9D9D9C;
 }
 
-.c3-axis-y .tick {
+.bb-axis-y .tick {
     fill: #9D9D9C;
 }
 
-.c3-axis-y2 .tick {
+.bb-axis-y2 .tick {
     fill: #9D9D9C;
 }
 
 /* formatting selectedRaster marker in chart */
-.c3-xgrid-line.selectedRaster line {
+.bb-xgrid-line.selectedRaster line {
     stroke: red;
 }
 
-.c3-xgrid-line.selectedRaster text {
+.bb-xgrid-line.selectedRaster text {
     fill: red;
 }
 
 /* new line in td cell of tooltip*/
-.c3-tooltip td.value {
+.bb-tooltip td.value {
     text-align: right;
     display: table-caption;
 }
 
 /* labels on data points*/
-.c3-chart-text
+.bb-chart-text
 
-/*.c3-target-mean*/
+/*.bb-target-mean*/
     {
     font-weight: 700;
     font-size: 11px;
 }
 
-.c3-circles-meanl8 {
+.bb-circles-meanl8 {
     stroke: #EF7D00;
     stroke-width: 1px;
 }
 /* v.0.7.11 renders all data points with 0.5 opacity
    but opacity: 1.0 is no solution because even no data points are visible then
-.c3-circles-meanl8 > circle {    
+.bb-circles-meanl8 > circle {    
     opacity: 1.0 !important; 
 } */
 
-.c3-circles-means2 {
+/* global approach
+.bb-circles circle {
+    opacity: 1 !important;
+} */
+
+.bb-circles-means2 {
     stroke: #EF7D00;
     stroke-width: 1px;
 }
 
 /* v.0.7.11 renders all data points with 0.5 opacity
    but opacity: 1.0 is no solution because even no data points are visible then
-.c3-circles-means2 > circle {    
-    /* v.0.7.11 
+.bb-circles-means2 > circle {    
     opacity: 1.0 !important;
 }*/
 
-/*.c3-circle {
+/*.bb-circle {
     fill: white!important;
 }
-.c3-circles-mean {
+.bb-circles-mean {
     stroke: #EF7D00!important;
     stroke-width: 2px;
 }
 */
-.c3-line-meanl8,
-.c3-line-means2 {
+.bb-line-meanl8,
+.bb-line-means2 {
     stroke-width: 0px !important;
 }
 
-.c3-line-mean {
+.bb-line-mean {
     stroke-width: 2px !important;
 }
 
-.c3-line-min {
+.bb-line-min {
     stroke-dasharray: 1.5;
 }
 
-.c3-line-max {
+.bb-line-max {
     stroke-dasharray: 5.5;
 }
 
 /* outline for markers */
-.c3-shapes-marker {
+.bb-shapes-marker {
     stroke: darkgray;
     stroke-width: 1px;
 }
 
 .button.is-orange.is-loading:after {
     border-color: transparent transparent #EF7D00 #EF7D00 !important;
+}
+
+/* error band around mean line */
+.bb-area {
+    /* fill: #9D9D9C !important;*/
+    opacity: 0.3 !important;
 }
 
 /* spinner */
