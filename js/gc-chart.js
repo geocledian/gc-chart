@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-11, jsommer
+ updated: 2021-09-16, jsommer
  version: 0.9.4
 */
 "use strict";
@@ -43,6 +43,9 @@ const gcChartLocales = {
         "label": "Mode",
         "one_index": "one product, all statistics",
         "many_indices": "many products, means"
+      },
+      "cloudFilter": {
+        "label" : "Cloud filter"
       }
     },
     "statistics": { 
@@ -107,6 +110,9 @@ const gcChartLocales = {
           "label": "Modus",
           "one_index": "ein Produkt, alle Statistikwerte",
           "many_indices": "mehrere Produkte, Mittelwerte"
+        },
+        "cloudFilter": {
+          "label" : "Wolkenfilter"
         }
     },
     "statistics": { 
@@ -230,7 +236,7 @@ Vue.component('gc-chart', {
     },
     gcAvailableOptions: {
       type: String,
-      default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers,legend,productSelector'
+      default: 'optionsTitle,graphType,hideGraphs,dateZoom,markers,legend,productSelector,cloudFilter'
     },
     gcOptionsCollapsed: {
       type: Boolean,
@@ -377,6 +383,16 @@ Vue.component('gc-chart', {
               </div>
             </div><!-- mode selector -->
 
+            <!-- cloud filter -->
+            <div class="field" v-show="this.availableOptions.includes('cloudFilter')">
+              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.cloudFilter.label')}}</label></div>
+              <div class="field-body">
+                <div class="control">
+                    <input class="is-small" type="checkbox" value="true" v-model="cloudFilter">
+                </div>
+              </div>
+            </div> 
+
           </div><!-- chart settings -->
 
           <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
@@ -476,6 +492,7 @@ Vue.component('gc-chart', {
       },
       isloading: false, // indicates if data is being loaded or not
       api_err_msg: "", // if there is an error from the API, it will stored here; if length > 0 it will be displayed
+      cloudFilter: true
     }
   },
   computed: {
@@ -1439,6 +1456,35 @@ Vue.component('gc-chart', {
         this.inpFilterDateFromPicker.options["maxDate"] = newValue;
         this.inpFilterDateToPicker.options["maxDate"] = newValue;
       }
+    },
+    cloudFilter (newValue, oldValue){
+
+      if (this.parcels.length > 0) {
+        this.chart.unload();
+
+        if (this.mode == "one-index") {
+          this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
+        }
+        if (this.mode == "many-parcels") {
+          for (var i = 0; i < this.selectedParcelIds.length; i++) {
+            let parcel_id = this.selectedParcelIds[i];
+            this.getParcelsProductData(parcel_id, this.selectedProduct, this.dataSource);
+            // only load stats if product is not visible
+            if (newValue != 'visible') {
+              this.getIndexStats(this.selectedParcelIds[i], this.dataSource, this.selectedProduct);
+            }
+          }
+        }
+        if (this.mode == "many-indices") {
+          for (var i = 0; i < this.availableProducts.length; i++) {
+            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.availableProducts[i], this.dataSource);
+            // only load stats if product is not visible
+            if (newValue != 'visible') {
+              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.availableProducts[i]);
+            }
+          }
+        }
+      }
     }
   },
   methods: {
@@ -1698,7 +1744,7 @@ Vue.component('gc-chart', {
       let params;
       if (this.apiMajorVersion == 3) {
         params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-        "&order=date&statistics=true";
+        "&order=date&statistics=true" + "&cloud_filter="+ this.cloudFilter;
       }
       // no empty params for API v4!
       if (this.apiMajorVersion == 4) {
@@ -1711,7 +1757,7 @@ Vue.component('gc-chart', {
           }
         }
         params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-          "&order=date&statistics=true";
+          "&order=date&statistics=true"+ "&cloud_filter="+ this.cloudFilter;
       }
 
   
