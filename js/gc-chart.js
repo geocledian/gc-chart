@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-06, jsommer
+ updated: 2021-09-11, jsommer
  version: 0.9.4
 */
 "use strict";
@@ -22,8 +22,7 @@ const gcChartLocales = {
         "label": "Graph type",
         "line": "Line",
         "spline": "Spline",
-        "area": "Area",
-        "area_line_range": "AreaLineRange"
+        "area": "Area"
       },
       "hide_graphs" : {
         "label": "Hide Graphs",
@@ -87,8 +86,7 @@ const gcChartLocales = {
             "label": "Graph Typ", 
             "line": "Gerade",
             "spline": "Kurven",
-            "area": "Flächig",
-            "area_line_range": "Gerade mit Puffer"
+            "area": "Flächig"
         },
         "hide_graphs" : {
           "label": "Ausblenden",
@@ -392,7 +390,8 @@ Vue.component('gc-chart', {
           </div>
 
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
-            <div :id="'chart_'+ this.gcWidgetId" class="gc-chart"></div>
+          <!-- v-show directive does not play nice with billboard.js! -->
+            <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" :style="this.isloading==true ? 'opacity: 0' : 'opacity: 1.0'"></div>
 
             <!-- product selector -->
             <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
@@ -897,9 +896,6 @@ Vue.component('gc-chart', {
       this.selectedProduct = this.availableProducts[0];
     }
 
-    // show loading spinner, hide chart
-    this.isloading = true;
-
     /* init chart */
     // set i18n for time x axis
     d3.timeFormatDefaultLocale(this.d3locales[this.currentLanguage]);
@@ -933,6 +929,9 @@ Vue.component('gc-chart', {
         }
       }
     });
+
+    // show loading spinner, hide chart
+    this.isloading = true;
 
     /* watermark */
     // d3.select(this.chart.internal.config.bindto)
@@ -1491,72 +1490,75 @@ Vue.component('gc-chart', {
           if (xmlHttp.readyState==4)
           {
               var tmp  = JSON.parse(xmlHttp.responseText);
-  
-              if (tmp.content == "key is not authorized") {
+              if (xmlHttp.status != 200) {
+                if (tmp.detail == "key is not authorized") {
                   // show message, hide spinner, don't show chart
                   this.api_err_msg = this.$t('status_msg.unauthorized_key') + "<br>" + this.$t('status_msg.support');
                   this.isloading = false;
                   return;
-              }
-              if (tmp.content == 	"api key validity expired") {
-                  // show message, hide spinner, don't show chart
-                  this.api_err_msg = this.$t('status_msg.invalid_key') + "<br>" + this.$t('status_msg.support');
-                  this.isloading = false;
-                  return;
-              }
+                }
+                if (tmp.detail == "api key validity expired") {
+                    // show message, hide spinner, don't show chart
+                    this.api_err_msg = this.$t('status_msg.invalid_key') + "<br>" + this.$t('status_msg.support');
+                    this.isloading = false;
+                    return;
+                }
+              } 
+              else {
   
-              this.parcels = [];
+                this.parcels = [];
+    
+                if (tmp.content.length == 0) {
+                    // show empty chart with no data msg
+                    this.createChartData();
+                    this.isloading = false;
+                    return;
+                }
+    
+                for (var i = 0; i < tmp.content.length; i++) {
+                    var item = tmp.content[i];
+                    this.parcels.push( item );
+                }
   
-              if (tmp.content.length == 0) {
-                  // show empty chart with no data msg
-                  this.createChartData();
-                  this.isloading = false;
-                  return;
-              }
+                try {
+                  if (this.mode == "one-index" || this.mode == "many-indices") {
+                    // if parcel_id was given as an argument to the function
+                    // set this value as currentParcelID
+                    if (parcel_id)  {
+                        this.currentParcelID = parcel_id;
+                        //console.debug("setting "+ parcel_id +" parcel id as current!");
+                        // hack needed to call the change explicitely if the filter includes the first element
+                        // of previously unfiltered parcels!
+                        // 1=1 -> no change in watch of vuejs
+                        this.handleCurrentParcelIDchange(-1, this.currentParcelID);
+                    }
+                    else {
+    
+                        console.debug("setting first parcel as current!");
+    
+                        this.currentParcelID = this.parcels[0].parcel_id;
+                        console.debug("currentParcelID: "+ this.currentParcelID);
   
-              for (var i = 0; i < tmp.content.length; i++) {
-                  var item = tmp.content[i];
-                  this.parcels.push( item );
-              }
-
-              try {
-                if (this.mode == "one-index" || this.mode == "many-indices") {
-                  // if parcel_id was given as an argument to the function
-                  // set this value as currentParcelID
-                  if (parcel_id)  {
-                      this.currentParcelID = parcel_id;
-                      //console.debug("setting "+ parcel_id +" parcel id as current!");
-                      // hack needed to call the change explicitely if the filter includes the first element
-                      // of previously unfiltered parcels!
-                      // 1=1 -> no change in watch of vuejs
-                      this.handleCurrentParcelIDchange(-1, this.currentParcelID);
+                        // hack needed to call the change explicitely if the filter includes the first element
+                        // of previously unfiltered parcels!
+                        // 1=1 -> no change in watch of vuejs
+                        if (this.currentParcelID == this.parcels[0].parcel_id) {
+                            this.handleCurrentParcelIDchange(-1, this.parcels[0].parcel_id);
+                        }
+    
+                        console.debug("currentParcelID: "+ this.currentParcelID);
+                    }
                   }
-                  else {
-  
-                      console.debug("setting first parcel as current!");
-  
-                      this.currentParcelID = this.parcels[0].parcel_id;
-                      console.debug("currentParcelID: "+ this.currentParcelID);
-
-                      // hack needed to call the change explicitely if the filter includes the first element
-                      // of previously unfiltered parcels!
-                      // 1=1 -> no change in watch of vuejs
-                      if (this.currentParcelID == this.parcels[0].parcel_id) {
-                          this.handleCurrentParcelIDchange(-1, this.parcels[0].parcel_id);
-                      }
-  
-                      console.debug("currentParcelID: "+ this.currentParcelID);
+                  else { 
+                    this.handleCurrentParcelIDchange();
                   }
                 }
-                else { 
-                  this.handleCurrentParcelIDchange();
+                catch (err) {
+                    console.debug("error selecting parcel_id");
+                    console.debug(err);
                 }
               }
-              catch (err) {
-                  console.debug("error selecting parcel_id");
-                  console.debug(err);
-              }
-              
+
           }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
@@ -2342,93 +2344,194 @@ Vue.component('gc-chart', {
               /*title: function(x) {
                   return x.toISOString().split("T")[0];
               },*/
+              name: function(name, ratio, id, index) { 
+                return name; 
+              },
               value: function (value, ratio, id, index) {
 
-                  // hide meanl8 and means2 in tooltip
-                  if (id == "meanl8" || id == "means2") {
-                      return;
-                  }
+                // hide meanl8 and means2 in tooltip
+                if (id == "meanl8" || id == "means2") {
+                    return;
+                }
 
-                  // shows also source in tooltip (e.g. landsat8 or sentinel2)
-                  // only on charttype statistics - not for similarity
-                  if (this.currentGraphContent == "statistics") {
-                      if (this.dataSource == "") {
-                          if (id != "marker") { //exlude for markers
-                            if (this.mode == "one-index") {
-                              return value + " ("+this.statistics[index].source + ")";
-                            } 
-                            if (this.mode == "many-indices") {
-                              return value + " ("+this.statisticsMany[id][index].source + ")";
-                            }
-                            if (this.mode == "many-parcels") {
-                              return value + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
-                            }
+                // shows also source in tooltip (e.g. landsat8 or sentinel2)
+                // only on charttype statistics - not for similarity
+                if (this.currentGraphContent == "statistics") {
+                    if (this.dataSource == "") {
+                        if (id != "marker") { //exlude for markers
+                          if (this.mode == "one-index") {
+                            return value + " ("+this.statistics[index].source + ")";
+                          } 
+                          if (this.mode == "many-indices") {
+                            return value + " ("+this.statisticsMany[id][index].source + ")";
                           }
-                          else {
-                              return value;
+                          if (this.mode == "many-parcels") {
+                            return value + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
                           }
-                      }
-                      else { return value; }
-                  }
-                  else { return value; }
-              }.bind(this)
+                        }
+                        else {
+                            return value;
+                        }
+                    }
+                    else { return value; }
+                }
+                else { return value; }
+            }.bind(this)
           },
+          // onshow: function(data) {
+          //   console.debug("onshow!")
+          //   var mid = data.filter(n => n.name == "Mean")[0].value[1];
+          //   return null;
+          // },
+          // onshown: function(data) {
+          //   console.debug("onshown!")
+          //   // get the HTML for the tooltip
+          //   var html = this.$.tooltip.html();
+          //   var meanValueHtml = document.getElementsByClassName("bb-tooltip-name-mean")[0].getElementsByClassName("value")[0];
+          //   var newValueHtml = "";
 
-          // overriding the contents of the tooltip for more customization
+          //   if (data.filter(n => n.name == "Mean")[0])
+          //   var midValue = data.filter(n => n.name == "Mean")[0].value[1];
+
+          //   if (this.currentGraphContent == "statistics") {
+          //     if (this.dataSource == "") {
+          //         if (id != "marker") { //exlude for markers
+          //           if (this.mode == "one-index") {
+          //             newValueHtml = midValue + " ("+this.statistics[index].source + ")";
+          //           } 
+          //           if (this.mode == "many-indices") {
+          //             newValueHtml = midValue + " ("+this.statisticsMany[id][index].source + ")";
+          //           }
+          //           if (this.mode == "many-parcels") {
+          //             newValueHtml = midValue + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
+          //           }
+          //         }
+          //     }
+          //   }
+
+          //   meanValueHtml.innerHTML = ;
+          //   // <table class="bb-tooltip"><tbody><tr><th colspan="2">18 Feb 18</th></tr><tr class="bb-tooltip-name-mean"><td class="name"><span style="background-color:#EF7D00"></span>Mean</td><td class="value"><b>Mid:</b> 0.597 (sentinel2) <b>High:</b> 0.622 (sentinel2) <b>Low:</b> 0.572 (sentinel2)</td></tr><tr class="bb-tooltip-name-std-dev-"><td class="name"><span style="background-color: #d6d6d6"></span>Standard Deviation</td><td class="value">0.026 (sentinel2)</td></tr><tr class="bb-tooltip-name-min"><td class="name"><span style="background-color:#EF7D00"></span>Minimum</td><td class="value">0.38 (sentinel2)</td></tr><tr class="bb-tooltip-name-max"><td class="name"><span style="background-color:#EF7D00"></span>Maximum</td><td class="value">0.65 (sentinel2)</td></tr></tbody></table>
+          //   // set the HTML for the tooltip with
+          //   // this.$.tooltip.html("")
+          //   return data;
+
+          // }.bind(this),
+
+          // Works - except for mid/high/low values
+          // contents: {
+          //   template: '<table class="{=CLASS_TOOLTIP}">' +
+          //               '<tbody>' +
+          //                   '<tr><th colspan="2">{=TITLE}</th></tr>{{'+
+          //                   '<tr class="{=CLASS_TOOLTIP_NAME}"></tr>'+
+          //                       '<td class="{=CLASS_TOOLTIP}"><span style="background-color: {=COLOR}"></span>{=NAME}'+
+          //                       '</td>'+
+          //                       '<td class="">{=VALUE}</td>'+
+          //                   '}}</tr>'+
+          //               '</tbody>'+
+          //             '</table>'
+          // }
+
+          // // overriding the contents of the tooltip for more customization
           contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
-              // d is an array here!
+            console.debug(d)
 
-              // https://stackoverflow.com/questions/24754239/how-to-change-tooltip-content-in-c3js/25750639#25750639
-              var $$ = this, config = $$.config,
-              titleFormat = config.tooltip_format_title || defaultTitleFormat,
-              nameFormat = config.tooltip_format_name || function (name) { return name; },
-              valueFormat = config.tooltip_format_value || defaultValueFormat, text, i, title, value, name, bgcolor;
+            let html = '<table class="bb-tooltip">' +
+                        '<tbody>'+
+                          '<tr><th colspan="2">'+ defaultTitleFormat(d[0].x) +'</th></tr>';
 
-              for (i = 0; i < d.length; i++) {
-                  
-                  if (! (d[i] && (d[i].value || d[i].value === 0))) { continue; }
-
-                  if (! text) {
-                      title = titleFormat ? titleFormat(d[i].x) : d[i].x;
-                      text = "<table class='{=CLASS_TOOLTIP}'>" + (title || title === 0 ? "<tr><th colspan='2'>" + title + "</th></tr>" : "");
-                  }
-                  // hide meanl8, means2 entries in tooltip
-                  if (d[i].id == "meanl8" || d[i].id == "means2") {
-                      continue;
-                  }
-                  // special marker formats
-                  if (d[i].id == "marker") {
-                      let index = d[i].index;
-                      let markers;
-                      if (this.selectedMarkerType == "sn_marker") {
-                          markers = this.sn_markers.markers;
-                      }
-                      if (this.selectedMarkerType == "phenology") {
-                          markers = this.phenology.phenology.markers;
-                      }
-                      name = nameFormat(markers[index].name);
-                      value = valueFormat(this.formatDecimal(d[i].value,3), d[i].ratio, d[i].id, d[i].index);
-                      bgcolor = markers[index].status;
-                  }
-                  else {
-                      name = nameFormat(d[i].name);
-                      value = valueFormat(d[i].value, d[i].ratio, d[i].id, d[i].index);
-                      bgcolor = $$.levelColor ? $$.levelColor(d[i].value) : color(d[i].id);
-                  }
-
-                  text += "<tr class='{=CLASS_TOOLTIP_NAME}'" + "-" + d[i].id + "'>";
-                  text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>" + name + "</td>";
-                  text += "<td class='value'>" + value + "</td>";
-                  text += "</tr>";
-                  
+            for (let i=0;i<d.length;i++) {
+              // exclude nulls
+              if (d[i].value == null)
+                continue;
+              // hide meanl8 and means2 in tooltip
+              if (d[i].id == "meanl8" || d[i].id == "means2") {
+                continue;
               }
 
-              return text + "</table>";
-          }
+              html += '<tr class="'+'bb-tooltip-'+ d[i].name +'"></tr>'+
+                        '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ d[i].name + '</td>';
+              
+              // for area range value skip high & low
+              if (this.chart.internal.isTypeOf(d[i], ['area-line-range', 'area-spline-range'])) {
+                // index 1 is mid value
+                html += '<td>'+ d[i].value[1] + ' ('+this.statistics[d[i].index].source + ')' +'</td>';
+              } 
+              else {
+                html += '<td>'+ d[i].value + ' ('+this.statistics[d[i].index].source + ')' +'</td>';
+              }
+              html += '</tr>';
+            }
+            html += '</tbody>'+
+                  '</table>';
+
+            return html;
+
+          }.bind(this)
+          //
+          //     const value = d[0].value;
+          //     console.debug(value)
+          //     console.debug(d)
+          //     console.debug(defaultTitleFormat);
+          //     console.debug(defaultValueFormat);
+  
+          //     return d; //isNaN(value) ? value.high : value;
+          // }
+          //     // d is an array here!
+
+          //     // https://stackoverflow.com/questions/24754239/how-to-change-tooltip-content-in-c3js/25750639#25750639
+              
+          //     // TODO change for billboard js
+
+          //     var $$ = this, config = $$.config,
+          //     titleFormat = config.tooltip_format_title || defaultTitleFormat,
+          //     nameFormat = config.tooltip_format_name || function (name) { return name; },
+          //     valueFormat = config.tooltip_format_value || defaultValueFormat, text, i, title, value, name, bgcolor;
+
+          //     for (i = 0; i < d.length; i++) {
+                  
+          //         if (! (d[i] && (d[i].value || d[i].value === 0))) { continue; }
+
+          //         if (! text) {
+          //             title = titleFormat ? titleFormat(d[i].x) : d[i].x;
+          //             text = "<table class='{=CLASS_TOOLTIP}'>" + (title || title === 0 ? "<tr><th colspan='2'>" + title + "</th></tr>" : "");
+          //         }
+          //         // hide meanl8, means2 entries in tooltip
+          //         if (d[i].id == "meanl8" || d[i].id == "means2") {
+          //             continue;
+          //         }
+          //         // // special marker formats
+          //         // if (d[i].id == "marker") {
+          //         //     let index = d[i].index;
+          //         //     let markers;
+          //         //     if (this.selectedMarkerType == "sn_marker") {
+          //         //         markers = this.sn_markers.markers;
+          //         //     }
+          //         //     if (this.selectedMarkerType == "phenology") {
+          //         //         markers = this.phenology.phenology.markers;
+          //         //     }
+          //         //     name = nameFormat(markers[index].name);
+          //         //     value = valueFormat(this.formatDecimal(d[i].value,3), d[i].ratio, d[i].id, d[i].index);
+          //         //     bgcolor = markers[index].status;
+          //         // }
+          //         // else {
+          //             name = nameFormat(d[i].name);
+          //             value = valueFormat(d[i].value, d[i].ratio, d[i].id, d[i].index);
+          //             bgcolor = $$.levelColor ? $$.levelColor(d[i].value) : color(d[i].id);
+          //         // }
+          //         text += "<tr class='{=CLASS_TOOLTIP_NAME}'" + "-" + d[i].id + "'>";
+          //         text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>" + name + "</td>";
+          //         text += "<td class='value'>" + value + "</td>";
+          //         text += "</tr>";
+                  
+          //     }
+
+          //     return text + "</table>";
+
         }
       });
 
       console.debug(this.chart);
+      console.debug(document.getElementById("chart_"+this.gcWidgetId))
 
       // then load data
       this.chart.load({
