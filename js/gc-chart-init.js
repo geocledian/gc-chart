@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-04-13, jsommer
+ updated: 2021-09-28, pal
  version: 0.9.1
 */
 
@@ -117,7 +117,7 @@ function initComponent() {
     
     // load map component dynamically
     // change for DEBUG to js/gc-chart.js
-    loadJSscript("js/gc-chart.min.js", function() {
+    loadJSscript("js/gc-chart.js", function() {
         /* when ready, init global vue root instance */
         vmRoot = new Vue({
             //must match the id attribute of the div tag which contains the widget(s)

@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-16, jsommer
+ updated: 2021-09-28, pal
  version: 0.9.4
 */
 "use strict";
@@ -254,16 +254,13 @@ Vue.component('gc-chart', {
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">    
-
               <div class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
                   v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
                   {{ $t('options.title') }} 
                 <i :class="[gcOptionsCollapsed ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
               </div>
-
               <div :class="[gcOptionsCollapsed ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
                     style="padding-bottom: 1em; max-height: 6.6rem !important;">
-
               <div class="field" v-show="availableOptions.includes('graphType')">
                 <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.graph_type.label')}} </label></div>
                 <div class="field-body">
@@ -276,7 +273,6 @@ Vue.component('gc-chart', {
                   </div>
                 </div>
               </div>
-
               <div class="field is-vertical" v-if="this.mode=='one-index'" v-show="availableOptions.includes('hideGraphs')">
                 <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.hide_graphs.label')}}</label></div>
                 <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
@@ -335,7 +331,6 @@ Vue.component('gc-chart', {
                 </div>
               </div>  
               </div>
-
             <!-- date filter -->
             <div :class="dateZoomLayout[gcDatezoomLayout]"
                   v-show="availableOptions.includes('dateZoom')">
@@ -372,7 +367,6 @@ Vue.component('gc-chart', {
                 </select>
               </div>
             </div><!-- mode selector -->
-
             <!-- cloud filter -->
             <div class="field" v-show="this.availableOptions.includes('cloudFilter')">
               <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.cloudFilter.label')}}</label></div>
@@ -382,11 +376,8 @@ Vue.component('gc-chart', {
                 </div>
               </div>
             </div> 
-
           </div><!-- chart settings -->
-
           <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
-
           <div class="chartSpinner spinner" v-show="this.isloading">
             <div class="rect1"></div>
             <div class="rect2"></div>
@@ -394,10 +385,8 @@ Vue.component('gc-chart', {
             <div class="rect4"></div>
             <div class="rect5"></div>
           </div>
-
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div>
-
             <!-- product selector -->
             <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
             <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
@@ -411,15 +400,12 @@ Vue.component('gc-chart', {
                 </div>
               </div>
             </div> <!-- product selector -->
-
           </div> <!-- chart & product selector -->
-
           <!-- watermark -->
           <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: 0.1rem;">
             <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
-
           </div><!-- gcWidget -->`,
   data: function () {
     return {
@@ -433,7 +419,10 @@ Vue.component('gc-chart', {
       total_parcel_count: 250,
       chartLegendVisible: true,
       similarity : { content_parcel : [], content_reference: [], similarity: {}, summary: {}, classification: {} },
-      phenology : { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} },
+      sos : [],  
+      pos : [],
+      eos : [],
+      phenology : [], //content : []},//{ phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} },
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
@@ -615,7 +604,6 @@ Vue.component('gc-chart', {
          - date has to be valid for zooming
          - date has to be in the range of the time series; 
            otherwise fall back to the first date of the time series for the start date
-
         Note: zooming will be handled in the watcher!
       */
       get: function() {
@@ -710,7 +698,6 @@ Vue.component('gc-chart', {
          - date has to be valid for zooming
          - date has to be in the range of the time series; 
            otherwise fall back to the last date of the time series for the end date
-
         Note: zooming will be handled in the watcher!
       */
       get: function() {
@@ -1031,6 +1018,11 @@ Vue.component('gc-chart', {
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
+          //Call Phenology when selected product is NDVI
+            if(this.selectedProduct=="ndvi"){
+              console.debug("event - ndvi select");
+              this.getPhenology();
+          }
         }
         if (this.mode == "many-parcels") {
           // important: empty first 
@@ -1324,11 +1316,9 @@ Vue.component('gc-chart', {
           when gcSelectedDate is set again externally (vue prop - root is in control); 
           Thus it will be selected and deselected right after it -> result no selection at all.
           AND: c3.js chart.selected() was not reliable - it sometimes looses its selection data! 
-
           So it is necessary to store a map (internalQueryDate) on the graphs in a custom object
           and check if the chart already knows about this date (could be set by clicking in the chart)
           if so, don't change the selection again.
-
       */
       console.debug("gcSelectedDateChange");
 
@@ -1820,6 +1810,45 @@ Vue.component('gc-chart', {
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
+    getPhenology: function(){
+      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
+    
+      let limit = 6000; //this.pagingStep;
+      let params = "&limit="+limit; //set limit to maximum (default 1000)      
+      
+      console.debug("getPhenology()");
+      console.debug("GET " + this.getApiUrl(endpoint));
+      
+      let xmlHttp = new XMLHttpRequest();
+      let async = true;
+
+      xmlHttp.onreadystatechange=function()
+      {
+          if (xmlHttp.readyState==4)
+          {
+            var tmp  = JSON.parse(xmlHttp.responseText);            
+            console.debug(tmp);
+            this.phenology = [];
+            this.sos = [];
+            this.pos = [];
+            this.eos = [];
+            for (var i = 0; i < tmp.content.length; i++) {
+
+                var item = tmp.content[i];
+                  this.phenology.push( item );
+                  if(this.phenology[i].marker[0].date!=null)
+                  this.sos.push(this.phenology[i].marker[0].date);
+                  this.pos.push(this.phenology[i].marker[1].date);
+                  this.eos.push(this.phenology[i].marker[2].date);
+            }
+            console.debug("SOS" + this.sos);
+            console.debug("POS" + this.pos);
+            console.debug("EOS" + this.eos);
+            }
+      }.bind(this);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
+      xmlHttp.send();      
+    },   
     createChartData: function() {
       console.debug("createChartData()");
 
@@ -1847,6 +1876,17 @@ Vue.component('gc-chart', {
                                                                                     return this.formatDecimal(r.statistics.mean, 3); } 
                                                                                 else { return null;} 
                                                                     }.bind(this)));
+
+            if(this.selectedProduct=="ndvi"){
+            
+            columns[7] = ["x4"].concat(this.sos);            
+            columns[8] = ["x5"].concat(this.pos);            
+            columns[9] = ["x6"].concat(this.eos);
+            columns[10] = ["sos"].concat(columns[7].map( r => (1)));
+            columns[11] = ["pos"].concat(columns[8].map( r => (1)));
+            columns[12] = ["eos"].concat(columns[9].map( r => (1)));
+
+            }   
           }
         }
         if (this.mode == "many-indices") {
@@ -2018,7 +2058,7 @@ Vue.component('gc-chart', {
       let types_options = { "mean": this.selectedGraphType, 'std.dev.' : 'bar', 'min': this.selectedGraphType,
                             'max':this.selectedGraphType, 'meanl8' : 'scatter', 'means2' : 'scatter', //special types
                             'parcel (mean)': this.selectedGraphType , 'reference (mean)' : this.selectedGraphType,
-                            'marker': 'scatter'
+                            'marker': 'scatter','sos' : 'bar', 'pos' : 'bar', 'eos' : 'bar'
                         };
       if (this.mode == "one-index") {
         xs_options = {
@@ -2031,6 +2071,9 @@ Vue.component('gc-chart', {
           "parcel (mean)" : "x2",
           "reference (mean)" : "x2",
           "marker" : "x2",
+          "sos" : "x4", 
+          "pos" : "x5", 
+          "eos" : "x6", 
         }
       }
       if (this.mode == "many-indices") {
@@ -2148,7 +2191,10 @@ Vue.component('gc-chart', {
                 "means2" : '#00eaef', //turquoise
                 "parcel (mean)" : '#EF7D00', //orange
                 "reference (mean)" : '#1f77b4', //blue
-                "marker" : 'grey' //{fill: 'darkgrey', stroke: 'black'}
+                "marker" : 'grey', //{fill: 'darkgrey', stroke: 'black'}
+                'sos' : '#0080ff',
+                'pos' : '#13ec80',
+                'eos' : '#ff4d4d'
             },
             color: function (color, d) {
                 // d will be 'id' when called for legends
@@ -2402,6 +2448,9 @@ Vue.component('gc-chart', {
 
               return text + "</table>";
           }
+        },
+        bar: {
+          width: 5
         }
       });
 
