@@ -1841,9 +1841,6 @@ Vue.component('gc-chart', {
                   this.pos.push(this.phenology[i].marker[1].date);
                   this.eos.push(this.phenology[i].marker[2].date);
             }
-            console.debug("SOS" + this.sos);
-            console.debug("POS" + this.pos);
-            console.debug("EOS" + this.eos);
             }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
@@ -1878,7 +1875,7 @@ Vue.component('gc-chart', {
                                                                     }.bind(this)));
 
             if(this.selectedProduct=="ndvi"){
-            
+            //Adds new axis to the existing chart
             columns[7] = ["x4"].concat(this.sos);            
             columns[8] = ["x5"].concat(this.pos);            
             columns[9] = ["x6"].concat(this.eos);
