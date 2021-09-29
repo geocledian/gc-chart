@@ -25,7 +25,7 @@ const gcChartLocales = {
         "area": "Area"
       },
       "hide_graphs" : {
-        "label": "Hide Graphs",
+        "label": "Hide",
         "marker": "Marker"
       },
       "marker" : {
@@ -130,10 +130,10 @@ const gcChartLocales = {
       "ndvi": "NDVI",
       "ndre1": "NDRE1",
       "ndre2": "NDRE2",
-      "ndwi": "Wassergehalt",
+      "ndwi": "NDWI",
       "savi": "SAVI",
       "evi2": "EVI2",
-      "cire": "Blattfläche",
+      "cire": "CIRE",
       "npcri": "NPCRI"
     },
     "status_msg": {
@@ -178,6 +178,14 @@ Vue.component('gc-chart', {
       type: Boolean,
       default: true
     }, 
+    gcLimit: {
+      type: Number,
+      default: 250
+    },
+    gcOffset: {
+      type: Number,
+      default: 0
+    },
     gcCurrentParcelId: {
       type: Number,
       default: -1
@@ -201,6 +209,10 @@ Vue.component('gc-chart', {
     gcZoomEnddate:  {
       type: String,
       default: "" // ISO date string, e.g. '2018-10-01'
+    },
+    gcFilterString: {
+      type: String,
+      default: ''
     },
     entity: {
       type: String,
@@ -253,18 +265,24 @@ Vue.component('gc-chart', {
     gcSelectedDate: { 
       type: String,
       default: ''
+    },
+    gcYScale: {
+      type: String,
+      default: 'dynamic' // 'fixed' //dynamic or fixed y scale
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">    
 
-              <div class="gc-options-title is-size-6 is-orange" style="margin-bottom: 1.0rem; cursor: pointer;" 
-                  v-on:click="toggleChartOptions" v-show="availableOptions.includes('optionsTitle')">
+              <p :class="['gc-options-title', 'is-size-6', gcOptionsCollapsed ? 'is-grey' : 'is-orange']" 
+                  style="cursor: pointer; margin-bottom: 1em;"
+                  v-on:click="toggleChartOptions" 
+                  v-show="availableOptions.includes('optionsTitle')">
                   {{ $t('options.title') }} 
-                <i :class="[gcOptionsCollapsed ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
-              </div>
+                <i :class="[!gcOptionsCollapsed ? '': 'is-active', 'fas', 'fa-angle-down', 'fa-sm']"></i>
+              </p>
 
-              <div :class="[gcOptionsCollapsed ? 'is-hidden': '', 'chartOptions', 'is-horizontal', 'is-flex']" 
-                    style="padding-bottom: 1em; max-height: 6.6rem !important;">
+              <!-- chart settings -->
+              <div :class="[!gcOptionsCollapsed ? '': 'is-hidden', 'chartOptions', 'is-horizontal', 'is-flex']" >
 
               <div class="field" v-show="availableOptions.includes('graphType')">
                 <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.graph_type.label')}} </label></div>
@@ -273,20 +291,22 @@ Vue.component('gc-chart', {
                   <select v-model="selectedGraphType">
                     <option value="line">{{ $t('options.graph_type.line')}}</option>
                     <option value="spline">{{ $t('options.graph_type.spline')}}</option>
-                    <option value="area-spline">{{ $t('options.graph_type.area')}}</option>
+                    <!-- option value="area-spline">{{ $t('options.graph_type.area')}}</option -->
                   </select>
                   </div>
                 </div>
               </div>
 
               <div class="field is-vertical" v-show="availableOptions.includes('hideGraphs')">
-                <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.hide_graphs.label')}}</label></div>
+                <div class="field-label is-small">
+                  <label class="label has-text-left is-grey" style="white-space: nowrap;">{{ $t('options.hide_graphs.label')}}</label>
+                </div>
                 <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
                   <div class="control">
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-grey is-small">
+                          <label class="label is-grey is-small" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="mean" v-model="hiddenStats"> {{ $t('statistics.mean')}} </label>
                         </div>
                       </div>
@@ -294,7 +314,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey">
+                          <label class="label is-small is-grey" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="min" v-model="hiddenStats"> {{ $t('statistics.min')}} </label>
                         </div>
                       </div>
@@ -302,7 +322,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey">
+                          <label class="label is-small is-grey" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="max" v-model="hiddenStats"> {{ $t('statistics.max')}} </label>
                         </div>
                       </div>
@@ -310,7 +330,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                         <div class="field-body">
                           <div class="control">
-                            <label class="label is-small is-grey">
+                            <label class="label is-small is-grey" style="white-space: nowrap;">
                               <input class="is-small" type="checkbox" value="std.dev." v-model="hiddenStats"> {{ $t('statistics.stddev')}}</label>
                           </div>
                         </div>
@@ -318,15 +338,15 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index' || this.mode=='many-indices'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey">
+                          <label class="label is-small is-grey" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="errorBand" v-model="hiddenStats"> {{ $t('statistics.errorBand')}}</label>
                         </div>
                       </div>
                     </div>
-                    <div class="field is-horizontal" v-if="this.mode=='one-index'">
+                    <div class="field is-horizontal" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey">
+                          <label class="label is-small is-grey" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="marker" v-model="hiddenStats"> {{ $t('options.hide_graphs.marker')}}</label>
                         </div>
                       </div>
@@ -335,7 +355,9 @@ Vue.component('gc-chart', {
                   </div>
               </div>
               <div class="field" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
-                <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.marker.label')}}</label></div>
+                <div class="field-label is-small">
+                  <label class="label has-text-left is-grey" style="white-space: nowrap;">{{ $t('options.marker.label')}}</label>
+                  </div>
                 <div class="field-body">
                   <div class="select is-small">
                     <select v-model="selectedMarkerType">
@@ -426,7 +448,7 @@ Vue.component('gc-chart', {
           </div> <!-- chart & product selector -->
 
           <!-- watermark -->
-          <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: 0.1rem;">
+          <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: -0.6rem;">
             <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
@@ -439,7 +461,7 @@ Vue.component('gc-chart', {
       statisticsMany : [],
       internalSelectedProduct: "",
       parcels: [],
-      offset: 0,
+      //offset: 0,
       pagingStep: 250,
       total_parcel_count: 250,
       chartLegendVisible: true,
@@ -448,7 +470,7 @@ Vue.component('gc-chart', {
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
-      hiddenStats: [],
+      hiddenStats: ["min","max","std.dev."], //hide these by default - user can change the visibility
       sn_markers: {},
       internalQuerydate: {}, //filled by click in chart only!
       selectedChartId: "", // filled by click in chart when in one-index or many-indices mode
@@ -544,7 +566,7 @@ Vue.component('gc-chart', {
     },
     availableProducts: {
       get: function() {
-        return (this.gcAvailableProducts.split(","));
+        return this.filterDatasourceProductCompat(this.dataSource, this.gcAvailableProducts.split(","));
       },
     },
     selectedParcelIds: {
@@ -585,34 +607,49 @@ Vue.component('gc-chart', {
       get: function() {
         return this.gcDataSource;
       },
-      set: function(value) {
-        this.$root.$emit("dataSourceChange", value);
+      // set: function(value) {
+      //   this.$root.$emit("dataSourceChange", value);
+      // }
+    },
+    chartWidth: {
+      get: function() {
+        console.debug("clientwidth "+document.getElementById(this.gcWidgetId).clientWidth);
+        console.debug("offsetwidth "+document.getElementById(this.gcWidgetId).offsetWidth);
+        return parseInt(document.getElementById(this.gcWidgetId).offsetWidth);
       }
     },
-    chartWidth: function() {
-        // console.debug("clientwidth "+document.getElementById(this.gcWidgetId).clientWidth);
-        // console.debug("offsetwidth "+document.getElementById(this.gcWidgetId).offsetWidth);
-        return parseInt(document.getElementById(this.gcWidgetId).offsetWidth);
-    },
-    chartHeight: function() {
+    chartHeight: {
+      get: function() {
         // console.debug("clientheight "+document.getElementById(this.gcWidgetId).clientHeight);
         // console.debug("offsetheight "+document.getElementById(this.gcWidgetId).offsetHeight);
         //return parseInt(document.getElementById(this.gcWidgetId).offsetHeight);
         return parseInt(document.getElementById(this.gcWidgetId).style.height);
+      }
     },
     filterString: {
       get: function() {
-        //return "&crop="+this.crop+"&entity="+this.entity+"&name="+this.name;
         return this.gcFilterString;
       },
-      set: function(newValue) {
-        /*
-        this.crop = this.getQueryVariable(newValue, "crop") ? this.getQueryVariable(newValue, "crop") : "";
-        this.entity = this.getQueryVariable(newValue, "entity") ? this.getQueryVariable(newValue, "entity") : "";
-        this.name = this.getQueryVariable(newValue, "name") ? this.getQueryVariable(newValue, "name") : "";*/
+      // set: function(newValue) {
+      //   /*
+      //   this.crop = this.getQueryVariable(newValue, "crop") ? this.getQueryVariable(newValue, "crop") : "";
+      //   this.entity = this.getQueryVariable(newValue, "entity") ? this.getQueryVariable(newValue, "entity") : "";
+      //   this.name = this.getQueryVariable(newValue, "name") ? this.getQueryVariable(newValue, "name") : "";*/
 
-        //notify root - through props it will change this.gcFilterString
-        this.$root.$emit('filterChange', newValue);
+      //   //notify root - through props it will change this.gcFilterString
+      //   this.$root.$emit('filterChange', newValue);
+      // }
+    },
+    limit: {
+      get: function() {
+        // will always reflect prop's value 
+        return this.gcLimit;
+      }
+    },
+    offset: {
+      get: function() {
+        // will always reflect prop's value 
+        return this.gcOffset;
       }
     },
     chartFromDate: {
@@ -887,7 +924,7 @@ Vue.component('gc-chart', {
   mounted: function () {
 
     // // listen on size change handler
-    // this.$root.$on("containerSizeChange", this.containerSizeChange);
+    this.$root.$on("containerSizeChange", this.containerSizeChange);
 
     // init hidden stats  
     let allStats = ["mean","min","max","std.dev.","marker","errorBand"];
@@ -922,7 +959,12 @@ Vue.component('gc-chart', {
       bindto: '#chart_'+this.gcWidgetId,
       data: {
         x: 'x',
-        columns: []
+        columns: [],
+        empty: {
+          label: {
+              text: this.$t("chart.no_data_msg")
+          }
+        },
       },
       grid: {
         x: {
@@ -948,7 +990,7 @@ Vue.component('gc-chart', {
     });
 
     // show loading spinner, hide chart
-    this.isloading = true;
+    // this.isloading = true;
 
     /* watermark */
     // d3.select(this.chart.internal.config.bindto)
@@ -1032,9 +1074,10 @@ Vue.component('gc-chart', {
 
         if (this.mode == "one-index") {
           if (this.getCurrentParcel()) {
-            this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
             // only load stats if product is not visible
             if (newValue != 'visible') {
+              this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
+           
               //if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
                 //this.getMarkers(this.getCurrentParcel().parcel_id);
               //}
@@ -1485,6 +1528,21 @@ Vue.component('gc-chart', {
           }
         }
       }
+    },
+    filterString(newValue, oldValue) {
+      // refresh parcels
+      console.debug("gc-chart - filterString changed")
+      //this.getAllParcels(undefined, this.offset, newValue);
+      // if (this.currentParcelID > 0) {
+      //   this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
+      // }
+      // else {
+        this.getAllParcels(undefined, this.offset, this.filterString);
+      // }
+    },
+    offset(newValue,oldValue) {
+      //fetch next batch of parcels
+      this.getAllParcels(undefined, newValue, this.filterString);
     }
   },
   methods: {
@@ -1512,7 +1570,7 @@ Vue.component('gc-chart', {
     getAllParcels: function(parcel_id, offset, filterString) {
 
       //download in chunks of n parcels
-      let limit = 6000; //this.pagingStep;
+      let limit = this.limit; //this.pagingStep;
 
       const endpoint = "/parcels";
       let params = "&limit="+limit; //set limit to maximum (default 1000)
@@ -1640,7 +1698,7 @@ Vue.component('gc-chart', {
           } 
         }
         else {
-          this.api_err_msg = this.$t("status_msg.parcel_id_not_found");
+          this.api_err_msg = this.$t("status_msg.parcel_id_not_found") +" ("+ this.currentParcelID + ")";
           this.isloading = false;
           return;
         }
@@ -1869,13 +1927,37 @@ Vue.component('gc-chart', {
           }
         }
         if (this.mode == "many-indices") {
+
           // map x axis to values of first available product
           columns[0] = ["x"].concat( this.statisticsMany[this.availableProducts[0]].map( r => r.date) );
+          
           //console.debug("first x axis is "+this.availableProducts[0]);
-          //vitality may have other dates than the dynamic indices -> another x axis necessary
-          if (this.availableProducts.includes("vitality")){
-            columns[1] = ["x3"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
+
+          // API v3
+          // vitality may have other dates than the dynamic indices (because of processing mode 'basic' vs 'reflectances') -> another x axis necessary
+          // not true for API v4
+          if (this.apiMajorVersion === 3) {
+            if (this.availableProducts.includes("vitality")){
+              columns[1] = ["x3"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
+            }
           }
+          if (this.apiMajorVersion === 4) {
+            columns[1] = ["x"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
+          }
+
+          // APIv3 & API v4: 
+          // TODO: mixed lengths of sentinel2/landsat8 if Red Edge Products are requested (NDRE1+2, CIRE)
+          //
+          if (this.availableProducts.includes("ndre1")){
+            columns[1] = ["x4"].concat( this.statisticsMany["ndre1"].filter(s=>s.statistics != null).map( r => r.date) );
+          }
+          if (this.availableProducts.includes("ndre2")){
+            columns[1] = ["x4"].concat( this.statisticsMany["ndre2"].filter(s=>s.statistics != null).map( r => r.date) );
+          }
+          if (this.availableProducts.includes("cire")){
+            columns[1] = ["x4"].concat( this.statisticsMany["cire"].filter(s=>s.statistics != null).map( r => r.date) );
+          }
+
           // map y axis
           for (var i=0; i < this.availableProducts.length; i++) {
             let product = this.availableProducts[i];
@@ -2048,6 +2130,8 @@ Vue.component('gc-chart', {
       console.debug("createChart()");
 
       let xs_options = {};
+      let ys_options = {};
+
       // will be changed for many-parcels gcMode
       let meanType;
       if (!this.hiddenStats.includes("errorBand")) {
@@ -2079,23 +2163,36 @@ Vue.component('gc-chart', {
           "reference (mean)" : "x2",
           "marker" : "x2",
         }
+        ys_options = {
+          "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
+          "min": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 0.0 : -0.2,
+        }
       }
       if (this.mode == "many-indices") {
 
         for (var i=0; i < this.availableProducts.length; i++) {
           const product = this.availableProducts[i];
-          if (product != "vitality") {
+          if (!["vitality","ndre1","ndre2","cire"].includes(product)) {
             xs_options[product] = "x";
             types_options[product] = meanType; // this.selectedGraphType;
           }
-          else {
+          if (product === "vitality") {
             xs_options[product] = "x3";
+            types_options[product] = meanType; // this.selectedGraphType;
+          }
+          if (["ndre1","ndre2","cire"].includes(product)) {
+            xs_options[product] = "x4";
             types_options[product] = meanType; // this.selectedGraphType;
           }
         }
         // similarity
         xs_options["parcel (mean)"] = "x";
         xs_options["reference (mean)"] = "x2";
+
+        ys_options = {
+          "max": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
+          "min": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
+        }
       }
 
       if (this.mode == "many-parcels") {
@@ -2105,6 +2202,10 @@ Vue.component('gc-chart', {
           const idx = this.selectedParcelIds.indexOf(parcel_id);
           xs_options[parcel_id] = "x"+idx;
           types_options[parcel_id] = this.selectedGraphType;
+        }
+        ys_options = {
+          "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
+          "min": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 0.0 : -0.2,
         }
       }
 
@@ -2297,7 +2398,14 @@ Vue.component('gc-chart', {
                   this.currentParcelID = id;
                 }
               }.bind(this)
-            }
+            },
+            // position: 'inset',
+            // inset: {
+            //   anchor: 'bottom-center',
+            //   x: 10,
+            //   y: -110,
+            //   step: 1
+            // }
         },
         line: {
             connectNull: true
@@ -2361,9 +2469,11 @@ Vue.component('gc-chart', {
           y: {
               label: {text: axis_label,
                       position: 'outer-top'},
-              // no fixed values: dynamically scaling
-              //max: 1.5,
-              // min: 0,
+              // fixed values vs dynamically scaling
+              max: ys_options["max"],
+              min: ys_options["min"],
+              // max: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
+              // min: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
               padding: {top:10, bottom:0}
           },
           // y2: { show: true}
@@ -2393,36 +2503,36 @@ Vue.component('gc-chart', {
               name: function(name, ratio, id, index) { 
                 return name; 
               },
-              value: function (value, ratio, id, index) {
+            //   value: function (value, ratio, id, index) {
 
-                // hide meanl8 and means2 in tooltip
-                if (id == "meanl8" || id == "means2") {
-                    return;
-                }
+            //     // hide meanl8 and means2 in tooltip
+            //     if (id == "meanl8" || id == "means2") {
+            //         return;
+            //     }
 
-                // shows also source in tooltip (e.g. landsat8 or sentinel2)
-                // only on charttype statistics - not for similarity
-                if (this.currentGraphContent == "statistics") {
-                    if (this.dataSource == "") {
-                        if (id != "marker") { //exlude for markers
-                          if (this.mode == "one-index") {
-                            return value + " ("+this.statistics[index].source + ")";
-                          } 
-                          if (this.mode == "many-indices") {
-                            return value + " ("+this.statisticsMany[id][index].source + ")";
-                          }
-                          if (this.mode == "many-parcels") {
-                            return value + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
-                          }
-                        }
-                        else {
-                            return value;
-                        }
-                    }
-                    else { return value; }
-                }
-                else { return value; }
-            }.bind(this)
+            //     // shows also source in tooltip (e.g. landsat8 or sentinel2)
+            //     // only on charttype statistics - not for similarity
+            //     if (this.currentGraphContent == "statistics") {
+            //         if (this.dataSource == "") {
+            //             if (id != "marker") { //exlude for markers
+            //               if (this.mode == "one-index") {
+            //                 return value + " ("+this.statistics[index].source + ")";
+            //               } 
+            //               if (this.mode == "many-indices") {
+            //                 return value + " ("+this.statisticsMany[id][index].source + ")";
+            //               }
+            //               if (this.mode == "many-parcels") {
+            //                 return value + " ("+this.statisticsMany.find(p => p.parcel_id == id)[this.selectedProduct][index].source + ")";
+            //               }
+            //             }
+            //             else {
+            //                 return value;
+            //             }
+            //         }
+            //         else { return value; }
+            //     }
+            //     else { return value; }
+            // }.bind(this)
           },
           // onshow: function(data) {
           //   console.debug("onshow!")
@@ -2486,24 +2596,41 @@ Vue.component('gc-chart', {
                           '<tr><th colspan="2">'+ defaultTitleFormat(d[0].x) +'</th></tr>';
 
             for (let i=0;i<d.length;i++) {
+              let value, id, index, name;
+              value = d[i].value;
+              id = d[i].id;
+              index = d[i].index;
+              name = d[i].name;
+
               // exclude nulls
-              if (d[i].value == null)
+              if (value == null)
                 continue;
               // hide meanl8 and means2 in tooltip
-              if (d[i].id == "meanl8" || d[i].id == "means2") {
+              if (id == "meanl8" || id == "means2") {
                 continue;
               }
 
-              html += '<tr class="'+'bb-tooltip-'+ d[i].name +'"></tr>'+
-                        '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ d[i].name + '</td>';
+              html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
+                        '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + '</td>';
               
               // for area range value skip high & low
               if (this.chart.internal.isTypeOf(d[i], ['area-line-range', 'area-spline-range'])) {
-                // index 1 is mid value
-                html += '<td>'+ d[i].value[1] + ' ('+this.statistics[d[i].index].source + ')' +'</td>';
+                // values is an array now; index 1 is mid value
+                if (this.mode === "one-index") {
+                  html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
+                }
+                if (this.mode === "many-indices") {
+                  html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                }
               } 
+              // value is a single value
               else {
-                html += '<td>'+ d[i].value + ' ('+this.statistics[d[i].index].source + ')' +'</td>';
+                if (this.mode === "one-index") {
+                  html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
+                }
+                if (this.mode === "many-indices") {
+                  html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                }
               }
               html += '</tr>';
             }
@@ -2576,8 +2703,8 @@ Vue.component('gc-chart', {
         }
       });
 
-      console.debug(this.chart);
-      console.debug(document.getElementById("chart_"+this.gcWidgetId))
+      // console.debug(this.chart);
+      // console.debug(document.getElementById("chart_"+this.gcWidgetId))
 
       // then load data
       this.chart.load({
@@ -2630,10 +2757,14 @@ Vue.component('gc-chart', {
     toggleChartOptions: function() {
       this.gcOptionsCollapsed = !this.gcOptionsCollapsed;
     },  
-    // containerSizeChange(size) {
-    //   /* handles the resize of the chart if parent container size changes */
-    //   // this.chart.resize();
-    // },
+    containerSizeChange(size) {
+      /* handles the resize of the chart if parent container size changes */
+      setTimeout(function(){ 
+        this.chart.resize();
+      }.bind(this),
+      200
+      );
+    },
     /* helper functions */
     removeFromArray: function(arry, value) {
       let index = arry.indexOf(value);
@@ -2769,6 +2900,26 @@ Vue.component('gc-chart', {
         // find the index of the closest date in timeseries now
         return timeseries.map(d => d.date).indexOf(exactDate.simpleDate());
       }
-    }
+    },
+    filterDatasourceProductCompat: function(source, products) {
+      /*
+          Handles compatibility of products & data_source
+      */
+      console.debug("filterDatasourceProductCompat("+source+")");
+  
+      let matrix = {"landsat8": ["visible", "vitality", "variations","ndvi", "ndwi", "savi", "evi2", "npcri"],
+                    "sentinel2": ["visible", "vitality", "variations", "ndvi", "ndre1", "ndre2", "ndre3",
+                                      "ndwi", "savi", "evi2", "cire", "npcri"]
+                    };
+  
+      // source may be "landsat8", "sentinel2" or "" so check for length
+      if (source.length > 0){
+        // filter out the ones which do not fit in
+        return products.filter(p=>matrix[source].includes(p))
+      }
+      else { //defaults to sentinel2 products if source not set
+        return products.filter(p=>matrix["sentinel2"].includes(p))
+      }
+    },
   },
 });
