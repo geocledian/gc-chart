@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-16, jsommer
+ updated: 2021-09-28, pal
  version: 0.9.4
 */
 "use strict";
@@ -367,7 +367,6 @@ Vue.component('gc-chart', {
                 </div>
               </div>  
               </div>
-
             <!-- date filter -->
             <div :class="dateZoomLayout[gcDatezoomLayout]"
                   v-show="availableOptions.includes('dateZoom')">
@@ -404,7 +403,6 @@ Vue.component('gc-chart', {
                 </select>
               </div>
             </div><!-- mode selector -->
-
             <!-- cloud filter -->
             <div class="field" v-show="this.availableOptions.includes('cloudFilter')">
               <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.cloudFilter.label')}}</label></div>
@@ -414,11 +412,8 @@ Vue.component('gc-chart', {
                 </div>
               </div>
             </div> 
-
           </div><!-- chart settings -->
-
           <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
-
           <div class="chartSpinner spinner" v-show="this.isloading">
             <div class="rect1"></div>
             <div class="rect2"></div>
@@ -426,7 +421,6 @@ Vue.component('gc-chart', {
             <div class="rect4"></div>
             <div class="rect5"></div>
           </div>
-
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
           <!-- v-show directive does not play nice with billboard.js! -->
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" :style="this.isloading==true ? 'opacity: 0' : 'opacity: 1.0'"></div>
@@ -444,15 +438,12 @@ Vue.component('gc-chart', {
                 </div>
               </div>
             </div> <!-- product selector -->
-
           </div> <!-- chart & product selector -->
-
           <!-- watermark -->
           <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: -0.6rem;">
             <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
-
           </div><!-- gcWidget -->`,
   data: function () {
     return {
@@ -466,7 +457,10 @@ Vue.component('gc-chart', {
       total_parcel_count: 250,
       chartLegendVisible: true,
       similarity : { content_parcel : [], content_reference: [], similarity: {}, summary: {}, classification: {} },
-      phenology : { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} },
+      sos : [],  
+      pos : [],
+      eos : [],
+      phenology : [], //content : []},//{ phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} },
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
@@ -607,9 +601,9 @@ Vue.component('gc-chart', {
       get: function() {
         return this.gcDataSource;
       },
-      // set: function(value) {
-      //   this.$root.$emit("dataSourceChange", value);
-      // }
+      set: function(value) {
+        this.$root.$emit("dataSourceChange", value);
+      }
     },
     chartWidth: {
       get: function() {
@@ -663,7 +657,6 @@ Vue.component('gc-chart', {
          - date has to be valid for zooming
          - date has to be in the range of the time series; 
            otherwise fall back to the first date of the time series for the start date
-
         Note: zooming will be handled in the watcher!
       */
       get: function() {
@@ -758,7 +751,6 @@ Vue.component('gc-chart', {
          - date has to be valid for zooming
          - date has to be in the range of the time series; 
            otherwise fall back to the last date of the time series for the end date
-
         Note: zooming will be handled in the watcher!
       */
       get: function() {
@@ -908,6 +900,39 @@ Vue.component('gc-chart', {
         this.internalMode = value;
         // notify root
         this.$root.$emit('chartModeChange', value);
+      }
+    },
+    phenology_marker: {
+      /* formats the phenology markers for X axis grid lines 
+      
+         is only available if bound in chart generation:
+
+         grid: {
+            // phenology markers as x grid lines
+            x: {
+                lines: this.phenology_marker
+            },
+         }
+
+      */
+      get: function () {
+        if (this.phenology.length > 0) {
+          let result = [];
+          for (var i = 0; i < this.phenology.length; i++) {
+            for (var j = 0; j < this.phenology[i].marker.length; j++) {
+              if (this.phenology[i].marker[j].date) {
+                result.push(
+                  {
+                    value: this.phenology[i].marker[j].date, 
+                    text: this.phenology[i].marker[j].name + " " + this.phenology[i].season,
+                    class: this.phenology[i].marker[j].name.split(" ").join("-")
+                  }
+                );
+              }
+            }
+          }
+          return result;
+        }
       }
     }
   },
@@ -1087,6 +1112,11 @@ Vue.component('gc-chart', {
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
+          // //Call Phenology when selected product is NDVI
+          //   if(this.selectedProduct=="ndvi"){
+          //     console.debug("event - ndvi select");
+          //     this.getPhenology();
+          // }
         }
         if (this.mode == "many-parcels") {
           // important: empty first 
@@ -1334,6 +1364,9 @@ Vue.component('gc-chart', {
               //this.getMarkers(this.getCurrentParcel().parcel_id);
           }
           //switch between phenology and SN marker
+          if (this.selectedMarkerType == "phenology") {
+            this.getPhenology();
+          }
           // create chart from values, if they change
           this.createChartData();
       }
@@ -1372,7 +1405,6 @@ Vue.component('gc-chart', {
           So it is necessary to store a map (internalQueryDate) on the graphs in a custom object
           and check if the chart already knows about this date (could be set by clicking in the chart)
           if so, don't change the selection again.
-
       */
       console.debug("gcSelectedDateChange");
 
@@ -1882,6 +1914,42 @@ Vue.component('gc-chart', {
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
+    getPhenology: function(){
+      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
+    
+      let limit = 6000; //this.pagingStep;
+      let params = "&limit="+limit; //set limit to maximum (default 1000)      
+      
+      console.debug("getPhenology()");
+      console.debug("GET " + this.getApiUrl(endpoint));
+      
+      let xmlHttp = new XMLHttpRequest();
+      let async = true;
+
+      xmlHttp.onreadystatechange=function()
+      {
+          if (xmlHttp.readyState==4)
+          {
+            var tmp  = JSON.parse(xmlHttp.responseText);            
+            console.debug(tmp);
+
+            this.phenology = [];
+            this.sos = [];
+            this.pos = [];
+            this.eos = [];
+            for (var i = 0; i < tmp.content.length; i++) {
+
+                var item = tmp.content[i];
+                this.phenology.push( item );
+                this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+                this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+                this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+            }
+          }
+      }.bind(this);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
+      xmlHttp.send();      
+    },   
     createChartData: function() {
       console.debug("createChartData()");
 
@@ -1924,6 +1992,32 @@ Vue.component('gc-chart', {
                                                                                     return this.formatDecimal(r.statistics.mean, 3); } 
                                                                                 else { return null;} 
                                                                     }.bind(this)));
+
+            if (this.selectedMarkerType == "phenology") {
+              try {
+                //Adds new axis to the existing chart
+                // columns[7] = ["x4"].concat(this.sos);            
+                // columns[8] = ["x5"].concat(this.pos);            
+                // columns[9] = ["x6"].concat(this.eos);
+                //columns[7] = ["5"].concat(this.eos);
+                columns[7] = ["x5"].concat(this.sos);            
+                columns[8] = ["x6"].concat(this.pos);            
+                columns[9] = ["x7"].concat(this.eos);
+                //TODO take min / max
+                // columns[10] = ["sos"].concat(columns[7].map( r => (1)));
+                // columns[11] = ["pos"].concat(columns[8].map( r => (1)));
+                // columns[12] = ["eos"].concat(columns[9].map( r => (1)));
+                
+                console.log(this.chart.axis.max().y)
+
+                columns[10] = ["sos"].concat(this.sos.map( r => this.chart.axis.max().y));
+                columns[11] = ["pos"].concat(this.pos.map( r => this.chart.axis.max().y));
+                columns[12] = ["eos"].concat(this.eos.map( r => this.chart.axis.max().y));
+              } catch ( ex ) {
+                console.debug("could not add phenology data to chart..")
+                console.log(ex)
+              }
+            }
           }
         }
         if (this.mode == "many-indices") {
@@ -2053,39 +2147,39 @@ Vue.component('gc-chart', {
           }
         }
             
-        // markers
-        try {
-            let markers;
-            if (this.selectedMarkerType == "sn_marker") {
-                if (this.sn_markers) {
-                    markers = this.sn_markers.markers;
-                }
-            }
-            if (this.selectedMarkerType == "phenology") {
-                if (this.phenology.phenology) {
-                    markers = this.phenology.phenology.markers;
-                }
-            }
+        // // markers
+        // try {
+        //     // let markers;
+        //     // if (this.selectedMarkerType == "sn_marker") {
+        //     //     if (this.sn_markers) {
+        //     //         markers = this.sn_markers.markers;
+        //     //     }
+        //     // }
+        //     // if (this.selectedMarkerType == "phenology") {
+        //     //     if (this.phenology.phenology) {
+        //     //         markers = this.phenology.phenology.markers;
+        //     //     }
+        //     // }
 
-            if (markers) {
-                // sort object by date in place
-                markers.sort((a, b) => (a.date > b.date) ? 1 : -1);
+        //     // if (markers) {
+        //     //     // sort object by date in place
+        //     //     markers.sort((a, b) => (a.date > b.date) ? 1 : -1);
             
-                if (markers.length > 0) {
-                    //workaround for unfinished API: filter out date: "None"
-                    let dates_markers = markers.map( r => r.date != "None" ? r.date : NaN );
+        //     //     if (markers.length > 0) {
+        //     //         //workaround for unfinished API: filter out date: "None"
+        //     //         let dates_markers = markers.map( r => r.date != "None" ? r.date : NaN );
 
-                    // map date values to the second x axis
-                    columns[7] = ["x2"].concat(dates_markers);
-                    // format values to 2 decimals
-                    columns[8] = ["marker"].concat( markers.map(r => this.formatDecimal(r.mean, 3)));                                                                    
-                }
-            }
-        }
-        catch (err) {
-            console.log("error getting markers!");
-            console.error(err);
-        }
+        //     //         // map date values to the second x axis
+        //     //         columns[7] = ["x2"].concat(dates_markers);
+        //     //         // format values to 2 decimals
+        //     //         columns[8] = ["marker"].concat( markers.map(r => this.formatDecimal(r.mean, 3)));                                                                    
+        //     //     }
+        //     // }
+        // }
+        // catch (err) {
+        //     console.log("error getting markers!");
+        //     console.error(err);
+        // }
 
         this.api_err_msg = ""; // empty api messages
 
@@ -2116,7 +2210,7 @@ Vue.component('gc-chart', {
           this.createChart(columns);
         }
       }
-      if (chartType == "similarity") {
+      if (chartType === "similarity") {
           
           if (this.similarity.content_parcel.length > 0) {
               let columns = [];
@@ -2149,7 +2243,10 @@ Vue.component('gc-chart', {
                             'means2' : 'scatter',
                             //'parcel (mean)': this.selectedGraphType , 
                             //'reference (mean)' : this.selectedGraphType,
-                            'marker': 'scatter'
+                            'marker': 'scatter',
+                            'sos' : 'bar', 
+                            'pos' : 'bar', 
+                            'eos' : 'bar'
                         };
       if (this.mode == "one-index") {
         xs_options = {
@@ -2162,6 +2259,9 @@ Vue.component('gc-chart', {
           "parcel (mean)" : "x2",
           "reference (mean)" : "x2",
           "marker" : "x2",
+          "sos" : "x5", 
+          "pos" : "x6", 
+          "eos" : "x7", 
         }
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
@@ -2305,7 +2405,10 @@ Vue.component('gc-chart', {
                 "means2" : '#00eaef', //turquoise
                 "parcel (mean)" : '#EF7D00', //orange
                 "reference (mean)" : '#1f77b4', //blue
-                "marker" : 'grey' //{fill: 'darkgrey', stroke: 'black'}
+                "marker" : 'grey', //{fill: 'darkgrey', stroke: 'black'}
+                'sos' : '#0080ff',
+                'pos' : '#13ec80',
+                'eos' : '#ff4d4d'
             },
             color: function (color, d) {
                 // d will be 'id' when called for legends
@@ -2330,7 +2433,7 @@ Vue.component('gc-chart', {
                         c = this.sn_markers.markers[d.index].status;
                     }
                     if (this.selectedMarkerType == "phenology") {
-                        c = this.phenology.phenology.markers[d.index].status;
+                        c = this.phenology[d.index].status;
                     }
 
                     return c;
@@ -2441,6 +2544,10 @@ Vue.component('gc-chart', {
             x: {
                 show: true
             },
+            // // phenology markers as x grid lines
+            // x: {
+            //     lines: this.phenology_marker
+            // },
             y: {
                 show: true
             }
@@ -2699,7 +2806,9 @@ Vue.component('gc-chart', {
           //     }
 
           //     return text + "</table>";
-
+        },
+        bar: {
+          width: 5, // phenology marker width
         }
       });
 

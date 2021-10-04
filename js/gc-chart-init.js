@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-06, jsommer
+ updated: 2021-09-28, pal
  version: 0.9.1
 */
 
