@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-09-28, pal
+ updated: 2021-10-05, jsommer
  version: 0.9.4
 */
 "use strict";
@@ -1995,24 +1995,34 @@ Vue.component('gc-chart', {
 
             if (this.selectedMarkerType == "phenology") {
               try {
-                //Adds new axis to the existing chart
-                // columns[7] = ["x4"].concat(this.sos);            
-                // columns[8] = ["x5"].concat(this.pos);            
-                // columns[9] = ["x6"].concat(this.eos);
-                //columns[7] = ["5"].concat(this.eos);
+                // TODO: check if we can merge all markers to one data array
                 columns[7] = ["x5"].concat(this.sos);            
                 columns[8] = ["x6"].concat(this.pos);            
                 columns[9] = ["x7"].concat(this.eos);
-                //TODO take min / max
-                // columns[10] = ["sos"].concat(columns[7].map( r => (1)));
-                // columns[11] = ["pos"].concat(columns[8].map( r => (1)));
-                // columns[12] = ["eos"].concat(columns[9].map( r => (1)));
-                
-                console.log(this.chart.axis.max().y)
 
-                columns[10] = ["sos"].concat(this.sos.map( r => this.chart.axis.max().y));
-                columns[11] = ["pos"].concat(this.pos.map( r => this.chart.axis.max().y));
-                columns[12] = ["eos"].concat(this.eos.map( r => this.chart.axis.max().y));
+                let max;
+                
+                if (this.gcYScale === "dynamic") {
+                  // max computed from values
+                  let maxStats = this.statistics.map(r => r.statistics.max);
+                  max = Number.NEGATIVE_INFINITY;
+                  for (let i = 0; i < maxStats.length; i++ ) {
+                    if (maxStats[i] > max) {
+                      max = maxStats[i];
+                    }
+                  }
+                }
+                if (this.gcYScale === "fixed") {
+                  // max declared by axis min/max (in config of chart)
+                  max = this.chart.axis.max().y;
+                }
+                console.debug(max);
+                
+                // assign the maximum of the y axis to the bar charts of phenology markers
+                columns[10] = ["sos"].concat(this.sos.map( r => max));
+                columns[11] = ["pos"].concat(this.pos.map( r => max));
+                columns[12] = ["eos"].concat(this.eos.map( r => max));
+
               } catch ( ex ) {
                 console.debug("could not add phenology data to chart..")
                 console.log(ex)
@@ -2222,6 +2232,7 @@ Vue.component('gc-chart', {
     createChart: function(data) {
 
       console.debug("createChart()");
+      console.debug(data);
 
       let xs_options = {};
       let ys_options = {};
@@ -2294,7 +2305,6 @@ Vue.component('gc-chart', {
           "min": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
         }
       }
-
       if (this.mode == "many-parcels") {
 
         for (var i=0; i < this.selectedParcelIds.length; i++) {
@@ -2388,14 +2398,14 @@ Vue.component('gc-chart', {
             hide: this.hiddenStats,
             type: 'line', //default,
             types: types_options,
-            /*labels: {
-                    format: function (value, id, index, subindex) { 
-                            //only Label marker
-                            if (id == "marker") {
-                                return this.sn_markers.markers[index].name;
-                            }
-                        }
-            },*/
+            labels: {
+              format: function (value, id, index, subindex) { 
+                      // //only label phenology bars
+                      if (["sos","pos","eos"].includes(id)) {
+                        return id;
+                      }
+                  }
+            },
             colors: {
                 "mean": '#EF7D00', //orange
                 "std.dev.": ' #d6d6d6', //'#7d00ef', //light purple
@@ -2514,28 +2524,28 @@ Vue.component('gc-chart', {
             connectNull: true
         },
         point: {
-                show: true,  //show data points in line chart
-                //r: 3, //radius of points in line chart
-                focus: {
-                    expand: {
-                      r: 6
-                    }
-                },
-                // issue in billboard 3.1.5: value will override opacity for any point (even for null values)
-                // will be fixed with https://github.com/naver/billboard.js/blob/6ff9aec01d831c8fe2449da6b87121281829f209/src/ChartInternal/shape/point.ts#L42
-                opacity: 1.0, 
-                // size dependent of source
-                r: function (d) {
-                  // workaround for opacity issue
-                  // set radius to 0 if we have a null value
-                  if (d.value == null) {
-                    return 0;
-                  }
-                  if (d.id == "marker") {
-                      return 6;
-                  }
-                  return 3; //default
+            show: true,  //show data points in line chart
+            //r: 3, //radius of points in line chart
+            focus: {
+                expand: {
+                  r: 6
                 }
+            },
+            // issue in billboard 3.1.5: value will override opacity for any point (even for null values)
+            // will be fixed with https://github.com/naver/billboard.js/blob/6ff9aec01d831c8fe2449da6b87121281829f209/src/ChartInternal/shape/point.ts#L42
+            opacity: 1.0, 
+            // size dependent of source
+            r: function (d) {
+              // workaround for opacity issue
+              // set radius to 0 if we have a null value
+              if (d.value == null) {
+                return 0;
+              }
+              if (d.id == "marker") {
+                  return 6;
+              }
+              return 3; //default
+            }
         },
         transition: {
             duration: 300
@@ -2808,7 +2818,7 @@ Vue.component('gc-chart', {
           //     return text + "</table>";
         },
         bar: {
-          width: 5, // phenology marker width
+          width: 3, // phenology marker width
         }
       });
 
