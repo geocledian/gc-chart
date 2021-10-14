@@ -2346,7 +2346,12 @@ Vue.component('gc-chart', {
             types_options[product] = meanType; // this.selectedGraphType;
           }
           if (product === "vitality") {
-            xs_options[product] = "x3";
+            if (this.apiMajorVersion === 3) {
+              xs_options[product] = "x3";
+            }
+            if (this.apiMajorVersion === 4) {
+              xs_options[product] = "x";
+            }
             types_options[product] = meanType; // this.selectedGraphType;
           }
           if (["ndre1","ndre2","cire"].includes(product)) {
@@ -2797,19 +2802,38 @@ Vue.component('gc-chart', {
               if (this.chart.internal.isTypeOf(d[i], ['area-line-range', 'area-spline-range'])) {
                 // values is an array now; index 1 is mid value
                 if (this.mode === "one-index") {
-                  html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
+                  // phenology markers are different
+                  if (["sos","pos","eos"].includes(id)) {
+                    html += ''; //'<td>'+ value + '</td>';
+                  } else {
+                    html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
+                  }
                 }
                 if (this.mode === "many-indices") {
-                  html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                  // phenology markers are different
+                  if (["sos","pos","eos"].includes(id)) {
+                    html += '';
+                  } else {
+                    html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                  }
                 }
               } 
               // value is a single value
               else {
                 if (this.mode === "one-index") {
-                  html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
+                  if (["sos","pos","eos"].includes(id)) {
+                    html += '';
+                  } else {
+                    html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
+                  }
                 }
                 if (this.mode === "many-indices") {
-                  html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                  // phenology markers are different
+                  if (["sos","pos","eos"].includes(id)) {
+                    html += ''; //'<td>'+ value + ' ('+this[id][index].source + ')' +'</td>';
+                  } else {
+                    html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                  }
                 }
               }
               html += '</tr>';
