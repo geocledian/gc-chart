@@ -1,8 +1,8 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-10-05, jsommer
- version: 0.9.4
+ updated: 2021-10-14, jsommer
+ version: 0.9.5
 */
 "use strict";
 
@@ -46,7 +46,8 @@ const gcChartLocales = {
       },
       "cloudFilter": {
         "label" : "Cloud filter"
-      }
+      },
+      "date_reset": "Reset"
     },
     "statistics": { 
         "min": "Minimum",
@@ -113,7 +114,8 @@ const gcChartLocales = {
         },
         "cloudFilter": {
           "label" : "Wolkenfilter"
-        }
+        },
+        "date_reset": "Zurücksetzen"
     },
     "statistics": { 
       "min": "Minimum",
@@ -244,7 +246,7 @@ Vue.component('gc-chart', {
     },
     gcAvailableStats: { //only valid for gcMode 'one-index'!
       type: String,
-      default: 'mean,min,max,std.dev.,marker,errorBand'
+      default: 'mean,min,max,std.dev.,marker,errorBand,means2,meanl8'
     },
     gcAvailableOptions: {
       type: String,
@@ -269,6 +271,14 @@ Vue.component('gc-chart', {
     gcYScale: {
       type: String,
       default: 'dynamic' // 'fixed' //dynamic or fixed y scale
+    },
+    gcPhStartdate: {
+      type: String,
+      default: undefined
+    },
+    gcPhEnddate: {
+      type: String,
+      default: undefined
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">    
@@ -297,7 +307,7 @@ Vue.component('gc-chart', {
                 </div>
               </div>
 
-              <div class="field is-vertical" v-show="availableOptions.includes('hideGraphs')">
+              <div class="field is-vertical" v-show="availableOptions.includes('hideGraphs') && mode == 'one-index'">
                 <div class="field-label is-small">
                   <label class="label has-text-left is-grey" style="white-space: nowrap;">{{ $t('options.hide_graphs.label')}}</label>
                 </div>
@@ -335,14 +345,14 @@ Vue.component('gc-chart', {
                           </div>
                         </div>
                     </div>
-                    <div class="field is-horizontal" v-if="this.mode=='one-index' || this.mode=='many-indices'">
+                    <!-- div class="field is-horizontal" v-if="this.mode=='one-index' || this.mode=='many-indices'">
                       <div class="field-body">
                         <div class="control">
                           <label class="label is-small is-grey" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="errorBand" v-model="hiddenStats"> {{ $t('statistics.errorBand')}}</label>
                         </div>
                       </div>
-                    </div>
+                    </div -->
                     <div class="field is-horizontal" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
                       <div class="field-body">
                         <div class="control">
@@ -367,9 +377,11 @@ Vue.component('gc-chart', {
                 </div>
               </div>  
               </div>
+
             <!-- date filter -->
+            <div class="is-vertical">
             <div :class="dateZoomLayout[gcDatezoomLayout]"
-                  v-show="availableOptions.includes('dateZoom')">
+                  v-show="availableOptions.includes('dateZoom')" style="margin-bottom: 0.2rem;">
               <div class="field">
                 <div class="field field-label is-small">
                   <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.from')}}</label>
@@ -391,6 +403,12 @@ Vue.component('gc-chart', {
                       :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'"  v-model="chartToDate">
                 </div>
               </div>  
+            </div>
+            <div class="field" style="padding-right: 1em !important;">
+              <button class="button is-small is-light" style="margin-left: 7px!important; margin-right: 7px!important; width: 100%;" v-bind:title="$t('options.date_reset')" v-on:click="resetDateZoom()">
+                <i class="fas fa-undo fa-sm is-orange"></i><span class="content is-orange">{{$t('options.date_reset')}}</span>
+              </button>
+            </div>
             </div>
             
             <!-- mode selector -->
@@ -464,7 +482,7 @@ Vue.component('gc-chart', {
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
-      hiddenStats: ["min","max","std.dev."], //hide these by default - user can change the visibility
+      hiddenStats: ["min","max","std.dev.","means2","meanl8"], //hide these by default - user can change the visibility
       sn_markers: {},
       internalQuerydate: {}, //filled by click in chart only!
       selectedChartId: "", // filled by click in chart when in one-index or many-indices mode
@@ -834,6 +852,11 @@ Vue.component('gc-chart', {
         }
       }
     },
+    internalZoomDomain: {
+      get() {
+        return [this.chartFromDate, this.chartToDate];
+      }
+    },
     selectedProduct: {
       get: function() {
         // check for variations & visible products: fallback to vitality
@@ -952,7 +975,7 @@ Vue.component('gc-chart', {
     this.$root.$on("containerSizeChange", this.containerSizeChange);
 
     // init hidden stats  
-    let allStats = ["mean","min","max","std.dev.","marker","errorBand"];
+    let allStats = ["mean","min","max","std.dev.","marker","means2","meanl8"];
     allStats.forEach( function(item) {
       if (!this.availableStats.includes(item)){
         this.hiddenStats.push(item);
@@ -962,6 +985,7 @@ Vue.component('gc-chart', {
         }
       }
     }.bind(this));
+
 
     // overwrite statisticsMany
     if (this.mode == "many-indices") {
@@ -1041,15 +1065,14 @@ Vue.component('gc-chart', {
     chartFromDate: function (newValue, oldValue) {
             
       console.debug("event - chartFromDateChange");
-      console.debug(newValue);
 
       if (this.isDateValid(newValue)) {
         // special case: chartToDate may be undefined
         if (this.chartToDate !== undefined) {
           if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-            if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {  
-              this.chart.zoom([this.chartFromDate, this.chartToDate]);
-            }
+            // if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {  
+            //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            // }
           }
           else {
             // revert date to old
@@ -1073,9 +1096,9 @@ Vue.component('gc-chart', {
           // special case: chartFromDate may be undefined
           if (this.chartFromDate !== undefined) {
             if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-              if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {  
-                this.chart.zoom([this.chartFromDate, this.chartToDate]);
-              }
+              // if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {  
+              //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
+              // }
             }
             else {
               // revert date to old
@@ -1091,6 +1114,14 @@ Vue.component('gc-chart', {
           // or clear date
           this.chartToDate = undefined;
         }
+    },
+    internalZoomDomain: function (newValue, oldValue) {
+      /* zooms at once for change in chartFrom & chartTo date */
+      console.debug("event - internalZoomDomain");
+      // check for valid domain (fromDate < toDate)
+      if (new Date(newValue[0]).getTime() < new Date(newValue[1]).getTime()) {  
+        this.chart.zoom(newValue);
+      }
     },
     selectedProduct: function (newValue, oldValue) {
 
@@ -1112,11 +1143,6 @@ Vue.component('gc-chart', {
               this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
             }
           }
-          // //Call Phenology when selected product is NDVI
-          //   if(this.selectedProduct=="ndvi"){
-          //     console.debug("event - ndvi select");
-          //     this.getPhenology();
-          // }
         }
         if (this.mode == "many-parcels") {
           // important: empty first 
@@ -1310,45 +1336,26 @@ Vue.component('gc-chart', {
 
           // zoom in any case on valid date
           if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-            this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            //this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            this.chart.zoom(this.internalZoomDomain);
           }
       },
       deep: true //important for watching theses changes!
     },
     hiddenStats: function (newValue, oldValue) {
-      // if (oldValue.includes("errorBand") && !(newValue.includes("errorBand"))) {
-      //   // need for complete refresh of chart because of error band
-      //   console.debug("OLD hide error band, NEW show error band")
-      //   this.createChartData();
-      // } else {
-      //   // hideable plots
-      //   if (!newValue.includes("errorBand")) {
-      //     this.chart.show(); // reset first
-      //     if (newValue.includes("mean")) {
-      //         this.hiddenStats.push("means2");
-      //         this.hiddenStats.push("meanl8");
-      //     }
-      //     else {
-      //         this.hiddenStats = this.removeFromArray(this.hiddenStats, "means2");
-      //         this.hiddenStats = this.removeFromArray(this.hiddenStats, "meanl8");
-      //     }
-      //     this.chart.hide(this.hiddenStats);
-      //     //maybe also remove from legend?
-      //   } else {
-      //     // need for complete refresh of chart because of error band
-          this.createChartData();
-      //   }
-      // }
-      // if (newValue.includes("mean")) {
-      //   newValue.push("means2");
-      //   newValue.push("meanl8");
-      //   this.createChartData();
-      // }
-      // else {
-      //   newValue = this.removeFromArray(newValue, "means2");
-      //   newValue = this.removeFromArray(newValue, "meanl8");
-      //   this.createChartData();
-      // }
+      
+      // reset first
+      let visibleStats = [];
+      for (let i=0;i<this.availableStats.length; i++) {
+        if (!(this.hiddenStats.includes(this.availableStats[i]))) {
+          visibleStats.push(this.availableStats[i]);
+        }
+      }
+      this.chart.show(visibleStats);
+
+      // hide then
+      this.chart.hide(this.hiddenStats);
+
     },
     selectedGraphType: function (newValue, oldValue) {
       console.debug("event - selectedGraphTypeChange");
@@ -1365,7 +1372,7 @@ Vue.component('gc-chart', {
           }
           //switch between phenology and SN marker
           if (this.selectedMarkerType == "phenology") {
-            this.getPhenology();
+            this.getPhenology(this.gcPhStartdate, this.gcPhEnddate);
           }
           // create chart from values, if they change
           this.createChartData();
@@ -1387,7 +1394,8 @@ Vue.component('gc-chart', {
       try {
         //zoom to previous zoom selection!
         if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
-          this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          //this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          this.chart.zoom(this.internalZoomDomain);
       } 
       catch (ex) {}
       //reset date pickers
@@ -1575,6 +1583,10 @@ Vue.component('gc-chart', {
     offset(newValue,oldValue) {
       //fetch next batch of parcels
       this.getAllParcels(undefined, newValue, this.filterString);
+    },
+    phenology (newValue, oldValue) {
+      // redraw chart
+      this.createChartData();
     }
   },
   methods: {
@@ -1715,8 +1727,10 @@ Vue.component('gc-chart', {
         }
       
         //reset phenology because it depends on date entries of parcels
-        // thus phenology must be called by user
-        //this.phenology = { phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} };
+        this.phenology = [];
+        this.sos = [];
+        this.pos = [];
+        this.eos = [];
 
         let currentParcel = this.getCurrentParcel();
         if (currentParcel !== undefined) {
@@ -1914,12 +1928,17 @@ Vue.component('gc-chart', {
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
-    getPhenology: function(){
+    getPhenology: function() {
       const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
-    
-      let limit = 6000; //this.pagingStep;
-      let params = "&limit="+limit; //set limit to maximum (default 1000)      
       
+      let params = ""; 
+
+      if (this.gcPhStartdate)
+        params = params + "&startdate="+this.gcPhStartdate;
+
+      if (this.gcPhEnddate)
+        params = params + "&enddate="+this.gcPhEnddate;
+
       console.debug("getPhenology()");
       console.debug("GET " + this.getApiUrl(endpoint));
       
@@ -1967,7 +1986,7 @@ Vue.component('gc-chart', {
 
             // format values to 2 decimals
             let means = [];
-            if (!this.hiddenStats.includes("errorBand")) {
+            // if (!this.hiddenStats.includes("errorBand")) {
               // simple array to [high, mid, low] with std.dev. for error band
               for (let i = 0; i < filteredStats.length; i++) {
                 let r = filteredStats[i];
@@ -1975,11 +1994,11 @@ Vue.component('gc-chart', {
                 let mid = this.formatDecimal(r.statistics.mean,3);
                 let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
                 means.push([high, mid, low]);
-              }
-            }
-            else {
-              means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
-            }
+               }
+            // }
+            // else {
+            //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
+            // }
             columns[1] = ["mean"].concat(means);
             columns[2] = ["std.dev."].concat( filteredStats.map( r => this.formatDecimal(r.statistics.stddev, 3)));
             columns[3] = ["min"].concat( filteredStats.map( r => this.formatDecimal(r.statistics.min, 3)));
@@ -1993,41 +2012,42 @@ Vue.component('gc-chart', {
                                                                                 else { return null;} 
                                                                     }.bind(this)));
 
-            if (this.selectedMarkerType == "phenology") {
-              try {
-                // TODO: check if we can merge all markers to one data array
-                columns[7] = ["x5"].concat(this.sos);            
-                columns[8] = ["x6"].concat(this.pos);            
-                columns[9] = ["x7"].concat(this.eos);
+            // if (this.selectedMarkerType == "phenology") {
+            //   try {
+            //     // TODO: check if we can merge all markers to one data array
+            //     columns[7] = ["x5"].concat(this.sos);            
+            //     columns[8] = ["x6"].concat(this.pos);            
+            //     columns[9] = ["x7"].concat(this.eos);
 
-                let max;
+            //     let max;
                 
-                if (this.gcYScale === "dynamic") {
-                  // max computed from values
-                  let maxStats = this.statistics.map(r => r.statistics.max);
-                  max = Number.NEGATIVE_INFINITY;
-                  for (let i = 0; i < maxStats.length; i++ ) {
-                    if (maxStats[i] > max) {
-                      max = maxStats[i];
-                    }
-                  }
-                }
-                if (this.gcYScale === "fixed") {
-                  // max declared by axis min/max (in config of chart)
-                  max = this.chart.axis.max().y;
-                }
-                console.debug(max);
+            //     if (this.gcYScale === "dynamic") {
+                  
+            //       // max computed from values & exclude null stats first!
+            //       let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
+            //       max = Number.NEGATIVE_INFINITY;
+            //       for (let i = 0; i < maxStats.length; i++ ) {
+            //         if (maxStats[i] > max) {
+            //           max = maxStats[i];
+            //         }
+            //       }
+            //     }
+            //     if (this.gcYScale === "fixed") {
+            //       // max declared by axis min/max (in config of chart)
+            //       max = this.chart.axis.max().y;
+            //     }
+            //     console.debug(max);
                 
-                // assign the maximum of the y axis to the bar charts of phenology markers
-                columns[10] = ["sos"].concat(this.sos.map( r => max));
-                columns[11] = ["pos"].concat(this.pos.map( r => max));
-                columns[12] = ["eos"].concat(this.eos.map( r => max));
+            //     // assign the maximum of the y axis to the bar charts of phenology markers
+            //     columns[10] = ["sos"].concat(this.sos.map( r => max));
+            //     columns[11] = ["pos"].concat(this.pos.map( r => max));
+            //     columns[12] = ["eos"].concat(this.eos.map( r => max));
 
-              } catch ( ex ) {
-                console.debug("could not add phenology data to chart..")
-                console.log(ex)
-              }
-            }
+            //   } catch ( ex ) {
+            //     console.debug("could not add phenology data to chart..")
+            //     console.log(ex)
+            //   }
+            // }
           }
         }
         if (this.mode == "many-indices") {
@@ -2069,7 +2089,7 @@ Vue.component('gc-chart', {
             //place the new column after the existing one(s)
 
             let means = [];
-            if (!this.hiddenStats.includes("errorBand")) {
+            // if (!this.hiddenStats.includes("errorBand")) {
               // simple array to [high, mid, low] with std.dev. for error band
               for (let i = 0; i < filteredStats.length; i++) {
                 let r = filteredStats[i];
@@ -2078,10 +2098,10 @@ Vue.component('gc-chart', {
                 let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
                 means.push([high, mid, low]);
               }
-            }
-            else {
-              means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
-            }
+            // }
+            // else {
+            //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
+            // }
             columns[columns.length] = [product].concat( means );
           }
           // style:
@@ -2156,7 +2176,45 @@ Vue.component('gc-chart', {
             }
           }
         }
+
+        // new style of phenology visualization
+        if (this.selectedMarkerType == "phenology") {
+          try {
+            // TODO: check if we can merge all markers to one data array
+            columns[columns.length] = ["x5"].concat(this.sos);            
+            columns[columns.length] = ["x6"].concat(this.pos);            
+            columns[columns.length] = ["x7"].concat(this.eos);
+
+            let max;
             
+            if (this.gcYScale === "dynamic") {
+              
+              // max computed from values & exclude null stats first!
+              let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
+              max = Number.NEGATIVE_INFINITY;
+              for (let i = 0; i < maxStats.length; i++ ) {
+                if (maxStats[i] > max) {
+                  max = maxStats[i];
+                }
+              }
+            }
+            if (this.gcYScale === "fixed") {
+              // max declared by axis min/max (in config of chart)
+              max = this.chart.axis.max().y;
+            }
+            console.debug(max);
+            
+            // assign the maximum of the y axis to the bar charts of phenology markers
+            columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
+            columns[columns.length] = ["pos"].concat(this.pos.map( r => max));
+            columns[columns.length] = ["eos"].concat(this.eos.map( r => max));
+
+          } catch ( ex ) {
+            console.debug("could not add phenology data to chart..")
+            console.log(ex)
+          }
+        }
+
         // // markers
         // try {
         //     // let markers;
@@ -2239,13 +2297,13 @@ Vue.component('gc-chart', {
 
       // will be changed for many-parcels gcMode
       let meanType;
-      if (!this.hiddenStats.includes("errorBand")) {
+      // if (!this.hiddenStats.includes("errorBand")) {
         if (this.selectedGraphType != "area") {
           meanType = 'area-' + this.selectedGraphType + '-range';
         }
-      } else {
-        meanType = this.selectedGraphType;
-      }
+      // } else {
+      //   meanType = this.selectedGraphType;
+      // }
       let types_options = { "mean": meanType,
                             'std.dev.' : 'bar', 
                             'min': this.selectedGraphType,
@@ -2300,6 +2358,11 @@ Vue.component('gc-chart', {
         xs_options["parcel (mean)"] = "x";
         xs_options["reference (mean)"] = "x2";
 
+        // phenology 
+        xs_options["sos"] = "x5";
+        xs_options["pos"] = "x6";
+        xs_options["eos"] = "x7";
+
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
           "min": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
@@ -2335,14 +2398,6 @@ Vue.component('gc-chart', {
       //set i18n for time x axis
       d3.timeFormatDefaultLocale(this.d3locales[this.currentLanguage]);
 
-      // if (this.hiddenStats.includes("mean")) {
-      //   this.hiddenStats.push("means2");
-      //   this.hiddenStats.push("meanl8");
-      // } else {
-      //   this.hiddenStats = this.removeFromArray(this.hiddenStats, "means2");
-      //   this.hiddenStats = this.removeFromArray(this.hiddenStats, "meanl8");
-      // }
-
       // generate without data
       this.chart = bb.generate({
         bindto: '#chart_'+this.gcWidgetId,
@@ -2368,7 +2423,7 @@ Vue.component('gc-chart', {
             // multiple x axis mapping
             xs: xs_options,
             //xFormat: '%Y-%m-%d', // how the date is parsed
-            columns: data,
+            columns: [], // empty data first - will be loaded below with chart.load()
             names: { //with i18n
                 "mean": this.$t("statistics.mean"),
                 "min": this.$t("statistics.min"),
@@ -2468,20 +2523,20 @@ Vue.component('gc-chart', {
                   }
               }
             }.bind(this),
-            // onhidden: function(ids) {
-            //   if (ids.includes("mean")) {
-            //     // also hide means2 & meanl8
-            //     this.chart.hide("means2");
-            //     this.chart.hide("meanl8");
-            //   }
-            // }.bind(this),
-            // onshown: function(ids) {
-            //   if (ids.includes("mean")) {
-            //     // also hide means2 & meanl8
-            //     this.chart.show("means2");
-            //     this.chart.show("meanl8");
-            //   }
-            // }.bind(this)
+            onhidden: function(ids) {
+              if (ids.includes("mean")) {
+                // also hide means2 & meanl8
+                this.chart.hide("means2");
+                this.chart.hide("meanl8");
+              }
+            }.bind(this),
+            onshown: function(ids) {
+              if (ids.includes("mean")) {
+                // also show means2 & meanl8
+                // this.chart.show("means2");
+                // this.chart.show("meanl8");
+              }
+            }.bind(this)
         },
         //nicer splines, default is "cardinal"
         spline: {
@@ -2500,8 +2555,8 @@ Vue.component('gc-chart', {
                   //special case for mean, toggle also sentinel2 and landsat8 scatter points
                   if (id == "mean") {
                       this.chart.toggle("mean");
-                      this.chart.toggle("meanl8");
-                      this.chart.toggle("means2");
+                      //this.chart.toggle("meanl8");
+                      //this.chart.toggle("means2");
                   }
                   else { this.chart.toggle(id); }
                 }.bind(this),
@@ -2601,13 +2656,21 @@ Vue.component('gc-chart', {
             resetButton: false,
             onzoomend: function(domain) {
               // update chartFromDate & chartToDate when zooming per drag
+              // TODO: introduce a new tuple as domain for chart to watch
+              // and only trigger zoom when both values of the tuple are being modified!
               console.debug("onzoomend()");
-              // console.debug(domain);
-              if (this.chartFromDate != domain[0].simpleDate()) 
+              console.debug(domain);
+              // if (this.chartFromDate !== domain[0].simpleDate()) {
+                console.debug(this.chartFromDate)
+                console.debug(domain[0].simpleDate())
                 this.chartFromDate = domain[0].simpleDate();
-              // console.debug(this.chartFromDate);
-              if (this.chartToDate != domain[1].simpleDate())
+              // }
+            
+              // if (this.chartToDate !== domain[1].simpleDate()) {
+                console.debug(this.chartToDate)
+                console.debug(domain[1].simpleDate())
                 this.chartToDate = domain[1].simpleDate();
+              // }
               // console.debug(this.chartToDate);
             }.bind(this)
         },
@@ -2829,8 +2892,12 @@ Vue.component('gc-chart', {
       this.chart.load({
         columns: data,
         done: function() {
+          // hide some data
+          this.chart.hide(this.hiddenStats);
+
           // hide spinner after data is loaded
           this.isloading = false;
+          
         }.bind(this)
       });
     
@@ -3040,5 +3107,11 @@ Vue.component('gc-chart', {
         return products.filter(p=>matrix["sentinel2"].includes(p))
       }
     },
+    resetDateZoom() {
+
+      //TODO set this.chartFromDate / ToDate appropriate!
+      this.chartFromDate  = this.statistics[0].date;
+      this.chartToDate    = this.statistics[this.statistics.length-1].date;
+    }
   },
 });

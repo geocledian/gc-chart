@@ -151,7 +151,7 @@ function loadJSscript (url, callback) {
       */
     let script = document.createElement("script");  // create a script DOM node
     script.type = 'text/javascript';
-    script.src = gcGetBaseURL() + "/"+ url;  // set its src to the provided URL
+    script.src = gcGetBaseURL() + "/" + url;  // set its src to the provided URL
     script.async = true;
     document.head.appendChild(script);  // add it to the end of the head section of the page
     //if ready, call the callback function 
