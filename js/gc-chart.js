@@ -1929,6 +1929,12 @@ Vue.component('gc-chart', {
       xmlHttp.send();
     },
     getPhenology: function() {
+
+      /* only available for API v4 */
+      if (this.apiMajorVersion < 4) {
+        return;
+      }
+
       const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
       
       let params = ""; 
@@ -1950,14 +1956,12 @@ Vue.component('gc-chart', {
           if (xmlHttp.readyState==4)
           {
             var tmp  = JSON.parse(xmlHttp.responseText);            
-            console.debug(tmp);
-
+            
             this.phenology = [];
             this.sos = [];
             this.pos = [];
             this.eos = [];
             for (var i = 0; i < tmp.content.length; i++) {
-
                 var item = tmp.content[i];
                 this.phenology.push( item );
                 this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
