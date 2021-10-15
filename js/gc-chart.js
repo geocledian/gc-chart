@@ -439,10 +439,12 @@ Vue.component('gc-chart', {
             <div class="rect4"></div>
             <div class="rect5"></div>
           </div>
+          <!-- v-show directive does not play nice with billboard.js so put it one layer above! -->
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
-          <!-- v-show directive does not play nice with billboard.js! -->
-            <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" :style="this.isloading==true ? 'opacity: 0' : 'opacity: 1.0'"></div>
-            <!-- div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div -->
+            
+            <div v-show="this.isloading == false">
+              <div :id="'chart_'+ this.gcWidgetId" class="gc-chart"></div>
+            </div>
 
             <!-- product selector -->
             <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
@@ -483,7 +485,7 @@ Vue.component('gc-chart', {
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
-      hiddenStats: ["min","max","std.dev.","means2","meanl8"], //hide these by default - user can change the visibility
+      hiddenStats: ["min","max","std.dev.","means2","meanl8","cire","vitality","npcri","ndre2","evi2","savi"], //hide these by default - user can change the visibility
       sn_markers: {},
       internalQuerydate: {}, //filled by click in chart only!
       selectedChartId: "", // filled by click in chart when in one-index or many-indices mode
@@ -958,7 +960,30 @@ Vue.component('gc-chart', {
           return result;
         }
       }
-    }
+    },
+    // currentTimeseries: {
+    //   get() {
+    //     if (this.mode === "one-index") {
+    //       return this.statistics.filter(s=>s.statistics !== null);
+    //     }
+    //     if (this.mode === "many-indices") {
+    //       // return the longest series
+    //       let out = []
+    //       let maxLength = 0;
+    //       for (var i = 0; i < this.availableProducts.length; i++) {
+    //         const product = this.availableProducts[i];
+    //         if (this.statisticsMany[product].length > maxLength) {
+    //           out = this.statisticsMany[product].filter(s=>s.statistics !== null);
+    //         }
+    //         maxLength = this.statisticsMany[product].length;
+    //       }
+    //       return out;
+    //     }
+    //   },
+    //   set (value) {
+    //     this.$root.$emit("timeseriesChange", this.currentTimeseries);
+    //   }
+    // }
   },
   // init internationalization
   i18n: {
@@ -1211,7 +1236,8 @@ Vue.component('gc-chart', {
 
       console.debug("event - currentParcelIDChange");
       //only for certain modes refresh
-      if (this.mode == "one-index" || this.mode == "many-indices") {
+      if (this.mode == "one-index" || this.mode == "many-indices") {      
+        this.isloading = true;
         this.handleCurrentParcelIDchange(newValue, oldValue);
       }
     },
@@ -1238,6 +1264,8 @@ Vue.component('gc-chart', {
     statistics: function (newValue, oldValue) {
 
       console.debug("event - statisticsChange");
+      
+      this.isloading = true;
 
       // create chart from values, if they change
       this.createChartData();
@@ -1265,6 +1293,8 @@ Vue.component('gc-chart', {
       handler: function (newValue, oldValue) {
 
           console.debug("event - statisticsManyChange");
+
+          this.isloading = true;
 
           // create chart from values, if they change
           this.createChartData();
@@ -1508,7 +1538,6 @@ Vue.component('gc-chart', {
       }
     },
     mode(newValue, oldValue) {
-      
       //re init because mode has changed!
       if (this.mode == "many-indices") {
         this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
@@ -1588,7 +1617,11 @@ Vue.component('gc-chart', {
     phenology (newValue, oldValue) {
       // redraw chart
       this.createChartData();
-    }
+    },
+    // currentTimeseries(newValue, oldValue) {
+    //   //notify root 
+    //   this.$root.$emit("timeseriesChange", newValue);
+    // },
   },
   methods: {
     getApiUrl: function (endpoint) {
@@ -1663,7 +1696,6 @@ Vue.component('gc-chart', {
                 if (tmp.content.length == 0) {
                     // show empty chart with no data msg
                     this.createChartData();
-                    this.isloading = false;
                     return;
                 }
     
@@ -2206,7 +2238,6 @@ Vue.component('gc-chart', {
                 // max declared by axis min/max (in config of chart)
                 max = this.chart.axis.max().y;
               }
-              console.debug(max);
               
               // assign the maximum of the y axis to the bar charts of phenology markers
               columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
@@ -2295,7 +2326,7 @@ Vue.component('gc-chart', {
     createChart: function(data) {
 
       console.debug("createChart()");
-      console.debug(data);
+      // console.debug(data);
 
       let xs_options = {};
       let ys_options = {};
@@ -2666,22 +2697,11 @@ Vue.component('gc-chart', {
             resetButton: false,
             onzoomend: function(domain) {
               // update chartFromDate & chartToDate when zooming per drag
-              // TODO: introduce a new tuple as domain for chart to watch
+              
               // and only trigger zoom when both values of the tuple are being modified!
-              console.debug("onzoomend()");
-              console.debug(domain);
-              // if (this.chartFromDate !== domain[0].simpleDate()) {
-                console.debug(this.chartFromDate)
-                console.debug(domain[0].simpleDate())
                 this.chartFromDate = domain[0].simpleDate();
-              // }
-            
-              // if (this.chartToDate !== domain[1].simpleDate()) {
-                console.debug(this.chartToDate)
-                console.debug(domain[1].simpleDate())
                 this.chartToDate = domain[1].simpleDate();
-              // }
-              // console.debug(this.chartToDate);
+
             }.bind(this)
         },
         tooltip: {
@@ -2929,7 +2949,10 @@ Vue.component('gc-chart', {
           this.chart.hide(this.hiddenStats);
 
           // hide spinner after data is loaded
+          //setTimeout(function() {
           this.isloading = false;
+          //}.bind(this), 2000
+          //);
           
         }.bind(this)
       });
@@ -2942,12 +2965,12 @@ Vue.component('gc-chart', {
         this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
         // only load stats if product is not visible
         if (this.selectedProduct != 'visible') {
-          if (!this.hiddenStats.includes("marker")) {
-            //this.getMarkers(this.getCurrentParcel().parcel_id);
-          }
-          else {
-            this.sn_markers = {};
-          }
+          // if (!this.hiddenStats.includes("marker")) {
+          //   //this.getMarkers(this.getCurrentParcel().parcel_id);
+          // }
+          // else {
+          //   this.sn_markers = {};
+          // }
           this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
         }
       }
