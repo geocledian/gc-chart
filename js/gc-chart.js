@@ -442,6 +442,7 @@ Vue.component('gc-chart', {
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
           <!-- v-show directive does not play nice with billboard.js! -->
             <div :id="'chart_'+ this.gcWidgetId" class="gc-chart" :style="this.isloading==true ? 'opacity: 0' : 'opacity: 1.0'"></div>
+            <!-- div :id="'chart_'+ this.gcWidgetId" class="gc-chart" v-show="!this.isloading"></div -->
 
             <!-- product selector -->
             <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
@@ -1577,7 +1578,7 @@ Vue.component('gc-chart', {
       //   this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
       // }
       // else {
-        this.getAllParcels(undefined, this.offset, this.filterString);
+      this.getAllParcels(undefined, this.offset, this.filterString);
       // }
     },
     offset(newValue,oldValue) {
@@ -1612,6 +1613,9 @@ Vue.component('gc-chart', {
                 protocol + '://' + this.gcHost + this.apiBaseUrl + endpoint + "?key="+this.apiKey);
     },
     getAllParcels: function(parcel_id, offset, filterString) {
+
+      // show spinner
+      this.isloading = true;
 
       //download in chunks of n parcels
       let limit = this.limit; //this.pagingStep;
@@ -1991,15 +1995,8 @@ Vue.component('gc-chart', {
             // format values to 2 decimals
             let means = [];
             // if (!this.hiddenStats.includes("errorBand")) {
-              // simple array to [high, mid, low] with std.dev. for error band
-              for (let i = 0; i < filteredStats.length; i++) {
-                let r = filteredStats[i];
-                let high = this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
-                let mid = this.formatDecimal(r.statistics.mean,3);
-                let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
-                means.push([high, mid, low]);
-               }
-            // }
+            // create errorBand
+            means = this.createErrorBand(filteredStats);
             // else {
             //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
             // }
@@ -2088,20 +2085,14 @@ Vue.component('gc-chart', {
 
           // map y axis
           for (var i=0; i < this.availableProducts.length; i++) {
-            let product = this.availableProducts[i];
-            let filteredStats = this.statisticsMany[product].filter(s=>s.statistics != null);
+            const product = this.availableProducts[i];
+            const filteredStats = this.statisticsMany[product].filter(s=>s.statistics != null);
             //place the new column after the existing one(s)
 
             let means = [];
             // if (!this.hiddenStats.includes("errorBand")) {
-              // simple array to [high, mid, low] with std.dev. for error band
-              for (let i = 0; i < filteredStats.length; i++) {
-                let r = filteredStats[i];
-                let high = this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
-                let mid = this.formatDecimal(r.statistics.mean,3);
-                let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
-                means.push([high, mid, low]);
-              }
+            // create errorBand
+            means = this.createErrorBand(filteredStats);
             // }
             // else {
             //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
@@ -2156,6 +2147,7 @@ Vue.component('gc-chart', {
                 if (parcelStats) {
                   //important! map parcel to the index position in selectedParcelIds 
                   //then the correct x axis may be mapped later in createChart()
+
                   //exclude null statistics
                   let filteredStats = parcelStats.filter(s=>s.statistics != null);
                   columns[idx] = ["x"+idx].concat( filteredStats.map( r => r.date) );
@@ -2173,8 +2165,13 @@ Vue.component('gc-chart', {
                 if (parcelStats) {
                   //place the new column after the existing one(s)
                   //exclude null statistics
-                  let filteredStats = parcelStats.filter(s=>s.statistics != null);
-                  columns[columns.length] = [parcel_id].concat( filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3)));
+                  const filteredStats = parcelStats.filter(s=>s.statistics != null);
+
+                  // create errorBand
+                  const means = this.createErrorBand(filteredStats);
+
+                  //columns[columns.length] = [parcel_id].concat( filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3)));
+                  columns[columns.length] = [parcel_id].concat( means );
                 }
               }
             }
@@ -2183,39 +2180,43 @@ Vue.component('gc-chart', {
 
         // new style of phenology visualization
         if (this.selectedMarkerType == "phenology") {
-          try {
-            // TODO: check if we can merge all markers to one data array
-            columns[columns.length] = ["x5"].concat(this.sos);            
-            columns[columns.length] = ["x6"].concat(this.pos);            
-            columns[columns.length] = ["x7"].concat(this.eos);
-
-            let max;
+          // only for many-indices & one-index at the moment
+          if (this.mode !== "many-parcels") {
             
-            if (this.gcYScale === "dynamic") {
+            try {
+              // TODO: check if we can merge all markers to one data array
+              columns[columns.length] = ["x5"].concat(this.sos);            
+              columns[columns.length] = ["x6"].concat(this.pos);            
+              columns[columns.length] = ["x7"].concat(this.eos);
+
+              let max;
               
-              // max computed from values & exclude null stats first!
-              let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
-              max = Number.NEGATIVE_INFINITY;
-              for (let i = 0; i < maxStats.length; i++ ) {
-                if (maxStats[i] > max) {
-                  max = maxStats[i];
+              if (this.gcYScale === "dynamic") {
+                
+                // max computed from values & exclude null stats first!
+                let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
+                max = Number.NEGATIVE_INFINITY;
+                for (let i = 0; i < maxStats.length; i++ ) {
+                  if (maxStats[i] > max) {
+                    max = maxStats[i];
+                  }
                 }
               }
-            }
-            if (this.gcYScale === "fixed") {
-              // max declared by axis min/max (in config of chart)
-              max = this.chart.axis.max().y;
-            }
-            console.debug(max);
-            
-            // assign the maximum of the y axis to the bar charts of phenology markers
-            columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
-            columns[columns.length] = ["pos"].concat(this.pos.map( r => max));
-            columns[columns.length] = ["eos"].concat(this.eos.map( r => max));
+              if (this.gcYScale === "fixed") {
+                // max declared by axis min/max (in config of chart)
+                max = this.chart.axis.max().y;
+              }
+              console.debug(max);
+              
+              // assign the maximum of the y axis to the bar charts of phenology markers
+              columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
+              columns[columns.length] = ["pos"].concat(this.pos.map( r => max));
+              columns[columns.length] = ["eos"].concat(this.eos.map( r => max));
 
-          } catch ( ex ) {
-            console.debug("could not add phenology data to chart..")
-            console.log(ex)
+            } catch ( ex ) {
+              console.debug("could not add phenology data to chart..")
+              console.log(ex)
+            }
           }
         }
 
@@ -2383,7 +2384,7 @@ Vue.component('gc-chart', {
           const parcel_id = this.selectedParcelIds[i];
           const idx = this.selectedParcelIds.indexOf(parcel_id);
           xs_options[parcel_id] = "x"+idx;
-          types_options[parcel_id] = this.selectedGraphType;
+          types_options[parcel_id] = meanType; // this.selectedGraphType;
         }
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
@@ -2821,6 +2822,10 @@ Vue.component('gc-chart', {
                     html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
                 }
+                if (this.mode === "many-parcels") {
+                  let parcel = this.statisticsMany.filter(p => p.parcel_id === parseInt(id))[0];
+                  html += '<td>'+ value[1] + ' ('+parcel[this.selectedProduct][index].source + ')' +'</td>';
+                }
               } 
               // value is a single value
               else {
@@ -3137,9 +3142,40 @@ Vue.component('gc-chart', {
     },
     resetDateZoom() {
 
-      //TODO set this.chartFromDate / ToDate appropriate!
-      this.chartFromDate  = this.statistics[0].date;
-      this.chartToDate    = this.statistics[this.statistics.length-1].date;
+      if (this.mode === "one-index") {
+        // set this.chartFromDate / ToDate appropriate!
+        this.chartFromDate  = this.statistics[0].date;
+        this.chartToDate    = this.statistics[this.statistics.length-1].date;
+      }
+      if (this.mode === "many-indices") {
+        for (var i = 0; i < this.availableProducts.length; i++) {
+          // set this.chartFromDate / ToDate appropriate!
+          const firstProduct = this.availableProducts[0];
+          this.chartFromDate  = this.statisticsMany[firstProduct][0].date;
+          this.chartToDate    = this.statisticsMany[firstProduct][this.statisticsMany[firstProduct].length-1].date;
+        }
+      }
+      if (this.mode === "many-parcels") {
+        for (var i = 0; i < this.parcels.length; i++) {
+          // set this.chartFromDate / ToDate appropriate!
+          const firstParcel = this.parcels[0];
+          this.chartFromDate  = this.statisticsMany[firstParcel][0].date;
+          this.chartToDate    = this.statisticsMany[firstParcel][this.statisticsMany[firstParcel].length-1].date;
+        }
+      }
+    },
+    createErrorBand(filteredStats) {
+      // format values to 2 decimals
+      let means = [];
+      // simple array to [high, mid, low] with std.dev. for error band
+      for (let i = 0; i < filteredStats.length; i++) {
+        let r = filteredStats[i];
+        let high = this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
+        let mid = this.formatDecimal(r.statistics.mean,3);
+        let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
+        means.push([high, mid, low]);
+      }
+      return means;
     }
   },
 });
