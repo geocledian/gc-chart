@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-10-14, jsommer
+ updated: 2021-11-08, jsommer
  version: 0.9.5
 */
 "use strict";
@@ -1265,7 +1265,7 @@ Vue.component('gc-chart', {
 
       console.debug("event - statisticsChange");
       
-      this.isloading = true;
+      //this.isloading = true;
 
       // create chart from values, if they change
       this.createChartData();
@@ -1294,7 +1294,7 @@ Vue.component('gc-chart', {
 
           console.debug("event - statisticsManyChange");
 
-          this.isloading = true;
+          //this.isloading = true;
 
           // create chart from values, if they change
           this.createChartData();
@@ -1365,11 +1365,11 @@ Vue.component('gc-chart', {
             catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); console.error(ex);}
           }
 
-          // zoom in any case on valid date
-          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-            //this.chart.zoom([this.chartFromDate, this.chartToDate]);
-            this.chart.zoom(this.internalZoomDomain);
-          }
+          // // zoom in any case on valid date
+          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
+          //   //this.chart.zoom([this.chartFromDate, this.chartToDate]);
+          //   this.chart.zoom(this.internalZoomDomain);
+          // }
       },
       deep: true //important for watching theses changes!
     },
@@ -2512,9 +2512,10 @@ Vue.component('gc-chart', {
                 "parcel (mean)" : '#EF7D00', //orange
                 "reference (mean)" : '#1f77b4', //blue
                 "marker" : 'grey', //{fill: 'darkgrey', stroke: 'black'}
-                'sos' : '#0080ff',
-                'pos' : '#13ec80',
-                'eos' : '#ff4d4d'
+                 // blue , green, crimson / brown
+                'sos' : '#00578A', //'#003366', //'#A97D5D', // brown '#A37B45',
+                'pos' : '#298F00', //'teal', //'#99CC99', //'#86942A',
+                'eos' : '#993300'  //'#507642'
             },
             color: function (color, d) {
                 // d will be 'id' when called for legends
