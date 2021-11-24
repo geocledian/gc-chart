@@ -807,7 +807,7 @@ Vue.component('gc-chart', {
               let allDates = [];
               for (var i = 0; i < this.selectedParcelIds.length; i++) {
                 let parcel_id = this.selectedParcelIds[i];
-                console.debug(parcel_id)
+                // console.debug(parcel_id)
                 const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
                 if (parcel === undefined) {
                   console.debug("parcel not found!")
@@ -2216,13 +2216,15 @@ Vue.component('gc-chart', {
           if (this.mode !== "many-parcels") {
             
             try {
-              // TODO: check if we can merge all markers to one data array
+              // TODO: check if we can merge all markers to one date array
+              // columns[columns.length] = ["x5"].concat(this.sos, this.pos, this.eos);     
               columns[columns.length] = ["x5"].concat(this.sos);            
               columns[columns.length] = ["x6"].concat(this.pos);            
               columns[columns.length] = ["x7"].concat(this.eos);
 
               let max;
-              
+              let min;
+
               if (this.gcYScale === "dynamic") {
                 
                 // max computed from values & exclude null stats first!
@@ -2233,16 +2235,35 @@ Vue.component('gc-chart', {
                     max = maxStats[i];
                   }
                 }
+                // min computed from values & exclude null stats first!
+                let minStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.min);
+                min = Number.POSITIVE_INFINITY;
+                for (let i = 0; i < minStats.length; i++ ) {
+                  if (minStats[i] < min) {
+                    min = minStats[i];
+                  }
+                }
               }
               if (this.gcYScale === "fixed") {
                 // max declared by axis min/max (in config of chart)
                 max = this.chart.axis.max().y;
+                min = this.chart.axis.min().y;
               }
               
+              
+              let minMax = {min: min, max: max};
+
+                
               // assign the maximum of the y axis to the bar charts of phenology markers
+              //TODO: minimum is not possible for bars at the moment!
               columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
               columns[columns.length] = ["pos"].concat(this.pos.map( r => max));
               columns[columns.length] = ["eos"].concat(this.eos.map( r => max));
+
+              // assign the min & max of the y axis to the candlestick charts of phenology markers
+              // columns[columns.length] = ["sos"].concat(this.createCandleStickVals(this.sos.map( r => minMax)));
+              // columns[columns.length] = ["pos"].concat(this.createCandleStickVals(this.pos.map( r => minMax)));
+              // columns[columns.length] = ["eos"].concat(this.createCandleStickVals(this.eos.map( r => minMax)));
 
             } catch ( ex ) {
               console.debug("could not add phenology data to chart..")
@@ -2349,9 +2370,9 @@ Vue.component('gc-chart', {
                             //'parcel (mean)': this.selectedGraphType , 
                             //'reference (mean)' : this.selectedGraphType,
                             'marker': 'scatter',
-                            'sos' : 'bar', 
-                            'pos' : 'bar', 
-                            'eos' : 'bar'
+                            'sos' : 'bar', //'candlestick', //
+                            'pos' : 'bar', //'candlestick', //
+                            'eos' : 'bar', //'candlestick', //
                         };
       if (this.mode == "one-index") {
         xs_options = {
@@ -2366,7 +2387,7 @@ Vue.component('gc-chart', {
           "marker" : "x2",
           "sos" : "x5", 
           "pos" : "x6", 
-          "eos" : "x7", 
+          "eos" : "x7",
         }
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
@@ -2401,8 +2422,8 @@ Vue.component('gc-chart', {
 
         // phenology 
         xs_options["sos"] = "x5";
-        xs_options["pos"] = "x6";
-        xs_options["eos"] = "x7";
+        xs_options["pos"] = "x6";//"x6";
+        xs_options["eos"] = "x7"; //"x7";
 
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
@@ -2707,6 +2728,7 @@ Vue.component('gc-chart', {
         },
         tooltip: {
           grouped: true,
+          //doNotHide: true,
           format: {
               /*title: function(x) {
                   return x.toISOString().split("T")[0];
@@ -2800,7 +2822,8 @@ Vue.component('gc-chart', {
 
           // // overriding the contents of the tooltip for more customization
           contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
-            console.debug(d)
+            
+            console.debug(d);
 
             let html = '<table class="bb-tooltip">' +
                         '<tbody>'+
@@ -2830,7 +2853,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "one-index") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += ''; //'<td>'+ value + '</td>';
+                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2838,7 +2861,8 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '';
+                    // show nb of season according to index
+                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
@@ -2852,7 +2876,8 @@ Vue.component('gc-chart', {
               else {
                 if (this.mode === "one-index") {
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '';
+                    // show nb of season according to index
+                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2860,7 +2885,8 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += ''; //'<td>'+ value + ' ('+this[id][index].source + ')' +'</td>';
+                    // show nb of season according to index
+                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
@@ -2937,6 +2963,9 @@ Vue.component('gc-chart', {
         bar: {
           width: 3, // phenology marker width
         }
+        // candlestick: {
+        //     width: 5
+        // }
       });
 
       // console.debug(this.chart);
@@ -3200,6 +3229,22 @@ Vue.component('gc-chart', {
         means.push([high, mid, low]);
       }
       return means;
+    },
+    createCandleStickVals(stats) {
+      // format values to 2 decimals
+      let values = [];
+      // simple array to [open, high, low, close] for candlestick bar
+      for (let i = 0; i < stats.length; i++) {
+        let r = stats[i];
+        let open = this.formatDecimal(r.min, 3); // this.formatDecimal(r.statistics.mean,3);
+        let high = this.formatDecimal(r.max, 3); // this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
+        let low =  this.formatDecimal(r.min, 3); // this.formatDecimal(r.statistics.mean,3);
+        let close = this.formatDecimal(r.max, 3); // this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
+
+        values.push([open, high, low, close]);
+      }
+      console.debug(values);
+      return values;
     }
   },
 });
