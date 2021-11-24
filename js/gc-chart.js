@@ -2903,7 +2903,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "one-index") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
+                    html += '<td>'+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2911,7 +2911,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
+                    html += '<td>'+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
@@ -2926,7 +2926,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "one-index") {
                   if (["sos","pos","eos"].includes(id)) {
                     // console.debug(id, index, value, name);
-                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
+                    html += '<td>'+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2934,7 +2934,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
+                    html += '<td>'+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
@@ -2948,65 +2948,6 @@ Vue.component('gc-chart', {
             return html;
 
           }.bind(this)
-          //
-          //     const value = d[0].value;
-          //     console.debug(value)
-          //     console.debug(d)
-          //     console.debug(defaultTitleFormat);
-          //     console.debug(defaultValueFormat);
-  
-          //     return d; //isNaN(value) ? value.high : value;
-          // }
-          //     // d is an array here!
-
-          //     // https://stackoverflow.com/questions/24754239/how-to-change-tooltip-content-in-c3js/25750639#25750639
-              
-          //     // TODO change for billboard js
-
-          //     var $$ = this, config = $$.config,
-          //     titleFormat = config.tooltip_format_title || defaultTitleFormat,
-          //     nameFormat = config.tooltip_format_name || function (name) { return name; },
-          //     valueFormat = config.tooltip_format_value || defaultValueFormat, text, i, title, value, name, bgcolor;
-
-          //     for (i = 0; i < d.length; i++) {
-                  
-          //         if (! (d[i] && (d[i].value || d[i].value === 0))) { continue; }
-
-          //         if (! text) {
-          //             title = titleFormat ? titleFormat(d[i].x) : d[i].x;
-          //             text = "<table class='{=CLASS_TOOLTIP}'>" + (title || title === 0 ? "<tr><th colspan='2'>" + title + "</th></tr>" : "");
-          //         }
-          //         // hide meanl8, means2 entries in tooltip
-          //         if (d[i].id == "meanl8" || d[i].id == "means2") {
-          //             continue;
-          //         }
-          //         // // special marker formats
-          //         // if (d[i].id == "marker") {
-          //         //     let index = d[i].index;
-          //         //     let markers;
-          //         //     if (this.selectedMarkerType == "sn_marker") {
-          //         //         markers = this.sn_markers.markers;
-          //         //     }
-          //         //     if (this.selectedMarkerType == "phenology") {
-          //         //         markers = this.phenology.phenology.markers;
-          //         //     }
-          //         //     name = nameFormat(markers[index].name);
-          //         //     value = valueFormat(this.formatDecimal(d[i].value,3), d[i].ratio, d[i].id, d[i].index);
-          //         //     bgcolor = markers[index].status;
-          //         // }
-          //         // else {
-          //             name = nameFormat(d[i].name);
-          //             value = valueFormat(d[i].value, d[i].ratio, d[i].id, d[i].index);
-          //             bgcolor = $$.levelColor ? $$.levelColor(d[i].value) : color(d[i].id);
-          //         // }
-          //         text += "<tr class='{=CLASS_TOOLTIP_NAME}'" + "-" + d[i].id + "'>";
-          //         text += "<td class='name'><span style='background-color:" + bgcolor + "'></span>" + name + "</td>";
-          //         text += "<td class='value'>" + value + "</td>";
-          //         text += "</tr>";
-                  
-          //     }
-
-          //     return text + "</table>";
         },
         bar: {
           width: 3, // phenology marker width
