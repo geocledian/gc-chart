@@ -478,10 +478,7 @@ Vue.component('gc-chart', {
       total_parcel_count: 250,
       chartLegendVisible: true,
       similarity : { content_parcel : [], content_reference: [], similarity: {}, summary: {}, classification: {} },
-      sos : [],  
-      pos : [],
-      eos : [],
-      phenology : [], //content : []},//{ phenology : { statistics: {}, growth: {}, markers: [] }, summary: {} },
+      phenology : [], //content : [{ { duration: {}, growth_rate: {}, marker: [] }, season: {} },
       currentGraphContent : "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
@@ -959,6 +956,45 @@ Vue.component('gc-chart', {
           }
           return result;
         }
+      }
+    },
+    sos: {
+      get: function() {
+        let result = [];
+        for (var i = 0; i < this.phenology.length; i++) {
+          result.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+        }
+        console.debug(result);
+        return result;
+        // this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+        // this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+        // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+      }
+    },
+    pos: {
+      get: function() {
+        let result = [];
+        for (var i = 0; i < this.phenology.length; i++) {
+          result.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+        }
+        console.debug(result);
+        return result;
+        // this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+        // this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+        // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+      }
+    },
+    eos: {
+      get: function() {
+        let result = [];
+        for (var i = 0; i < this.phenology.length; i++) {
+          result.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+        }
+        console.debug(result);
+        return result;
+        // this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+        // this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+        // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
       }
     },
     // currentTimeseries: {
@@ -1764,9 +1800,9 @@ Vue.component('gc-chart', {
       
         //reset phenology because it depends on date entries of parcels
         this.phenology = [];
-        this.sos = [];
-        this.pos = [];
-        this.eos = [];
+        // this.sos = [];
+        // this.pos = [];
+        // this.eos = [];
 
         let currentParcel = this.getCurrentParcel();
         if (currentParcel !== undefined) {
@@ -1994,15 +2030,12 @@ Vue.component('gc-chart', {
             var tmp  = JSON.parse(xmlHttp.responseText);            
             
             this.phenology = [];
-            this.sos = [];
-            this.pos = [];
-            this.eos = [];
             for (var i = 0; i < tmp.content.length; i++) {
                 var item = tmp.content[i];
                 this.phenology.push( item );
-                this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
-                this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
-                this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+                // this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+                // this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+                // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
             }
           }
       }.bind(this);
@@ -2830,11 +2863,12 @@ Vue.component('gc-chart', {
                           '<tr><th colspan="2">'+ defaultTitleFormat(d[0].x) +'</th></tr>';
 
             for (let i=0;i<d.length;i++) {
-              let value, id, index, name;
+              let value, id, index, name, x;
               value = d[i].value;
               id = d[i].id;
               index = d[i].index;
               name = d[i].name;
+              x = d[i].x;
 
               // exclude nulls
               if (value == null)
@@ -2844,8 +2878,24 @@ Vue.component('gc-chart', {
                 continue;
               }
 
-              html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
+              let season;
+              let marker_value;
+
+              // adjust phenology styling
+              if (["sos","pos","eos"].includes(id)) {
+                // resolve simple date to index in phenology marker array -> then query this.phenology for all data
+                let arr_index = this[id].indexOf(x.simpleDate());
+
+                season = this.phenology[arr_index].season;
+                marker_value = this.formatDecimal(this.phenology[arr_index].marker.filter(s => s.name === name.toLowerCase())[0].mean, 3);
+
+                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
+                '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + ' '+ season + '</td>';
+              }
+              else {
+                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
                         '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + '</td>';
+              }
               
               // for area range value skip high & low
               if (this.chart.internal.isTypeOf(d[i], ['area-line-range', 'area-spline-range'])) {
@@ -2853,7 +2903,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "one-index") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
+                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2861,8 +2911,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    // show nb of season according to index
-                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
+                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
@@ -2876,8 +2925,8 @@ Vue.component('gc-chart', {
               else {
                 if (this.mode === "one-index") {
                   if (["sos","pos","eos"].includes(id)) {
-                    // show nb of season according to index
-                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
+                    // console.debug(id, index, value, name);
+                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
                   }
@@ -2885,8 +2934,7 @@ Vue.component('gc-chart', {
                 if (this.mode === "many-indices") {
                   // phenology markers are different
                   if (["sos","pos","eos"].includes(id)) {
-                    // show nb of season according to index
-                    html += '<td>' + (index+1) + '</td>'; //'<td> season ' + (index+1)  +'</td>';
+                    html += '<td>'+ id.toUpperCase() + ' value: '+ marker_value +'</td>';
                   } else {
                     html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
                   }
