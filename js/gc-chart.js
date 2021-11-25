@@ -279,6 +279,10 @@ Vue.component('gc-chart', {
     gcPhEnddate: {
       type: String,
       default: undefined
+    },
+    gcWhiteLabel: {
+      type: Boolean,
+      default: false // true or false
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">    
@@ -461,7 +465,7 @@ Vue.component('gc-chart', {
             </div> <!-- product selector -->
           </div> <!-- chart & product selector -->
           <!-- watermark -->
-          <div class="is-inline-block is-pulled-right" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: -0.6rem;">
+          <div :class="[this.gcWhiteLabel ? 'is-hidden': 'is-inline-block', 'is-pulled-right']" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: -0.6rem;">
             <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
@@ -867,6 +871,9 @@ Vue.component('gc-chart', {
         // fallback to vitality if present
         if (["sos","eos","pos"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndvi")){
           return "ndvi";
+        }
+        if (["maturity"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndre1")) {
+          return "ndre1";
         }
         else {
           if (this.gcSelectedProduct.length>0)
@@ -2483,7 +2490,10 @@ Vue.component('gc-chart', {
             axis_label = this.$t("products.vitality");
         }
         else {
-            axis_label = this.$t("products."+ this.selectedProduct);
+          if (this.selectedProduct == "maturity") {
+            axis_label = this.$t("products.ndre1");
+          }
+          axis_label = this.$t("products."+ this.selectedProduct);
         }
       }
       else {
@@ -2641,7 +2651,7 @@ Vue.component('gc-chart', {
             }
         },
         legend: {
-            hide: !this.availableOptions.includes('legend'),
+            show: this.availableOptions.includes('legend'),
             item: {
               onclick: function (id) {
                   if (this.mode == "many-parcels") {
@@ -2761,7 +2771,6 @@ Vue.component('gc-chart', {
         },
         tooltip: {
           grouped: true,
-          //doNotHide: true,
           format: {
               /*title: function(x) {
                   return x.toISOString().split("T")[0];
