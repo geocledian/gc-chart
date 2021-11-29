@@ -1108,7 +1108,7 @@ Vue.component('gc-chart', {
     });
 
     // show loading spinner, hide chart
-    // this.isloading = true;
+    this.isloading = true;
 
     /* watermark */
     // d3.select(this.chart.internal.config.bindto)
@@ -1190,6 +1190,8 @@ Vue.component('gc-chart', {
       // check for valid domain (fromDate < toDate)
       if (new Date(newValue[0]).getTime() < new Date(newValue[1]).getTime()) {  
         this.chart.zoom(newValue);
+        // notify root also
+        this.$root.$emit('zoomDomainChange', newValue);
       }
     },
     selectedProduct: function (newValue, oldValue) {
@@ -3214,6 +3216,8 @@ Vue.component('gc-chart', {
           this.chartToDate    = this.statisticsMany[firstParcel][this.statisticsMany[firstParcel].length-1].date;
         }
       }
+      // notify root
+      this.$root.$emit("zoomDomainChange", this.internalZoomDomain);
     },
     createErrorBand(filteredStats) {
       // format values to 2 decimals
