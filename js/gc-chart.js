@@ -1929,7 +1929,7 @@ Vue.component('gc-chart', {
       let params;
       if (this.apiMajorVersion == 3) {
         params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-        "&order=date&statistics=true" + "&cloud_filter="+ this.cloudFilter;
+        "&order=date&statistics=true" + "&cloud_filter="+ this.cloudFilter + "&outlier_filter="+ this.cloudFilter;
       }
       // no empty params for API v4!
       if (this.apiMajorVersion == 4) {
@@ -1942,7 +1942,7 @@ Vue.component('gc-chart', {
           }
         }
         params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-          "&order=date&statistics=true"+ "&cloud_filter="+ this.cloudFilter;
+          "&order=date&statistics=true"+ "&cloud_filter="+ this.cloudFilter + "&outlier_filter="+ this.cloudFilter;
       }
 
   
