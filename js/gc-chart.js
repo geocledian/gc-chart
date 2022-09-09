@@ -71,8 +71,9 @@ const gcChartLocales = {
         "npcri": "NPCRI"
     },
     "status_msg": {
-      "unauthorized_key" : "Sorry, the given API key is not authorized!",
-      "invalid_key" : "Sorry, the given API key's validity expired!",
+      "unauthorized_key" : "Sorry, the API key is not authorized.",
+      "invalid_key" : "Sorry, the API key's validity expired.",
+      "missing_permissions": "Sorry, the API key doesn't have the given permissions to access this product or resource.",
       "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support.",
       "parcel_id_not_found" : "Parcel ID not found!"
     },
@@ -141,6 +142,7 @@ const gcChartLocales = {
     "status_msg": {
       "unauthorized_key" : "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
       "invalid_key" : "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
+      "missing_permissions": "Tut uns leid, der angegebene API Schlüssel hat nicht die erforderlichen Berechtigungen für dieses Produkt bzw. diese Ressource!",
       "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung.",
       "parcel_id_not_found" : "Parcel ID nicht gefunden!"
     },
@@ -435,14 +437,23 @@ Vue.component('gc-chart', {
               </div>
             </div> 
           </div><!-- chart settings -->
+
+          <!-- watermark message -->
+          <div class="notification gc-api-message" style="position: relative; opacity: 1.0; margin-bottom: 0.5rem; z-index: 1001; font-size: 0.9rem;"
+            v-show="watermark_msg.length>0" v-html="watermark_msg">
+          </div>
+
+          <!-- other api messages -->
           <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
-          <div class="chartSpinner spinner" v-show="this.isloading">
+
+          <div class="chartSpinner spinner" v-show="isloading">
             <div class="rect1"></div>
             <div class="rect2"></div>
             <div class="rect3"></div>
             <div class="rect4"></div>
             <div class="rect5"></div>
           </div>
+
           <!-- v-show directive does not play nice with billboard.js so put it one layer above! -->
           <div style="position: relative;" v-show="this.api_err_msg.length==0">
             
@@ -530,7 +541,8 @@ Vue.component('gc-chart', {
       },
       isloading: false, // indicates if data is being loaded or not
       api_err_msg: "", // if there is an error from the API, it will stored here; if length > 0 it will be displayed
-      cloudFilter: true
+      cloudFilter: true,
+      watermark_msg: ""
     }
   },
   computed: {
@@ -1733,6 +1745,12 @@ Vue.component('gc-chart', {
                     this.isloading = false;
                     return;
                 }
+                if (xmlHttp.status == 403) {
+                  // show message, hide spinner, don't show map
+                  this.api_err_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+                  this.isloading = false;
+                  return;
+                }
               } 
               else {
   
@@ -1843,6 +1861,9 @@ Vue.component('gc-chart', {
       // show spinner
       this.isloading = true;
 
+      // hide watermark message
+      this.watermark_msg = "";
+
       const endpoint = "/parcels/" + parcel_id + "/" + product;
       let params;
 
@@ -1873,6 +1894,14 @@ Vue.component('gc-chart', {
 
       xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4) {
+
+          if (xmlHttp.status == 403) {
+            // show watermark on widget
+            this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+            this.isloading = false;
+            return;
+          }
+
           //console.log(xmlHttp.responseText);
           let tmp = JSON.parse(xmlHttp.responseText);
           let row = this.getCurrentParcel();
