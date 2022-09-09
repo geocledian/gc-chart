@@ -1899,6 +1899,7 @@ Vue.component('gc-chart', {
             // show watermark on widget
             this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
             this.isloading = false;
+            this.createChart();
             return;
           }
 
@@ -1944,7 +1945,9 @@ Vue.component('gc-chart', {
 
       this.isloading = true; // hide chart with this boolean
       this.api_err_msg = ""; // empty api messages
-  
+      // hide watermark message
+      this.watermark_msg = "";
+
       let productName = product;
   
       // may happen on selected product visible and change to another parcel
@@ -1989,6 +1992,14 @@ Vue.component('gc-chart', {
       {
           if (xmlHttp.readyState==4)
           {
+
+            if (xmlHttp.status == 403) {
+              // show watermark on widget
+              this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+              this.isloading = false;
+              return;
+            }
+
             //console.log(xmlHttp.responseText);
             var tmp  = JSON.parse(xmlHttp.responseText);
             var row = this.getParcel(parcel_id);
@@ -2045,6 +2056,10 @@ Vue.component('gc-chart', {
         return;
       }
 
+      this.api_err_msg = ""; // empty api messages
+      // hide watermark message
+      this.watermark_msg = "";
+
       const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
       
       let params = ""; 
@@ -2065,6 +2080,13 @@ Vue.component('gc-chart', {
       {
           if (xmlHttp.readyState==4)
           {
+            if (xmlHttp.status == 403) {
+              // show watermark on widget
+              this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+              this.isloading = false;
+              return;
+            }
+
             var tmp  = JSON.parse(xmlHttp.responseText);            
             
             this.phenology = [];
