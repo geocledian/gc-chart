@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2021-11-08, jsommer
+ updated: 2022-09-09, jsommer
  version: 0.9.5
 */
 "use strict";
@@ -440,11 +440,11 @@ Vue.component('gc-chart', {
 
           <!-- watermark message -->
           <div class="notification gc-api-message" style="position: relative; opacity: 1.0; margin-bottom: 0.5rem; z-index: 1001; font-size: 0.9rem;"
-            v-show="watermark_msg.length>0" v-html="watermark_msg">
+            v-show="watermark_msg.length>0" v-html="$t(watermark_msg)  +  '<br>' + $t('status_msg.support')">
           </div>
 
           <!-- other api messages -->
-          <div class="notification gc-api-message" v-show="this.api_err_msg.length > 0" v-html="this.api_err_msg"></div>
+          <div class="notification gc-api-message" v-show="api_err_msg.length > 0" v-html="$t(api_err_msg) +  '<br>' + $t('status_msg.support')"></div>
 
           <div class="chartSpinner spinner" v-show="isloading">
             <div class="rect1"></div>
@@ -455,7 +455,7 @@ Vue.component('gc-chart', {
           </div>
 
           <!-- v-show directive does not play nice with billboard.js so put it one layer above! -->
-          <div style="position: relative;" v-show="this.api_err_msg.length==0">
+          <div style="position: relative;" v-show="api_err_msg.length==0">
             
             <div v-show="this.isloading == false">
               <div :id="'chart_'+ this.gcWidgetId" class="gc-chart"></div>
@@ -1735,19 +1735,19 @@ Vue.component('gc-chart', {
               if (xmlHttp.status != 200) {
                 if (tmp.detail == "key is not authorized") {
                   // show message, hide spinner, don't show chart
-                  this.api_err_msg = this.$t('status_msg.unauthorized_key') + "<br>" + this.$t('status_msg.support');
+                  this.api_err_msg = 'status_msg.unauthorized_key';
                   this.isloading = false;
                   return;
                 }
                 if (tmp.detail == "api key validity expired") {
-                    // show message, hide spinner, don't show chart
-                    this.api_err_msg = this.$t('status_msg.invalid_key') + "<br>" + this.$t('status_msg.support');
-                    this.isloading = false;
-                    return;
+                  // show message, hide spinner, don't show chart
+                  this.api_err_msg = 'status_msg.invalid_key';
+                  this.isloading = false;
+                  return;
                 }
                 if (xmlHttp.status == 403) {
                   // show message, hide spinner, don't show map
-                  this.api_err_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+                  this.api_err_msg = 'status_msg.missing_permissions';
                   this.isloading = false;
                   return;
                 }
@@ -1843,7 +1843,7 @@ Vue.component('gc-chart', {
           } 
         }
         else {
-          this.api_err_msg = this.$t("status_msg.parcel_id_not_found") +" ("+ this.currentParcelID + ")";
+          this.api_err_msg = "status_msg.parcel_id_not_found";
           this.isloading = false;
           return;
         }
@@ -1897,7 +1897,7 @@ Vue.component('gc-chart', {
 
           if (xmlHttp.status == 403) {
             // show watermark on widget
-            this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+            this.watermark_msg = 'status_msg.missing_permissions';
             this.isloading = false;
             this.createChart();
             return;
@@ -1995,7 +1995,7 @@ Vue.component('gc-chart', {
 
             if (xmlHttp.status == 403) {
               // show watermark on widget
-              this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+              this.watermark_msg = 'status_msg.missing_permissions';
               this.isloading = false;
               return;
             }
@@ -2082,7 +2082,7 @@ Vue.component('gc-chart', {
           {
             if (xmlHttp.status == 403) {
               // show watermark on widget
-              this.watermark_msg = this.$t('status_msg.missing_permissions') + "<br>" + this.$t('status_msg.support');
+              this.watermark_msg = 'status_msg.missing_permissions';
               this.isloading = false;
               return;
             }
