@@ -18,8 +18,8 @@ var i18n;
 // init dependent javascript libs
 const libs = ['https://unpkg.com/vue@2.6.11/dist/vue.min.js',
               'https://unpkg.com/vue-i18n@8.17.5/dist/vue-i18n.js',
-              'js/d3.v3.min.js', // v4.13.0 
-              'js/c3.min.js', // v0.7.11
+              'js/d3.v6.min.js', // v6.7.0
+              'js/billboard.min.js', // v3.1.5
               'css/bulma-ext/bulma-calendar.min.js'
             ];
 
@@ -151,7 +151,7 @@ function loadJSscript (url, callback) {
       */
     let script = document.createElement("script");  // create a script DOM node
     script.type = 'text/javascript';
-    script.src = gcGetBaseURL() + "/"+ url;  // set its src to the provided URL
+    script.src = gcGetBaseURL() + "/" + url;  // set its src to the provided URL
     script.async = true;
     document.head.appendChild(script);  // add it to the end of the head section of the page
     //if ready, call the callback function 
