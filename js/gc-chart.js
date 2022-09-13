@@ -82,6 +82,15 @@ const gcChartLocales = {
     },
     "chart": {
       "no_data_msg" : "No data available"
+    },
+    "similarity": {
+      "title": "Similarity",
+      "euclidean_distance": "Euclidean distance",
+      "references_found": "References found",
+      "references_used": "References used",
+      "covariance": "Covariance",
+      "cosine": "Cosine",
+      "correlation": "Correlation",
     }
   },
   "de": {
@@ -151,6 +160,15 @@ const gcChartLocales = {
     },
     "chart": {
       "no_data_msg" : "Keine Daten verfügbar",
+    },
+    "similarity": {
+      "title": "Ähnlichkeitsanalyse",
+      "euclidean_distance": "Euklidische Distanz ",
+      "references_found": "Gefundene Referenzen",
+      "references_used": "Verwendete Referenzen",
+      "covariance": "Covarianz",
+      "cosine": "Cosinus",
+      "correlation": "Korrelation",
     }
   },
 }
@@ -282,14 +300,46 @@ Vue.component('gc-chart', {
       type: String,
       default: undefined
     },
+    gcSimStartdate: {
+      type: String,
+      default: undefined
+    },
+    gcSimEnddate: {
+      type: String,
+      default: undefined
+    },
     gcWhiteLabel: {
       type: Boolean,
       default: false // true or false
+    },
+    gcSimRadius: {
+      type: Number,
+      default: 100000
+    },
+    gcSimInterval: {
+      type: Number,
+      default: 7
+    },
+    gcSimReferences: {
+      type: Number,
+      default: 20
+    },
+    gcSimCrop: {
+      type: String,
+      default: ""
+    },
+    gcSimEntity: {
+      type: String,
+      default: ""
+    },
+    gcSimVerification: {
+      type: Boolean,
+      default: false
     }
   },
   template: `<div :id="gcWidgetId" class="gc-chart">    
 
-              <p :class="['gc-options-title', 'is-size-6', gcOptionsCollapsed ? 'is-grey' : 'is-orange']" 
+              <p :class="['gc-options-title', 'is-size-6', gcOptionsCollapsed ? 'gc-is-tertiary' : 'gc-is-primary']" 
                   style="cursor: pointer; margin-bottom: 1em;"
                   v-on:click="toggleChartOptions" 
                   v-show="availableOptions.includes('optionsTitle')">
@@ -301,7 +351,7 @@ Vue.component('gc-chart', {
               <div :class="[!gcOptionsCollapsed ? '': 'is-hidden', 'chartOptions', 'is-horizontal', 'is-flex']" >
 
               <div class="field" v-show="availableOptions.includes('graphType')">
-                <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.graph_type.label')}} </label></div>
+                <div class="field-label is-small"><label class="label has-text-left gc-is-tertiary">{{ $t('options.graph_type.label')}} </label></div>
                 <div class="field-body">
                   <div class="select is-small">
                   <select v-model="selectedGraphType">
@@ -315,14 +365,14 @@ Vue.component('gc-chart', {
 
               <div class="field is-vertical" v-show="availableOptions.includes('hideGraphs') && mode == 'one-index'">
                 <div class="field-label is-small">
-                  <label class="label has-text-left is-grey" style="white-space: nowrap;">{{ $t('options.hide_graphs.label')}}</label>
+                  <label class="label has-text-left gc-is-tertiary" style="white-space: nowrap;">{{ $t('options.hide_graphs.label')}}</label>
                 </div>
                 <div class="field-body" style="overflow-y: auto; height: 6.4rem;">
                   <div class="control">
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-grey is-small" style="white-space: nowrap;">
+                          <label class="label gc-is-tertiary is-small" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="mean" v-model="hiddenStats"> {{ $t('statistics.mean')}} </label>
                         </div>
                       </div>
@@ -330,7 +380,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey" style="white-space: nowrap;">
+                          <label class="label is-small gc-is-tertiary" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="min" v-model="hiddenStats"> {{ $t('statistics.min')}} </label>
                         </div>
                       </div>
@@ -338,7 +388,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey" style="white-space: nowrap;">
+                          <label class="label is-small gc-is-tertiary" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="max" v-model="hiddenStats"> {{ $t('statistics.max')}} </label>
                         </div>
                       </div>
@@ -346,7 +396,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'">
                         <div class="field-body">
                           <div class="control">
-                            <label class="label is-small is-grey" style="white-space: nowrap;">
+                            <label class="label is-small gc-is-tertiary" style="white-space: nowrap;">
                               <input class="is-small" type="checkbox" value="std.dev." v-model="hiddenStats"> {{ $t('statistics.stddev')}}</label>
                           </div>
                         </div>
@@ -354,7 +404,7 @@ Vue.component('gc-chart', {
                     <!-- div class="field is-horizontal" v-if="this.mode=='one-index' || this.mode=='many-indices'">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey" style="white-space: nowrap;">
+                          <label class="label is-small gc-is-tertiary" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="errorBand" v-model="hiddenStats"> {{ $t('statistics.errorBand')}}</label>
                         </div>
                       </div>
@@ -362,7 +412,7 @@ Vue.component('gc-chart', {
                     <div class="field is-horizontal" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
                       <div class="field-body">
                         <div class="control">
-                          <label class="label is-small is-grey" style="white-space: nowrap;">
+                          <label class="label is-small gc-is-tertiary" style="white-space: nowrap;">
                             <input class="is-small" type="checkbox" value="marker" v-model="hiddenStats"> {{ $t('options.hide_graphs.marker')}}</label>
                         </div>
                       </div>
@@ -372,7 +422,7 @@ Vue.component('gc-chart', {
               </div>
               <div class="field" v-if="this.mode=='one-index'" v-show="availableOptions.includes('markers')">
                 <div class="field-label is-small">
-                  <label class="label has-text-left is-grey" style="white-space: nowrap;">{{ $t('options.marker.label')}}</label>
+                  <label class="label has-text-left gc-is-tertiary" style="white-space: nowrap;">{{ $t('options.marker.label')}}</label>
                   </div>
                 <div class="field-body">
                   <div class="select is-small">
@@ -390,11 +440,11 @@ Vue.component('gc-chart', {
                   v-show="availableOptions.includes('dateZoom')" style="margin-bottom: 0.2rem;">
               <div class="field">
                 <div class="field field-label is-small">
-                  <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.from')}}</label>
+                  <label class="label gc-is-tertiary has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.from')}}</label>
                 </div>
                 <div class="control" style="max-width: 5rem;">
                 <input :id="'inpFilterDateFrom_'+this.gcWidgetId" type="text" :class="[chartFromDate >= chartToDate ? 'is-danger has-text-weight-bold has-text-danger' : '', 'input','is-small']"
-                      :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'" v-model="chartFromDate">
+                      :placeholder="$t('options.date_zoom.date_format_hint')" v-model="chartFromDate">
                 <span style="margin-block-start: 0.25em;" class="tag is-light is-danger" v-show="chartFromDate >= chartToDate">
                   {{ $t("options.date_zoom.invalid_date_range") }}
                 </span>
@@ -402,11 +452,11 @@ Vue.component('gc-chart', {
               </div>
               <div class="field">
                 <div class="field field-label is-small">
-                  <label class="label is-grey has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.to')}}</label>
+                  <label class="label gc-is-tertiary has-text-left" style="white-space: nowrap;">{{ $t('options.date_zoom.to')}}</label>
                 </div>
                 <div class="control" style="max-width: 5rem;">
                   <input :id="'inpFilterDateTo_'+this.gcWidgetId" type="text" :class="[chartFromDate >= chartToDate ? 'is-danger has-text-weight-bold has-text-danger' : '', 'input','is-small']"
-                      :placeholder="'[' + $t('options.date_zoom.date_format_hint') +']'"  v-model="chartToDate">
+                      :placeholder="$t('options.date_zoom.date_format_hint')"  v-model="chartToDate">
                 </div>
               </div>  
             </div>
@@ -419,7 +469,7 @@ Vue.component('gc-chart', {
             
             <!-- mode selector -->
             <div class="field" v-show="this.availableOptions.includes('modeSelector') && this.mode != 'many-parcels'">
-              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.mode.label')}}</label></div>
+              <div class="field-label is-small"><label class="label has-text-left gc-is-tertiary">{{ $t('options.mode.label')}}</label></div>
               <div class="select is-small">
                 <select v-model="mode">
                   <option value="one-index">{{ $t('options.mode.one_index')}}</option>
@@ -429,7 +479,7 @@ Vue.component('gc-chart', {
             </div><!-- mode selector -->
             <!-- cloud filter -->
             <div class="field" v-show="this.availableOptions.includes('cloudFilter')">
-              <div class="field-label is-small"><label class="label has-text-left is-grey">{{ $t('options.cloudFilter.label')}}</label></div>
+              <div class="field-label is-small"><label class="label has-text-left gc-is-tertiary">{{ $t('options.cloudFilter.label')}}</label></div>
               <div class="field-body">
                 <div class="control">
                     <input class="is-small" type="checkbox" value="true" v-model="cloudFilter">
@@ -457,13 +507,13 @@ Vue.component('gc-chart', {
           <!-- v-show directive does not play nice with billboard.js so put it one layer above! -->
           <div style="position: relative;" v-show="api_err_msg.length==0">
             
-            <div v-show="this.isloading == false">
+            <div v-show="isloading == false">
               <div :id="'chart_'+ this.gcWidgetId" class="gc-chart"></div>
             </div>
 
             <!-- product selector -->
             <div class="field product-selector" style="position: absolute; right: 0rem; top: -1.2rem;" v-show="this.availableOptions.includes('productSelector') && !this.isloading">
-            <!--div class="field-label"><label class="label has-text-left is-grey" style="margin-bottom: 4px;">Product</label></div-->
+            <!--div class="field-label"><label class="label has-text-left gc-is-tertiary" style="margin-bottom: 4px;">Product</label></div-->
               <div class="field-body has-text-bold">
                 <div class="select is-small" v-if="this.mode!='many-indices'">
                   <select v-model="selectedProduct" :title="this.$t('productSelector.tooltip')">
@@ -476,10 +526,62 @@ Vue.component('gc-chart', {
             </div> <!-- product selector -->
           </div> <!-- chart & product selector -->
           <!-- watermark -->
-          <div :class="[this.gcWhiteLabel ? 'is-hidden': 'is-inline-block', 'is-pulled-right']" style="opacity: 0.65; position: relative; bottom: 2.1rem; margin-right: -0.6rem;">
+          <div :class="[this.gcWhiteLabel ? 'is-hidden': 'is-inline-block', 'is-pulled-right']" style="opacity: 0.65; position: relative; bottom: 2.6rem; margin-right: -0.6rem;">
             <span style="vertical-align: top; font-size: 0.7rem;">powered by</span><br>
             <img src="img/logo.png" alt="geo|cledian" style="width: 100px; margin: -10px 0;">
           </div>
+
+
+          <!-- similarity results -->
+          <div style="margin-bottom: 0 !important;" v-show="similarity.similarity.hasOwnProperty('correlation')">
+            
+            <div>
+              <p class="menu-label" style="margin-bottom: 1em;">
+                {{ $t('similarity.title') }}
+              </p>
+            
+              <table class="table is-narrow" style="width: 100%;"
+                    v-model="similarity" v-if="similarity.similarity.correlation">
+                <thead class="is-normal">
+                  <tr><!--th>ID</th-->
+                    <th>{{$t('similarity.correlation')}}</th><th>{{$t('similarity.euclidean_distance')}}</th><th>{{$t('similarity.references_found')}}</th><th>{{$t('similarity.references_used')}}</th><th>{{$t('similarity.covariance')}}</th><th>{{$t('similarity.cosine')}}</th>
+                    <!-- only for ML classification -->
+                    <th v-if="similarity.classification.hasOwnProperty('conformity') && similarity.classification.confidence != null">ML verification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                      <td>
+                        <span class="has-text-danger has-text-weight-semibold" v-if="similarity.similarity.correlation < 0.8">
+                                {{formatDecimal( similarity.similarity.correlation, 3)}}</span>
+                        <span class="has-text-success has-text-weight-bold" v-else>
+                            {{formatDecimal( similarity.similarity.correlation, 3)}}</span>
+                              </td>
+                      <td><span class="">{{formatDecimal( similarity.similarity.distance.mean_distance, 3)}}</span></td>
+                      <td><span class="">{{similarity.similarity.references_found}}</span></td>
+                      <td><span class="">{{similarity.similarity.references_used}}</span></td>
+                      <td><span class="">{{formatDecimal( similarity.similarity.covariance, 3)}}</span></td>
+                      <td><span class="">{{formatDecimal( similarity.similarity.cosine_similarity, 3)}}</span></td>
+                      <!-- only for ML classification -->
+                      <!-- if ML fails confidence is null! -->
+                      <td v-if="similarity.classification.hasOwnProperty('conformity') && similarity.classification.confidence != null">
+                          <span class="" v-if="similarity.classification.conformity == true">
+                                {{similarity.classification.conformity}}</span>
+                          <span class="" v-else>
+                                {{similarity.classification.conformity}}</span>
+                          <span class=" has-text-weight-semibold has-text-success" v-if="similarity.classification.confidence >= 0.90">
+                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
+                          <span class=" has-text-weight-semibold has-text-grey" v-if="similarity.classification.confidence >= 0.75 && similarity.classification.confidence < 0.90">
+                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
+                          <span class=" has-text-weight-semibold has-text-danger" v-if="similarity.classification.confidence < 0.75">
+                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
+                      </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           </div><!-- gcWidget -->`,
   data: function () {
     return {
@@ -1016,6 +1118,36 @@ Vue.component('gc-chart', {
         // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
       }
     },
+    simRadius: {
+      get: function() {
+        return this.gcSimRadius;
+      }
+    },
+    simReferences: {
+      get: function() {
+        return this.gcSimReferences;
+      }
+    },
+    simInterval: {
+      get: function() {
+        return this.gcSimInterval;
+      }
+    },
+    simEntity: {
+      get: function() {
+        return this.gcSimEntity;
+      }
+    },
+    simCrop: {
+      get: function() {
+        return this.gcSimCrop;
+      }
+    },
+    simVerification: {
+      get: function() {
+        return this.gcSimVerification;
+      }
+    }
     // currentTimeseries: {
     //   get() {
     //     if (this.mode === "one-index") {
@@ -1211,19 +1343,27 @@ Vue.component('gc-chart', {
       if (newValue != oldValue) {
         console.debug("event - selectedProductChange");
 
+        this.$root.$emit("resetSimilarity");
+
         if (this.mode == "one-index") {
           if (this.getCurrentParcel()) {
-            // only load stats if product is not visible
-            if (newValue != 'visible') {
-              this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
-           
-              //if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
-                //this.getMarkers(this.getCurrentParcel().parcel_id);
-              //}
-              // else {
-              //   this.sn_markers = {};
-              // }
-              this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
+
+            if (this.currentGraphContent == "statistics") {
+              // only load stats if product is not visible
+              if (newValue != 'visible') {
+                this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
+            
+                //if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
+                  //this.getMarkers(this.getCurrentParcel().parcel_id);
+                //}
+                // else {
+                //   this.sn_markers = {};
+                // }
+                this.getIndexStats(this.getCurrentParcel().parcel_id, this.dataSource, this.selectedProduct);
+              }
+            }
+            if (this.currentGraphContent == "similarity") {
+              this.getSimilarity();
             }
           }
         }
@@ -1675,6 +1815,10 @@ Vue.component('gc-chart', {
       // redraw chart
       this.createChartData();
     },
+    similarity (newValue, oldValue) {
+      // redraw chart
+      this.createChartData();
+    },
     // currentTimeseries(newValue, oldValue) {
     //   //notify root 
     //   this.$root.$emit("timeseriesChange", newValue);
@@ -1830,6 +1974,9 @@ Vue.component('gc-chart', {
         // this.sos = [];
         // this.pos = [];
         // this.eos = [];
+
+        //reset similarity
+        this.$root.$emit('resetSimilarity');
 
         let currentParcel = this.getCurrentParcel();
         if (currentParcel !== undefined) {
@@ -2101,7 +2248,79 @@ Vue.component('gc-chart', {
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();      
-    },   
+    },
+    getSimilarity: function() {
+
+      /* only available for API v4 */
+      if (this.apiMajorVersion < 4) {
+        return;
+      }
+      this.isloading = true;
+      
+      this.$root.$emit('resetSimilarity');
+
+      this.api_err_msg = ""; // empty api messages
+      // hide watermark message
+      this.watermark_msg = "";
+
+      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "similarity";      
+      
+      let params = ""; 
+      params = "&radius=" + this.simRadius + 
+                "&entity=" + this.simEntity + 
+                "&crop=" + this.simCrop +
+                "&interval=" + this.simInterval +
+                "&references=" +this.simReferences
+
+      if (this.gcSimStartdate)
+        params = params + "&startdate="+this.gcSimStartdate;
+
+      if (this.gcSimEnddate)
+        params = params + "&enddate="+this.gcSimEnddate;
+
+      if (this.gcSimVerification === true) {
+          params = params + "&classification=" + this.gcSimVerification;
+      }
+      console.debug("getSimilarity()");
+      console.debug("GET " + this.getApiUrl(endpoint) + params);
+      
+      let xmlHttp = new XMLHttpRequest();
+      let async = true;
+
+      xmlHttp.onreadystatechange=function()
+      {
+          if (xmlHttp.readyState==4)
+          {
+            if (xmlHttp.status == 403) {
+              // show watermark on widget
+              this.watermark_msg = 'status_msg.missing_permissions';
+              this.isloading = false;
+              return;
+            }
+
+            var tmp  = JSON.parse(xmlHttp.responseText);            
+
+            if (xmlHttp.status == 200) {
+              tmp = tmp.content;
+
+              let classification = {};
+              if (tmp.classification) {
+                classification = tmp.classification;
+              }
+              this.similarity = {
+                "reference_timeseries" : tmp.reference_timeseries, 
+                "parcel_timeseries" : tmp.parcel_timeseries,
+                "similarity": tmp.similarity,
+                "classification": classification 
+              };
+              // which one is active
+              this.currentGraphContent = "similarity";
+            }
+          }
+      }.bind(this);
+      xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
+      xmlHttp.send();
+    },
     createChartData: function() {
       console.debug("createChartData()");
 
@@ -2430,10 +2649,12 @@ Vue.component('gc-chart', {
       }
       if (chartType === "similarity") {
           
-          if (this.similarity.content_parcel.length > 0) {
+          if (this.similarity.parcel_timeseries.length > 0) {
               let columns = [];
+              // empty chart first
               this.createChart(columns);
-              //prepareSimilarityData();
+              // prepare data & create chart with data
+              this.prepareSimilarityData();
           }
       }
     },
@@ -2475,7 +2696,7 @@ Vue.component('gc-chart', {
           "min" : "x",
           "max" : "x",
           "std.dev." : "x",
-          "parcel (mean)" : "x2",
+          "parcel (mean)" : "x",
           "reference (mean)" : "x2",
           "marker" : "x2",
           "sos" : "x5", 
@@ -2547,6 +2768,9 @@ Vue.component('gc-chart', {
             axis_label = this.$t("products.ndre1");
           }
           axis_label = this.$t("products."+ this.selectedProduct);
+        }
+        if (this.currentGraphContent == "similarity") {
+          axis_label = this.$t("products.ndvi");
         }
       }
       else {
@@ -3040,7 +3264,38 @@ Vue.component('gc-chart', {
     
       
     },
+    prepareSimilarityData() {
+
+      let columns = [];
+  
+      if (this.similarity.parcel_timeseries.length != this.similarity.reference_timeseries.length) {
+          // warn if the date ranges differ
+          console.debug("date ranges in similarity functon differ!");
+          console.debug("parcel_timeseries.length: "+ this.similarity.parcel_timeseries.length);
+          console.debug("reference_timeseries.length: "+ this.similarity.reference_timeseries.length);
+      }
+  
+      // take all dates from content_parcel and content_reference
+      let dates_parcel = this.similarity.parcel_timeseries.map( r => r.date);
+      let dates_reference = this.similarity.reference_timeseries.map( r => r.date);
+  
+      if (this.similarity.parcel_timeseries.length > 0) {
+  
+          // map date values to the first x axis
+          columns[0] = ["x"].concat(dates_parcel);
+          // format values to 2 decimals
+          columns[1] = ["parcel (mean)"].concat( this.similarity.parcel_timeseries.map( r => this.formatDecimal(r.mean, 3)));
+          // map date values to the second x axis
+          columns[2] = ["x2"].concat(dates_reference);
+          // format values to 2 decimals
+          columns[3] = ["reference (mean)"].concat( this.similarity.reference_timeseries.map( r => this.formatDecimal(r.mean, 3)));
+         
+          this.createChart(columns);
+      }
+    },
     refreshData() {
+
+      this.$root.$emit('resetSimilarity');
 
       if (this.mode == "one-index") {
         this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);

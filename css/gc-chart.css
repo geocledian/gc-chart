@@ -27,18 +27,6 @@ table>tbody>tr {
     line-height: 1.3em !important;
 }
 
-#similaritySumTbl {
-    margin-bottom: 0 !important;
-    /* centered table */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* better alginment of field labels and forms */
-#similarityDiv .field-label {
-    flex-grow: 2 !important;
-}
-
 /* better alginment of field labels and forms */
 #phenologyDiv .field-label {
     flex-grow: 2 !important;
