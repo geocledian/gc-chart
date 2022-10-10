@@ -1604,7 +1604,7 @@ Vue.component('gc-chart', {
           }
           //switch between phenology and SN marker
           if (this.selectedMarkerType == "phenology") {
-            this.getPhenology(this.gcPhStartdate, this.gcPhEnddate);
+            this.getPhenology();
           }
           // create chart from values, if they change
           this.createChartData();
