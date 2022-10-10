@@ -1,7 +1,7 @@
 /*
  Vue.js Geocledian chart component
  created: 2019-11-04, jsommer
- updated: 2022-09-09, jsommer
+ updated: 2022-10-10, jsommer
  version: 0.9.5
 */
 "use strict";
@@ -91,6 +91,8 @@ const gcChartLocales = {
       "covariance": "Covariance",
       "cosine": "Cosine",
       "correlation": "Correlation",
+      "parcel_mean": "Current Parcel (mean)",
+      "reference_mean": "Reference parcels (mean)",
     }
   },
   "de": {
@@ -169,6 +171,8 @@ const gcChartLocales = {
       "covariance": "Covarianz",
       "cosine": "Cosinus",
       "correlation": "Korrelation",
+      "parcel_mean": "Aktuelles Feld (Mittelwert)",
+      "reference_mean": "Umgebende Felder (Mittelwert)",
     }
   },
 }
@@ -533,52 +537,41 @@ Vue.component('gc-chart', {
 
 
           <!-- similarity results -->
-          <div style="margin-bottom: 0 !important;" v-show="similarity.similarity.hasOwnProperty('correlation')">
-            
-            <div>
-              <p class="menu-label" style="margin-bottom: 1em;">
+          <div style="margin-bottom: 0 !important;" v-show="similarity.similarity.hasOwnProperty('correlation')"> 
+              <p class="menu-label" style="margin-bottom: 0.25em;">
                 {{ $t('similarity.title') }}
               </p>
-            
-              <table class="table is-narrow" style="width: 100%;"
-                    v-model="similarity" v-if="similarity.similarity.correlation">
-                <thead class="is-normal">
-                  <tr><!--th>ID</th-->
-                    <th>{{$t('similarity.correlation')}}</th><th>{{$t('similarity.euclidean_distance')}}</th><th>{{$t('similarity.references_found')}}</th><th>{{$t('similarity.references_used')}}</th><th>{{$t('similarity.covariance')}}</th><th>{{$t('similarity.cosine')}}</th>
-                    <!-- only for ML classification -->
-                    <th v-if="similarity.classification.hasOwnProperty('conformity') && similarity.classification.confidence != null">ML verification</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                      <td>
-                        <span class="has-text-danger has-text-weight-semibold" v-if="similarity.similarity.correlation < 0.8">
-                                {{formatDecimal( similarity.similarity.correlation, 3)}}</span>
-                        <span class="has-text-success has-text-weight-bold" v-else>
-                            {{formatDecimal( similarity.similarity.correlation, 3)}}</span>
-                              </td>
-                      <td><span class="">{{formatDecimal( similarity.similarity.distance.mean_distance, 3)}}</span></td>
-                      <td><span class="">{{similarity.similarity.references_found}}</span></td>
-                      <td><span class="">{{similarity.similarity.references_used}}</span></td>
-                      <td><span class="">{{formatDecimal( similarity.similarity.covariance, 3)}}</span></td>
-                      <td><span class="">{{formatDecimal( similarity.similarity.cosine_similarity, 3)}}</span></td>
-                      <!-- only for ML classification -->
-                      <!-- if ML fails confidence is null! -->
-                      <td v-if="similarity.classification.hasOwnProperty('conformity') && similarity.classification.confidence != null">
-                          <span class="" v-if="similarity.classification.conformity == true">
-                                {{similarity.classification.conformity}}</span>
-                          <span class="" v-else>
-                                {{similarity.classification.conformity}}</span>
-                          <span class=" has-text-weight-semibold has-text-success" v-if="similarity.classification.confidence >= 0.90">
-                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
-                          <span class=" has-text-weight-semibold has-text-grey" v-if="similarity.classification.confidence >= 0.75 && similarity.classification.confidence < 0.90">
-                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
-                          <span class=" has-text-weight-semibold has-text-danger" v-if="similarity.classification.confidence < 0.75">
-                                {{"("+formatDecimal(similarity.classification.confidence*100, 1) + "%)"}}</span>
-                      </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="tile is-ancestor" v-if="similarity.similarity.hasOwnProperty('correlation')" style="width: 100%">
+              <!-- div class="tile is-vertical" -->
+                <div class="tile" style="padding-top: 0em!important;">
+                  <div class="tile is-child has-text-centered">
+                    <label class="is-size-7 gc-is-tertiary"> {{$t('similarity.correlation')}} </label> <br>  
+                    <span class="title is-size-4" style="color: #32CD32;" v-if="similarity.similarity.correlation >= 0.9"> {{formatDecimal(similarity.similarity.correlation,2)}} </span>
+                    <span class="title is-size-4" style="color: #F6BE00;" v-if="similarity.similarity.correlation > 0.8 & similarity.similarity.correlation < 0.9"> {{formatDecimal(similarity.similarity.correlation,2)}} </span>
+                    <span class="title is-size-4" style="color: red;" v-if="similarity.similarity.correlation < 0.8"> {{formatDecimal(similarity.similarity.correlation,2)}} </span>
+                  </div>
+                  <div class="tile is-child has-text-centered">
+                    <label class="is-size-7 gc-is-tertiary"> {{$t('similarity.euclidean_distance')}} </label><br>
+                    <span class="title is-size-4" style="color: #32CD32;" v-if="similarity.similarity.distance.mean_distance <= 0.15"> {{formatDecimal(similarity.similarity.distance.mean_distance,2)}} </span>
+                    <span class="title is-size-4" style="color: #F6BE00;" v-if="similarity.similarity.distance.mean_distance > 0.15 & similarity.similarity.distance.mean_distance <= 0.21"> {{formatDecimal(similarity.similarity.distance.mean_distance,2)}} </span>
+                    <span class="title is-size-4" style="color: red;" v-if="similarity.similarity.distance.mean_distance > 0.21"> {{formatDecimal(similarity.similarity.distance.mean_distance,2)}} </span>
+                  </div>
+                  <div class="tile is-child has-text-centered">
+                    <label class="is-size-7 gc-is-tertiary"> {{$t('similarity.references_found')}} </label><br>
+                    <span class="title is-size-4 has-text-grey"> {{similarity.similarity.references_found}} </span>
+                  </div>
+                  <div class="tile is-child has-text-centered"">
+                    <label class="is-size-7 gc-is-tertiary"> {{$t('similarity.references_used')}} </label><br>
+                    <span class="title is-size-4 has-text-grey"> {{similarity.similarity.references_used}} </span>
+                  </div>
+                  <!-- div class="tile is-child p-2 has-text-centered">
+                    <label class="is-size-7 gc-is-tertiary"> {{$t('similarity.cosine')}} </label><br>
+                    <span class="title is-size-4" style="color: #32CD32;" v-if="similarity.similarity.cosine_similarity <= 0.15"> {{formatDecimal(similarity.similarity.cosine_similarity,2)}} </span>
+                    <span class="title is-size-4" style="color: #F6BE00;" v-if="similarity.similarity.cosine_similarity > 0.15 & similarity.similarity.cosine_similarity <= 0.21"> {{formatDecimal(similarity.similarity.cosine_similarity,2)}} </span>
+                    <span class="title is-size-4" style="color: red;" v-if="similarity.similarity.cosine_similarity > 0.21"> {{formatDecimal(similarity.similarity.cosine_similarity,2)}} </span>
+                  </div -->
+                </div>
+              <!-- /div -->
             </div>
           </div>
 
@@ -1031,6 +1024,16 @@ Vue.component('gc-chart', {
         console.debug("selectedDate - setter: "+value);
         // emitting to root instance 
         this.$root.$emit("queryDateChange", value);
+        // emitting to root instance 
+        // this.$root.$emit("queryDateStatsChange", this.selectedDateStats);
+      }
+    },
+    selectedDateStats: {
+      get: function() {
+        if (this.statistics.length > 0) {
+          let idx = this.getClosestTimeSeriesIndex(this.statistics, this.selectedDate);
+          return this.statistics[idx].statistics;
+        }
       }
     },
     mode: {
@@ -1344,6 +1347,7 @@ Vue.component('gc-chart', {
         console.debug("event - selectedProductChange");
 
         this.$root.$emit("resetSimilarity");
+        this.$root.$emit("resetPhenology");
 
         if (this.mode == "one-index") {
           if (this.getCurrentParcel()) {
@@ -1971,12 +1975,10 @@ Vue.component('gc-chart', {
       
         //reset phenology because it depends on date entries of parcels
         this.phenology = [];
-        // this.sos = [];
-        // this.pos = [];
-        // this.eos = [];
 
         //reset similarity
         this.$root.$emit('resetSimilarity');
+        this.$root.$emit("resetPhenology");
 
         let currentParcel = this.getCurrentParcel();
         if (currentParcel !== undefined) {
@@ -2202,6 +2204,8 @@ Vue.component('gc-chart', {
       if (this.apiMajorVersion < 4) {
         return;
       }
+      this.$root.$emit("resetSimilarity");
+      this.$root.$emit("resetPhenology");
 
       this.api_err_msg = ""; // empty api messages
       // hide watermark message
@@ -2240,9 +2244,6 @@ Vue.component('gc-chart', {
             for (var i = 0; i < tmp.content.length; i++) {
                 var item = tmp.content[i];
                 this.phenology.push( item );
-                // this.sos.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
-                // this.pos.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
-                // this.eos.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
             }
           }
       }.bind(this);
@@ -2257,6 +2258,7 @@ Vue.component('gc-chart', {
       }
       this.isloading = true;
       
+      this.$root.$emit("resetPhenology");
       this.$root.$emit('resetSimilarity');
 
       this.api_err_msg = ""; // empty api messages
@@ -2356,43 +2358,6 @@ Vue.component('gc-chart', {
                                                                                     return this.formatDecimal(r.statistics.mean, 3); } 
                                                                                 else { return null;} 
                                                                     }.bind(this)));
-
-            // if (this.selectedMarkerType == "phenology") {
-            //   try {
-            //     // TODO: check if we can merge all markers to one data array
-            //     columns[7] = ["x5"].concat(this.sos);            
-            //     columns[8] = ["x6"].concat(this.pos);            
-            //     columns[9] = ["x7"].concat(this.eos);
-
-            //     let max;
-                
-            //     if (this.gcYScale === "dynamic") {
-                  
-            //       // max computed from values & exclude null stats first!
-            //       let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
-            //       max = Number.NEGATIVE_INFINITY;
-            //       for (let i = 0; i < maxStats.length; i++ ) {
-            //         if (maxStats[i] > max) {
-            //           max = maxStats[i];
-            //         }
-            //       }
-            //     }
-            //     if (this.gcYScale === "fixed") {
-            //       // max declared by axis min/max (in config of chart)
-            //       max = this.chart.axis.max().y;
-            //     }
-            //     console.debug(max);
-                
-            //     // assign the maximum of the y axis to the bar charts of phenology markers
-            //     columns[10] = ["sos"].concat(this.sos.map( r => max));
-            //     columns[11] = ["pos"].concat(this.pos.map( r => max));
-            //     columns[12] = ["eos"].concat(this.eos.map( r => max));
-
-            //   } catch ( ex ) {
-            //     console.debug("could not add phenology data to chart..")
-            //     console.log(ex)
-            //   }
-            // }
           }
         }
         if (this.mode == "many-indices") {
@@ -2445,14 +2410,6 @@ Vue.component('gc-chart', {
           }
           // style:
           // columns[2] = ["ndvi"].concat( this.statisticsMany["ndvi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[3] = ["ndre1"].concat( this.statisticsMany["ndre1"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[4] = ["ndre2"].concat( this.statisticsMany["ndre2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[5] = ["ndwi"].concat( this.statisticsMany["ndwi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[6] = ["cire"].concat( this.statisticsMany["cire"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[7] = ["savi"].concat( this.statisticsMany["savi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[8] = ["evi2"].concat( this.statisticsMany["evi2"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[9] = ["npcri"].concat( this.statisticsMany["npcri"].map( r => this.formatDecimal(r.statistics.mean, 3)));
-          // columns[10] = ["vitality"].concat( this.statisticsMany["vitality"].map( r => this.formatDecimal(r.statistics.mean, 3)));
 
         }
         if (this.mode == "many-parcels") {
@@ -2790,8 +2747,8 @@ Vue.component('gc-chart', {
                 multiple: false,
                 grouped: false,
                 isselectable: function (d) { 
-                    // disable selection for marker, similarity
-                    if (d.id == "marker" || d.id == "reference (mean)" || d.id == "parcel (mean)")
+                    // disable selection for marker & reference of similarity
+                    if (d.id == "marker" || d.id == "reference (mean)" )
                     {
                         return false;
                     }
@@ -2824,7 +2781,9 @@ Vue.component('gc-chart', {
                 "savi": this.$t("products.savi"),
                 "evi2": this.$t("products.evi2"),
                 "cire": this.$t("products.cire"),
-                "npcri": this.$t("products.npcri")
+                "npcri": this.$t("products.npcri"),
+                "parcel (mean)": this.$t("similarity.parcel_mean"),
+                "reference (mean)": this.$t("similarity.reference_mean"),
             },
             empty: {
               label: {
@@ -2905,6 +2864,18 @@ Vue.component('gc-chart', {
                     this.selectedDate = e.x.simpleDate(); 
                   }
               }
+              if (this.currentGraphContent == "similarity") {
+                if (e.x) {
+                  // save also to internal - value is being checked in watcher
+                  // if (this.mode === "many-parcels") {
+                  this.internalQuerydate[e.id+""] = e.x;
+                  // }
+                  this.selectedChartId = e.id;
+
+                  // for queryDate of portfolio map
+                  this.selectedDate = e.x.simpleDate(); 
+                }
+              }
             }.bind(this),
             onhidden: function(ids) {
               if (ids.includes("mean")) {
@@ -2950,13 +2921,6 @@ Vue.component('gc-chart', {
                 }
               }.bind(this)
             },
-            // position: 'inset',
-            // inset: {
-            //   anchor: 'bottom-center',
-            //   x: 10,
-            //   y: -110,
-            //   step: 1
-            // }
         },
         line: {
             connectNull: true
@@ -2992,18 +2956,10 @@ Vue.component('gc-chart', {
             x: {
                 show: true
             },
-            // // phenology markers as x grid lines
-            // x: {
-            //     lines: this.phenology_marker
-            // },
             y: {
                 show: true
             }
         },
-        // regions: [
-        //     {axis: 'x', start: regionL8.start, end: regionL8.end, class: 'region-landsat'},
-        //     {axis: 'x', start: regionS2.start, end: regionS2.end, class: 'region-sentinel'},
-        //   ],
         axis: {
           x: {
               type: 'timeseries',
@@ -3296,6 +3252,7 @@ Vue.component('gc-chart', {
     refreshData() {
 
       this.$root.$emit('resetSimilarity');
+      this.$root.$emit("resetPhenology");
 
       if (this.mode == "one-index") {
         this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
