@@ -6,7 +6,7 @@
 */
 "use strict";
 
-Date.prototype.simpleDate = function () { 
+Date.prototype.simpleDate = function () {
   var a = this.getFullYear(),
     b = this.getMonth() + 1,
     c = this.getDate();
@@ -16,19 +16,19 @@ Date.prototype.simpleDate = function () {
 //lanugage strings
 const gcChartLocales = {
   "en": {
-    "options": { 
-      "title": "Chart options", 
+    "options": {
+      "title": "Chart options",
       "graph_type": {
         "label": "Graph type",
         "line": "Line",
         "spline": "Spline",
         "area": "Area"
       },
-      "hide_graphs" : {
+      "hide_graphs": {
         "label": "Hide",
         "marker": "Marker"
       },
-      "marker" : {
+      "marker": {
         "label": "Marker",
         "phenology": "Phenology",
         "sn_marker": "SN Marker"
@@ -39,49 +39,52 @@ const gcChartLocales = {
         "date_format_hint": "YYYY-MM-DD",
         "invalid_date_range": "Invalid date range!"
       },
-      "mode" : {
+      "mode": {
         "label": "Mode",
         "one_index": "one product, all statistics",
         "many_indices": "many products, means"
       },
       "cloudFilter": {
-        "label" : "Cloud filter"
+        "label": "Cloud filter"
       },
       "date_reset": "Reset"
     },
-    "statistics": { 
-        "min": "Minimum",
-        "max": "Maximum",
-        "mean": "Mean",
-        "stddev": "Standard Deviation",
-        "errorBand": "Error Band"
+    "statistics": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "mean": "Mean",
+      "stddev": "Standard Deviation",
+      "errorBand": "Error Band"
     },
-    "products": { 
-        "sos": "Start of season",
-        "pos": "Peak of season",
-        "eos": "End of season",
-        "vitality": "Vitality",
-        "ndvi": "NDVI",
-        "ndre1": "NDRE1",
-        "ndre2": "NDRE2",
-        "ndwi": "NDWI",
-        "savi": "SAVI",
-        "evi2": "EVI2",
-        "cire": "CIRE",
-        "npcri": "NPCRI"
+    "products": {
+      "sos": "Start of season",
+      "pos": "Peak of season",
+      "eos": "End of season",
+      "vitality": "Vitality",
+      "ndvi": "NDVI",
+      "ndre1": "NDRE1",
+      "ndre2": "NDRE2",
+      "ndwi": "NDWI",
+      "savi": "SAVI",
+      "evi2": "EVI2",
+      "cire": "CIRE",
+      "npcri": "NPCRI",
+      "backscatter_vv": "Backscatter VV",
+      "backscatter_vh": "Backscatter VH",
+      "sbmi": "SBMI"
     },
     "status_msg": {
-      "unauthorized_key" : "Sorry, the API key is not authorized.",
-      "invalid_key" : "Sorry, the API key's validity expired.",
+      "unauthorized_key": "Sorry, the API key is not authorized.",
+      "invalid_key": "Sorry, the API key's validity expired.",
       "missing_permissions": "Sorry, the API key doesn't have the given permissions to access this product or resource.",
       "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support.",
-      "parcel_id_not_found" : "Parcel ID not found!"
+      "parcel_id_not_found": "Parcel ID not found!"
     },
-    "productSelector" : {
-      "tooltip" : "Choose a product!"
+    "productSelector": {
+      "tooltip": "Choose a product!"
     },
     "chart": {
-      "no_data_msg" : "No data available"
+      "no_data_msg": "No data available"
     },
     "similarity": {
       "title": "Similarity",
@@ -96,47 +99,47 @@ const gcChartLocales = {
     }
   },
   "de": {
-    "options": { 
-        "title": "Graphoptionen", 
-        "graph_type": {
-            "label": "Graph Typ", 
-            "line": "Gerade",
-            "spline": "Kurven",
-            "area": "Flächig"
-        },
-        "hide_graphs" : {
-          "label": "Ausblenden",
-          "marker": "Marker"
-        },
-        "marker" : {
-          "label": "Marker",
-          "phenology": "Phänologie",
-          "sn_marker": "SN Marker"
-        },
-        "date_zoom": {
-          "from": "Von",
-          "to": "Bis",
-          "date_format_hint": "JJJJ-MM-TT",
-          "invalid_date_range": "Datumsbereich ungültig!"
-        },
-        "mode" : {
-          "label": "Modus",
-          "one_index": "ein Produkt, alle Statistikwerte",
-          "many_indices": "mehrere Produkte, Mittelwerte"
-        },
-        "cloudFilter": {
-          "label" : "Wolkenfilter"
-        },
-        "date_reset": "Zurücksetzen"
+    "options": {
+      "title": "Graphoptionen",
+      "graph_type": {
+        "label": "Graph Typ",
+        "line": "Gerade",
+        "spline": "Kurven",
+        "area": "Flächig"
+      },
+      "hide_graphs": {
+        "label": "Ausblenden",
+        "marker": "Marker"
+      },
+      "marker": {
+        "label": "Marker",
+        "phenology": "Phänologie",
+        "sn_marker": "SN Marker"
+      },
+      "date_zoom": {
+        "from": "Von",
+        "to": "Bis",
+        "date_format_hint": "JJJJ-MM-TT",
+        "invalid_date_range": "Datumsbereich ungültig!"
+      },
+      "mode": {
+        "label": "Modus",
+        "one_index": "ein Produkt, alle Statistikwerte",
+        "many_indices": "mehrere Produkte, Mittelwerte"
+      },
+      "cloudFilter": {
+        "label": "Wolkenfilter"
+      },
+      "date_reset": "Zurücksetzen"
     },
-    "statistics": { 
+    "statistics": {
       "min": "Minimum",
       "max": "Maximum",
       "mean": "Mittelwert",
       "stddev": "Standardabweichung",
       "errorBand": "Fehlerband"
     },
-    "products": { 
+    "products": {
       "sos": "Saisonbeginn",
       "pos": "Saisonales Maximum",
       "eos": "Saisonende",
@@ -148,20 +151,23 @@ const gcChartLocales = {
       "savi": "SAVI",
       "evi2": "EVI2",
       "cire": "CIRE",
-      "npcri": "NPCRI"
+      "npcri": "NPCRI",
+      "backscatter_vv": "Backscatter VV",
+      "backscatter_vh": "Backscatter VH",
+      "sbmi": "SBMI"
     },
     "status_msg": {
-      "unauthorized_key" : "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
-      "invalid_key" : "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
+      "unauthorized_key": "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
+      "invalid_key": "Tut uns leid, die Gültigkeit des angegebenen API Schlüssels ist abgelaufen.",
       "missing_permissions": "Tut uns leid, der angegebene API Schlüssel hat nicht die erforderlichen Berechtigungen für dieses Produkt bzw. diese Ressource!",
       "support": "Bitte kontaktieren Sie <a href='https://www.geocledian.com'>geo|cledian</a> für weitere Unterstützung.",
-      "parcel_id_not_found" : "Parcel ID nicht gefunden!"
+      "parcel_id_not_found": "Parcel ID nicht gefunden!"
     },
-    "productSelector" : {
-      "tooltip" : "Bitte Produkt wählen!"
+    "productSelector": {
+      "tooltip": "Bitte Produkt wählen!"
     },
     "chart": {
-      "no_data_msg" : "Keine Daten verfügbar",
+      "no_data_msg": "Keine Daten verfügbar",
     },
     "similarity": {
       "title": "Ähnlichkeitsanalyse",
@@ -189,8 +195,8 @@ Vue.component('gc-chart', {
       default: '39553fb7-7f6f-4945-9b84-a4c8745bdbec'
     },
     gcHost: {
-        type: String,
-        default: 'geocledian.com'
+      type: String,
+      default: 'geocledian.com'
     },
     gcProxy: {
       type: String,
@@ -203,7 +209,7 @@ Vue.component('gc-chart', {
     gcApiSecure: {
       type: Boolean,
       default: true
-    }, 
+    },
     gcLimit: {
       type: Number,
       default: 250
@@ -222,17 +228,17 @@ Vue.component('gc-chart', {
     },
     gcAvailableProducts: {
       type: String,
-      default: "vitality,ndvi,ndwi,ndre1,ndre2,savi,evi2,cire,npcri"
+      default: "vitality,ndvi,ndwi,ndre1,ndre2,savi,evi2,cire,npcri,backscatter_vv,backscatter_vh,sbmi"
     },
     gcMode: {
       type: String,
       default: "" // "one-index" || "many-indices" || "many-parcels"
     },
-    gcZoomStartdate:  {
+    gcZoomStartdate: {
       type: String,
       default: "" // ISO date string, e.g. '2018-03-01'
     },
-    gcZoomEnddate:  {
+    gcZoomEnddate: {
       type: String,
       default: "" // ISO date string, e.g. '2018-10-01'
     },
@@ -256,9 +262,11 @@ Vue.component('gc-chart', {
       type: Boolean,
       default: true // true: load first parcels by filter or false: wait for visibleParcelIds to be set later (e.g. from Portfolio)
     },
-    gcParcels: { 
-      type: Array, 
-      default: function () { return [] }
+    gcParcels: {
+      type: Array,
+      default: function () {
+        return []
+      }
     },
     gcSelectedProduct: {
       type: String,
@@ -288,7 +296,7 @@ Vue.component('gc-chart', {
       type: String,
       default: 'en' // 'en' | 'de' | 'lt'
     },
-    gcSelectedDate: { 
+    gcSelectedDate: {
       type: String,
       default: ''
     },
@@ -579,60 +587,70 @@ Vue.component('gc-chart', {
   data: function () {
     return {
       chart: undefined,
-      statistics : [],
-      statisticsMany : [],
+      statistics: [],
+      statisticsMany: [],
       internalSelectedProduct: "",
       parcels: [],
       //offset: 0,
       pagingStep: 250,
       total_parcel_count: 250,
       chartLegendVisible: true,
-      similarity : { content_parcel : [], content_reference: [], similarity: {}, summary: {}, classification: {} },
-      phenology : [], //content : [{ { duration: {}, growth_rate: {}, marker: [] }, season: {} },
-      currentGraphContent : "statistics", // statistics || similarity || phenology
+      similarity: {
+        content_parcel: [],
+        content_reference: [],
+        similarity: {},
+        summary: {},
+        classification: {}
+      },
+      phenology: [], //content : [{ { duration: {}, growth_rate: {}, marker: [] }, season: {} },
+      currentGraphContent: "statistics", // statistics || similarity || phenology
       selectedGraphType: "line",
       selectedMarkerType: "phenology",
-      hiddenStats: ["min","max","std.dev.","means2","meanl8","cire","vitality","npcri","ndre2","evi2","savi"], //hide these by default - user can change the visibility
+      hiddenStats: ["min", "max", "std.dev.", "means2", "meanl8", "cire", "vitality", "npcri", "ndre2", "evi2", "savi"], //hide these by default - user can change the visibility
       sn_markers: {},
       internalQuerydate: {}, //filled by click in chart only!
       selectedChartId: "", // filled by click in chart when in one-index or many-indices mode
       internalZoomStartdate: "", //TODO: startdate of parcel //new Date(new Date().getUTCFullYear()-1, 2, 1).simpleDate(), // last YEAR-03-01
-      internalZoomEnddate: "",   //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
+      internalZoomEnddate: "", //TODO: enddate of parcel   //new Date(new Date().getUTCFullYear()-1, 10, 1).simpleDate(), // last YEAR-11-01
       internalCurrentParcelID: -1, //for internal use of widget only, if not set from outer gcCurrentParcelId prop
       inpFilterDateFromPicker: undefined,
       inpFilterDateToPicker: undefined,
-      minDate: undefined, 
+      minDate: undefined,
       maxDate: undefined,
       internalMode: "one-index",
-      dateZoomLayout: { "vertical" : "field is-vertical", "horizontal":  "field is-horizontal" },
-      d3locales: { "de": {
-                      "decimal": ",",
-                      "thousands": ".",
-                      "grouping": [3],
-                      "currency": ["€", ""],
-                      "dateTime": "%a %b %e %X %Y",
-                      "date": "%d.%m.%Y",
-                      "time": "%H:%M:%S",
-                      "periods": ["AM", "PM"],
-                      "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
-                      "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                      "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
-                      "shortMonths": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
-                    },
-                    "en": {
-                      "decimal": ",",
-                      "thousands": ".",
-                      "grouping": [3],
-                      "currency": ["€", ""],
-                      "dateTime": "%a %b %e %X %Y",
-                      "date": "%d.%m.%Y",
-                      "time": "%H:%M:%S",
-                      "periods": ["AM", "PM"],
-                      "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                      "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-                      "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                      "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-                    },
+      dateZoomLayout: {
+        "vertical": "field is-vertical",
+        "horizontal": "field is-horizontal"
+      },
+      d3locales: {
+        "de": {
+          "decimal": ",",
+          "thousands": ".",
+          "grouping": [3],
+          "currency": ["€", ""],
+          "dateTime": "%a %b %e %X %Y",
+          "date": "%d.%m.%Y",
+          "time": "%H:%M:%S",
+          "periods": ["AM", "PM"],
+          "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+          "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+          "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+          "shortMonths": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+        },
+        "en": {
+          "decimal": ",",
+          "thousands": ".",
+          "grouping": [3],
+          "currency": ["€", ""],
+          "dateTime": "%a %b %e %X %Y",
+          "date": "%d.%m.%Y",
+          "time": "%H:%M:%S",
+          "periods": ["AM", "PM"],
+          "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+          "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+          "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        },
       },
       isloading: false, // indicates if data is being loaded or not
       api_err_msg: "", // if there is an error from the API, it will stored here; if length > 0 it will be displayed
@@ -643,26 +661,26 @@ Vue.component('gc-chart', {
   computed: {
     apiKey: {
       get: function () {
-          return this.gcApikey;
+        return this.gcApikey;
       }
     },
     apiHost: {
-        get: function () {
-            return this.gcHost;
-        }
+      get: function () {
+        return this.gcHost;
+      }
     },
     apiBaseUrl: {
-        get: function () {
-            return this.gcApiBaseUrl;
+      get: function () {
+        return this.gcApiBaseUrl;
       }
     },
     apiSecure: {
       get: function () {
-          return this.gcApiSecure;
+        return this.gcApiSecure;
       }
     },
     apiMajorVersion: {
-      get () {
+      get() {
         if (this.apiBaseUrl === "/agknow/api/v3") {
           return 3
         }
@@ -671,15 +689,15 @@ Vue.component('gc-chart', {
         }
       }
     },
-    currentParcelID:  {
-      get: function() {
+    currentParcelID: {
+      get: function () {
         // if parcel id is not set externally via prop, take the internal one!
         if (this.gcCurrentParcelId === -1)
           return this.internalCurrentParcelID;
-        else 
+        else
           return this.gcCurrentParcelId;
       },
-      set: function(newValue) {
+      set: function (newValue) {
         // always emit to root
         this.$root.$emit('currentParcelIdChange', newValue);
         // if parcel id is not set externally via prop, take the internal one!
@@ -688,61 +706,58 @@ Vue.component('gc-chart', {
       }
     },
     availableProducts: {
-      get: function() {
+      get: function () {
         return this.filterDatasourceProductCompat(this.dataSource, this.gcAvailableProducts.split(","));
       },
     },
     selectedParcelIds: {
       get: function () {
         if (this.mode == "many-parcels") {
-          
+
           // case if parcel ids are not defined - take the first 10 parcels 
           // from the result of the filterString against the API
           if (this.visibleParcelIds.length == 0) {
             if (this.gcInitialLoading === true) {
               /* limited to maximum of 10 parcels if visibleParcelIds are not set ! */
-              return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
-            } else { 
-                return []; //return empty for waiting on changing visibleParcelIds from external setting (e.g. Portfolio)
+              return this.parcels.map(p => parseInt(p.parcel_id)).slice(0, 10);
+            } else {
+              return []; //return empty for waiting on changing visibleParcelIds from external setting (e.g. Portfolio)
             }
-          }
-          else {
+          } else {
             // case for defined parcel ids
             if (this.visibleParcelIds.split(",").length <= 10)
-              return this.visibleParcelIds.split(",").map(p=>parseInt(p));
+              return this.visibleParcelIds.split(",").map(p => parseInt(p));
             else
               return []; //empty
           }
-        }
-        else  { // other graph modes
+        } else { // other graph modes
           if (this.visibleParcelIds.length == 0) {
             /* limited to maximum of 10 parcels if visibleParcelIds are not set ! */
-              return this.parcels.map(p => parseInt(p.parcel_id)).slice(0,10);
+            return this.parcels.map(p => parseInt(p.parcel_id)).slice(0, 10);
             //return this.parcels.map(p => p.parcel_id);
-          }
-          else {
-            return this.visibleParcelIds.split(",").map(p=>parseInt(p)).slice(0,10);
+          } else {
+            return this.visibleParcelIds.split(",").map(p => parseInt(p)).slice(0, 10);
           }
         }
       },
     },
     dataSource: {
-      get: function() {
+      get: function () {
         return this.gcDataSource;
       },
-      set: function(value) {
+      set: function (value) {
         this.$root.$emit("dataSourceChange", value);
       }
     },
     chartWidth: {
-      get: function() {
-        console.debug("clientwidth "+document.getElementById(this.gcWidgetId).clientWidth);
-        console.debug("offsetwidth "+document.getElementById(this.gcWidgetId).offsetWidth);
+      get: function () {
+        console.debug("clientwidth " + document.getElementById(this.gcWidgetId).clientWidth);
+        console.debug("offsetwidth " + document.getElementById(this.gcWidgetId).offsetWidth);
         return parseInt(document.getElementById(this.gcWidgetId).offsetWidth);
       }
     },
     chartHeight: {
-      get: function() {
+      get: function () {
         // console.debug("clientheight "+document.getElementById(this.gcWidgetId).clientHeight);
         // console.debug("offsetheight "+document.getElementById(this.gcWidgetId).offsetHeight);
         //return parseInt(document.getElementById(this.gcWidgetId).offsetHeight);
@@ -750,7 +765,7 @@ Vue.component('gc-chart', {
       }
     },
     filterString: {
-      get: function() {
+      get: function () {
         return this.gcFilterString;
       },
       // set: function(newValue) {
@@ -764,13 +779,13 @@ Vue.component('gc-chart', {
       // }
     },
     limit: {
-      get: function() {
+      get: function () {
         // will always reflect prop's value 
         return this.gcLimit;
       }
     },
     offset: {
-      get: function() {
+      get: function () {
         // will always reflect prop's value 
         return this.gcOffset;
       }
@@ -788,7 +803,7 @@ Vue.component('gc-chart', {
            otherwise fall back to the first date of the time series for the start date
         Note: zooming will be handled in the watcher!
       */
-      get: function() {
+      get: function () {
         // either outer zoom date
         if (this.gcZoomStartdate.length > 0) {
           if (this.isDateValid(this.gcZoomStartdate)) {
@@ -822,7 +837,7 @@ Vue.component('gc-chart', {
               for (var i = 0; i < this.selectedParcelIds.length; i++) {
                 let parcel_id = this.selectedParcelIds[i];
                 // console.debug(parcel_id)
-                const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
+                const parcel = this.statisticsMany.find(p => p.parcel_id === parcel_id);
                 if (parcel === undefined) {
                   console.debug("parcel not found!")
                   return
@@ -845,22 +860,22 @@ Vue.component('gc-chart', {
               }
               if (isWithinRange === false) {
                 console.debug("gcZoomStartdate not in range!");
-                const d = allDates.sort((a,b)=> a-b)[0];
+                const d = allDates.sort((a, b) => a - b)[0];
                 if (d !== undefined) {
-                  console.debug("returning "+ d.simpleDate());
+                  console.debug("returning " + d.simpleDate());
                   return d.simpleDate(); // min date of all dates
                 }
               }
             }
           }
-        }// or internal zoom date
+        } // or internal zoom date
         else {
           if (this.isDateValid(this.internalZoomStartdate))
             return this.internalZoomStartdate;
         }
       },
       set: function (newValue) {
-        console.debug("chartFromDate setter: "+ newValue)
+        console.debug("chartFromDate setter: " + newValue)
         if (this.isDateValid(newValue)) {
           //should set gcZoomStartdate from root to the new value
           this.$root.$emit("chartFromDateChange", newValue);
@@ -882,7 +897,7 @@ Vue.component('gc-chart', {
            otherwise fall back to the last date of the time series for the end date
         Note: zooming will be handled in the watcher!
       */
-      get: function() {
+      get: function () {
         // either outer zoom date
         if (this.gcZoomEnddate.length > 0) {
           if (this.isDateValid(this.gcZoomEnddate)) {
@@ -907,7 +922,7 @@ Vue.component('gc-chart', {
                 }
               }
               if (isWithinRange === false) {
-                return allDates.sort()[allDates.length-1]; // max date of all dates
+                return allDates.sort()[allDates.length - 1]; // max date of all dates
               }
             }
             if (this.mode === "many-parcels") {
@@ -916,7 +931,7 @@ Vue.component('gc-chart', {
               for (var i = 0; i < this.selectedParcelIds.length; i++) {
                 let parcel_id = this.selectedParcelIds[i];
                 // console.debug(parcel_id)
-                const parcel = this.statisticsMany.find(p=>p.parcel_id === parcel_id);
+                const parcel = this.statisticsMany.find(p => p.parcel_id === parcel_id);
                 if (parcel === undefined) {
                   console.debug("parcel not found!")
                   return
@@ -939,22 +954,22 @@ Vue.component('gc-chart', {
               }
               if (isWithinRange === false) {
                 console.debug("gcZoomEnddate not in range!")
-                const d = allDates.sort((a,b)=> a-b)[allDates.length-1];
+                const d = allDates.sort((a, b) => a - b)[allDates.length - 1];
                 if (d !== undefined) {
-                  console.debug("returning "+ d.simpleDate());
+                  console.debug("returning " + d.simpleDate());
                   return d.simpleDate(); // max date of all dates
                 }
               }
             }
           }
-        }// or internal zoom date
+        } // or internal zoom date
         else {
           if (this.isDateValid(this.internalZoomEnddate))
             return this.internalZoomEnddate;
         }
       },
       set: function (newValue) {
-        console.debug("chartToDate setter: "+ newValue)
+        console.debug("chartToDate setter: " + newValue)
         if (this.isDateValid(newValue)) {
           // should set gcZoomEnddate from root to the new value
           this.$root.$emit("chartToDateChange", newValue);
@@ -969,21 +984,20 @@ Vue.component('gc-chart', {
       }
     },
     selectedProduct: {
-      get: function() {
+      get: function () {
         // check for variations & visible products: fallback to vitality
-        if (["variations","visible"].includes(this.gcSelectedProduct) && this.availableProducts.includes("vitality")) {
+        if (["variations", "visible"].includes(this.gcSelectedProduct) && this.availableProducts.includes("vitality")) {
           return "vitality";
         }
         // workaround for external setting of not existent product (sos,eos,pos) 
         // fallback to vitality if present
-        if (["sos","eos","pos"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndvi")){
+        if (["sos", "eos", "pos"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndvi")) {
           return "ndvi";
         }
         if (["maturity"].includes(this.gcSelectedProduct) && this.availableProducts.includes("ndre1")) {
           return "ndre1";
-        }
-        else {
-          if (this.gcSelectedProduct.length>0)
+        } else {
+          if (this.gcSelectedProduct.length > 0)
             return this.gcSelectedProduct;
           else
             return this.internalSelectedProduct;
@@ -996,32 +1010,32 @@ Vue.component('gc-chart', {
       }
     },
     visibleParcelIds: {
-      get: function() {
+      get: function () {
         return this.gcVisibleParcelIds;
       },
     },
     availableStats: {
-      get: function() {
+      get: function () {
         return (this.gcAvailableStats.split(","));
       }
     },
     availableOptions: {
-      get: function() {
+      get: function () {
         return (this.gcAvailableOptions.split(","));
       }
     },
     currentLanguage: {
-      get: function() {
+      get: function () {
         // will always reflect prop's value 
         return this.gcLanguage;
       },
     },
     selectedDate: {
-      get: function() {
+      get: function () {
         return this.gcSelectedDate;
       },
-      set: function(value) {
-        console.debug("selectedDate - setter: "+value);
+      set: function (value) {
+        console.debug("selectedDate - setter: " + value);
         // emitting to root instance 
         this.$root.$emit("queryDateChange", value);
         // emitting to root instance 
@@ -1029,7 +1043,7 @@ Vue.component('gc-chart', {
       }
     },
     selectedDateStats: {
-      get: function() {
+      get: function () {
         if (this.statistics.length > 0) {
           let idx = this.getClosestTimeSeriesIndex(this.statistics, this.selectedDate);
           return this.statistics[idx].statistics;
@@ -1037,13 +1051,13 @@ Vue.component('gc-chart', {
       }
     },
     mode: {
-      get: function() {
+      get: function () {
         if (this.gcMode.length > 0)
           return this.gcMode;
         else
           return this.internalMode;
       },
-      set: function(value) {
+      set: function (value) {
         this.internalMode = value;
         // notify root
         this.$root.$emit('chartModeChange', value);
@@ -1068,13 +1082,11 @@ Vue.component('gc-chart', {
           for (var i = 0; i < this.phenology.length; i++) {
             for (var j = 0; j < this.phenology[i].marker.length; j++) {
               if (this.phenology[i].marker[j].date) {
-                result.push(
-                  {
-                    value: this.phenology[i].marker[j].date, 
-                    text: this.phenology[i].marker[j].name + " " + this.phenology[i].season,
-                    class: this.phenology[i].marker[j].name.split(" ").join("-")
-                  }
-                );
+                result.push({
+                  value: this.phenology[i].marker[j].date,
+                  text: this.phenology[i].marker[j].name + " " + this.phenology[i].season,
+                  class: this.phenology[i].marker[j].name.split(" ").join("-")
+                });
               }
             }
           }
@@ -1083,10 +1095,10 @@ Vue.component('gc-chart', {
       }
     },
     sos: {
-      get: function() {
+      get: function () {
         let result = [];
         for (var i = 0; i < this.phenology.length; i++) {
-          result.push(this.phenology[i].marker.filter(m=>m.name == "start of season")[0].date);
+          result.push(this.phenology[i].marker.filter(m => m.name == "start of season")[0].date);
         }
         console.debug(result);
         return result;
@@ -1096,10 +1108,10 @@ Vue.component('gc-chart', {
       }
     },
     pos: {
-      get: function() {
+      get: function () {
         let result = [];
         for (var i = 0; i < this.phenology.length; i++) {
-          result.push(this.phenology[i].marker.filter(m=>m.name == "peak of season")[0].date);
+          result.push(this.phenology[i].marker.filter(m => m.name == "peak of season")[0].date);
         }
         console.debug(result);
         return result;
@@ -1109,10 +1121,10 @@ Vue.component('gc-chart', {
       }
     },
     eos: {
-      get: function() {
+      get: function () {
         let result = [];
         for (var i = 0; i < this.phenology.length; i++) {
-          result.push(this.phenology[i].marker.filter(m=>m.name == "end of season")[0].date);
+          result.push(this.phenology[i].marker.filter(m => m.name == "end of season")[0].date);
         }
         console.debug(result);
         return result;
@@ -1122,32 +1134,32 @@ Vue.component('gc-chart', {
       }
     },
     simRadius: {
-      get: function() {
+      get: function () {
         return this.gcSimRadius;
       }
     },
     simReferences: {
-      get: function() {
+      get: function () {
         return this.gcSimReferences;
       }
     },
     simInterval: {
-      get: function() {
+      get: function () {
         return this.gcSimInterval;
       }
     },
     simEntity: {
-      get: function() {
+      get: function () {
         return this.gcSimEntity;
       }
     },
     simCrop: {
-      get: function() {
+      get: function () {
         return this.gcSimCrop;
       }
     },
     simVerification: {
-      get: function() {
+      get: function () {
         return this.gcSimVerification;
       }
     }
@@ -1191,9 +1203,9 @@ Vue.component('gc-chart', {
     this.$root.$on("containerSizeChange", this.containerSizeChange);
 
     // init hidden stats  
-    let allStats = ["mean","min","max","std.dev.","marker","means2","meanl8"];
-    allStats.forEach( function(item) {
-      if (!this.availableStats.includes(item)){
+    let allStats = ["mean", "min", "max", "std.dev.", "marker", "means2", "meanl8"];
+    allStats.forEach(function (item) {
+      if (!this.availableStats.includes(item)) {
         this.hiddenStats.push(item);
         if (item === "mean") {
           this.hiddenStats.push("means2");
@@ -1205,7 +1217,17 @@ Vue.component('gc-chart', {
 
     // overwrite statisticsMany
     if (this.mode == "many-indices") {
-      this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
+      this.statisticsMany = {
+        vitality: [],
+        ndvi: [],
+        ndre1: [],
+        ndre2: [],
+        ndwi: [],
+        savi: [],
+        evi2: [],
+        cire: [],
+        npcri: []
+      };
     }
     if (this.mode == "many-parcels") {
       this.statisticsMany = [];
@@ -1221,35 +1243,37 @@ Vue.component('gc-chart', {
 
     // generate empty chart
     this.chart = bb.generate({
-      bindto: '#chart_'+this.gcWidgetId,
+      bindto: '#chart_' + this.gcWidgetId,
       data: {
         x: 'x',
         columns: [],
         empty: {
           label: {
-              text: this.$t("chart.no_data_msg")
+            text: this.$t("chart.no_data_msg")
           }
         },
       },
       grid: {
         x: {
-            show: true
+          show: true
         },
         y: {
-            show: true
+          show: true
         }
       },
       axis: {
         x: {
-            type: 'timeseries',
-            tick: {
-                fit: false,
-                format: "%e %b %y"
-            }
+          type: 'timeseries',
+          tick: {
+            fit: false,
+            format: "%e %b %y"
+          }
         },
         y: {
-            label: { text: '',
-                    position: 'outer-top'}
+          label: {
+            text: '',
+            position: 'outer-top'
+          }
         }
       }
     });
@@ -1265,21 +1289,20 @@ Vue.component('gc-chart', {
     //   .style("background-position-x", "100%")
     //   .style("background-position-y", "85%")
     // ;
-    
+
     // initial loading data
     if (this.currentParcelID > 0) {
       this.getAllParcels(this.currentParcelID, this.offset, this.filterString);
-    }
-    else {
+    } else {
       if (this.gcInitialLoading === true) {
         this.getAllParcels(undefined, this.offset, this.filterString);
       }
     }
-  
+
   },
   watch: {
     chartFromDate: function (newValue, oldValue) {
-            
+
       console.debug("event - chartFromDateChange");
 
       if (this.isDateValid(newValue)) {
@@ -1289,16 +1312,14 @@ Vue.component('gc-chart', {
             // if (new Date(newValue).getTime() < new Date(this.chartToDate).getTime()) {  
             //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
             // }
-          }
-          else {
+          } else {
             // revert date to old
             // this.chartFromDate = oldValue;
             // or clear date
             this.chartFromDate = undefined;
           }
         }
-      }
-      else {
+      } else {
         // revert date to old
         // this.chartFromDate = oldValue;
         // or clear date
@@ -1307,35 +1328,33 @@ Vue.component('gc-chart', {
     },
     chartToDate: function (newValue, oldValue) {
 
-        console.debug("event - chartToDateChange");
-        if (this.isDateValid(newValue)) {
-          // special case: chartFromDate may be undefined
-          if (this.chartFromDate !== undefined) {
-            if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-              // if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {  
-              //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
-              // }
-            }
-            else {
-              // revert date to old
-              // this.chartToDate = oldValue;
-              // or clear date
-              this.chartToDate = undefined;
-            }
+      console.debug("event - chartToDateChange");
+      if (this.isDateValid(newValue)) {
+        // special case: chartFromDate may be undefined
+        if (this.chartFromDate !== undefined) {
+          if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
+            // if (new Date(newValue).getTime() > new Date(this.chartFromDate).getTime()) {  
+            //   this.chart.zoom([this.chartFromDate, this.chartToDate]);
+            // }
+          } else {
+            // revert date to old
+            // this.chartToDate = oldValue;
+            // or clear date
+            this.chartToDate = undefined;
           }
         }
-        else {
-          // revert date to old
-          // this.chartToDate = oldValue;
-          // or clear date
-          this.chartToDate = undefined;
-        }
+      } else {
+        // revert date to old
+        // this.chartToDate = oldValue;
+        // or clear date
+        this.chartToDate = undefined;
+      }
     },
     internalZoomDomain: function (newValue, oldValue) {
       /* zooms at once for change in chartFrom & chartTo date */
       console.debug("event - internalZoomDomain");
       // check for valid domain (fromDate < toDate)
-      if (new Date(newValue[0]).getTime() < new Date(newValue[1]).getTime()) {  
+      if (new Date(newValue[0]).getTime() < new Date(newValue[1]).getTime()) {
         this.chart.zoom(newValue);
         // notify root also
         this.$root.$emit('zoomDomainChange', newValue);
@@ -1356,9 +1375,9 @@ Vue.component('gc-chart', {
               // only load stats if product is not visible
               if (newValue != 'visible') {
                 this.getParcelsProductData(this.getCurrentParcel().parcel_id, this.selectedProduct, this.dataSource);
-            
+
                 //if (document.getElementById("chkChartHideMarker_"+this.gcWidgetId).checked) {
-                  //this.getMarkers(this.getCurrentParcel().parcel_id);
+                //this.getMarkers(this.getCurrentParcel().parcel_id);
                 //}
                 // else {
                 //   this.sn_markers = {};
@@ -1425,9 +1444,9 @@ Vue.component('gc-chart', {
       }
     },
     dataSource: function (newValue, oldValue) {
-            
+
       console.debug("event - dataSourceChange");
-      
+
       if (this.parcels.length > 0) {
         this.refreshData();
       }
@@ -1437,7 +1456,7 @@ Vue.component('gc-chart', {
 
       console.debug("event - currentParcelIDChange");
       //only for certain modes refresh
-      if (this.mode == "one-index" || this.mode == "many-indices") {      
+      if (this.mode == "one-index" || this.mode == "many-indices") {
         this.isloading = true;
         this.handleCurrentParcelIDchange(newValue, oldValue);
       }
@@ -1457,15 +1476,14 @@ Vue.component('gc-chart', {
               this.getIndexStats(parcel_id, this.dataSource, this.selectedProduct);
           }
         }
-      }
-      else
+      } else
         this.chart.unload();
 
     },
     statistics: function (newValue, oldValue) {
 
       console.debug("event - statisticsChange");
-      
+
       //this.isloading = true;
 
       // create chart from values, if they change
@@ -1474,111 +1492,113 @@ Vue.component('gc-chart', {
       try {
         // save first & last of time series
         this.minDate = new Date(newValue[0].date);
-        this.maxDate = new Date(newValue[newValue.length-1].date);
+        this.maxDate = new Date(newValue[newValue.length - 1].date);
 
         // only if gcZoomStartdate is not set!
         if (this.gcZoomStartdate === "") {
-            this.chartFromDate = this.minDate.simpleDate();
+          this.chartFromDate = this.minDate.simpleDate();
         }
         // only if gcZoomEnddate is not set!
         if (this.gcZoomEnddate === "") {
-            this.chartToDate = this.maxDate.simpleDate();
+          this.chartToDate = this.maxDate.simpleDate();
         }
 
-      } catch (ex)
-      {
+      } catch (ex) {
         console.warn(ex);
       }
-    },  
+    },
     statisticsMany: {
       handler: function (newValue, oldValue) {
 
-          console.debug("event - statisticsManyChange");
+        console.debug("event - statisticsManyChange");
 
-          //this.isloading = true;
+        //this.isloading = true;
 
-          // create chart from values, if they change
-          this.createChartData();
+        // create chart from values, if they change
+        this.createChartData();
 
-          if (this.mode == "many-indices") {
-            // only if there are values
-            if (newValue[this.availableProducts[0]][0]) {
-              // only if gcZoomStartdate is not set!
-              if (this.gcZoomStartdate === "")
-                this.chartFromDate = newValue[this.availableProducts[0]][0].date; // set to the first date of the first product
-              // only if gcZoomEnddate is not set!
-              if (this.gcZoomEnddate === "")
-                this.chartToDate = newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length-1].date; // set to the last date of the first product
-            }
-            if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
-              //update min/max date for date selector: first and last item of timeseries
-              // take the timeseries of the first available product
-              try {
-                let minDate = new Date(newValue[this.availableProducts[0]][0].date);
-                let maxDate = new Date(newValue[newValue.length-1].date);
-
-                // save overall min & max Date
-                this.minDate = minDate;
-                this.maxDate = maxDate;
-                
-              }
-              catch (ex) { console.warn("Error getting values of statistics in many-indices mode."); }
-            }
+        if (this.mode == "many-indices") {
+          // only if there are values
+          if (newValue[this.availableProducts[0]][0]) {
+            // only if gcZoomStartdate is not set!
+            if (this.gcZoomStartdate === "")
+              this.chartFromDate = newValue[this.availableProducts[0]][0].date; // set to the first date of the first product
+            // only if gcZoomEnddate is not set!
+            if (this.gcZoomEnddate === "")
+              this.chartToDate = newValue[this.availableProducts[0]][newValue[this.availableProducts[0]].length - 1].date; // set to the last date of the first product
           }
-
-          if (this.mode == "many-parcels") {
-            // get min & max of all parcels for selected product
-            // initial values of first parcel
+          if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
+            //update min/max date for date selector: first and last item of timeseries
+            // take the timeseries of the first available product
             try {
-              let minDate = new Date();
-              let maxDate = new Date();
-              for(let i=0; i< this.selectedParcelIds.length; i++) {
-                
-                const statsElement = newValue[i];
-                if (statsElement === undefined)
-                  continue; 
-                const timeseries = statsElement[this.selectedProduct];
-                if (timeseries.length === 0)
-                  continue;
+              let minDate = new Date(newValue[this.availableProducts[0]][0].date);
+              let maxDate = new Date(newValue[newValue.length - 1].date);
 
-                let testMinDate = new Date(timeseries[0].date);
-                if (testMinDate < minDate) {
-                  minDate = testMinDate;
-                }
-                let testMaxDate = new Date(timeseries[timeseries.length-1].date);
-                if (testMaxDate > maxDate) {
-                  maxDate = testMaxDate;
-                }
-              }
               // save overall min & max Date
               this.minDate = minDate;
               this.maxDate = maxDate;
 
-              // only if gcZoomStartdate is not set!
-              if (this.gcZoomStartdate === "") {
-                  this.chartFromDate = this.minDate.simpleDate();
+            } catch (ex) {
+              console.warn("Error getting values of statistics in many-indices mode.");
+            }
+          }
+        }
+
+        if (this.mode == "many-parcels") {
+          // get min & max of all parcels for selected product
+          // initial values of first parcel
+          try {
+            let minDate = new Date();
+            let maxDate = new Date();
+            for (let i = 0; i < this.selectedParcelIds.length; i++) {
+
+              const statsElement = newValue[i];
+              if (statsElement === undefined)
+                continue;
+              const timeseries = statsElement[this.selectedProduct];
+              if (timeseries.length === 0)
+                continue;
+
+              let testMinDate = new Date(timeseries[0].date);
+              if (testMinDate < minDate) {
+                minDate = testMinDate;
               }
-              // only if gcZoomEnddate is not set!
-              if (this.gcZoomEnddate === "") {
-                  this.chartToDate = this.maxDate.simpleDate();
+              let testMaxDate = new Date(timeseries[timeseries.length - 1].date);
+              if (testMaxDate > maxDate) {
+                maxDate = testMaxDate;
               }
             }
-            catch (ex) { console.warn("Error getting values of statisticsMany in many-parcels mode."); console.error(ex);}
-          }
+            // save overall min & max Date
+            this.minDate = minDate;
+            this.maxDate = maxDate;
 
-          // // zoom in any case on valid date
-          // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
-          //   //this.chart.zoom([this.chartFromDate, this.chartToDate]);
-          //   this.chart.zoom(this.internalZoomDomain);
-          // }
+            // only if gcZoomStartdate is not set!
+            if (this.gcZoomStartdate === "") {
+              this.chartFromDate = this.minDate.simpleDate();
+            }
+            // only if gcZoomEnddate is not set!
+            if (this.gcZoomEnddate === "") {
+              this.chartToDate = this.maxDate.simpleDate();
+            }
+          } catch (ex) {
+            console.warn("Error getting values of statisticsMany in many-parcels mode.");
+            console.error(ex);
+          }
+        }
+
+        // // zoom in any case on valid date
+        // if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate)) {
+        //   //this.chart.zoom([this.chartFromDate, this.chartToDate]);
+        //   this.chart.zoom(this.internalZoomDomain);
+        // }
       },
       deep: true //important for watching theses changes!
     },
     hiddenStats: function (newValue, oldValue) {
-      
+
       // reset first
       let visibleStats = [];
-      for (let i=0;i<this.availableStats.length; i++) {
+      for (let i = 0; i < this.availableStats.length; i++) {
         if (!(this.hiddenStats.includes(this.availableStats[i]))) {
           visibleStats.push(this.availableStats[i]);
         }
@@ -1597,17 +1617,17 @@ Vue.component('gc-chart', {
     },
     selectedMarkerType: function (newValue, oldValue) {
       if (newValue != oldValue) {
-          console.debug("event - selectedMarkerTypeChange");
+        console.debug("event - selectedMarkerTypeChange");
 
-          if (this.selectedMarkerType == "sn_marker") {
-              //this.getMarkers(this.getCurrentParcel().parcel_id);
-          }
-          //switch between phenology and SN marker
-          if (this.selectedMarkerType == "phenology") {
-            this.getPhenology();
-          }
-          // create chart from values, if they change
-          this.createChartData();
+        if (this.selectedMarkerType == "sn_marker") {
+          //this.getMarkers(this.getCurrentParcel().parcel_id);
+        }
+        //switch between phenology and SN marker
+        if (this.selectedMarkerType == "phenology") {
+          this.getPhenology();
+        }
+        // create chart from values, if they change
+        this.createChartData();
       }
     },
     gcCurrentParcelId: function (newValue, oldValue) {
@@ -1628,8 +1648,7 @@ Vue.component('gc-chart', {
         if (this.isDateValid(this.chartFromDate) && this.isDateValid(this.chartToDate))
           //this.chart.zoom([this.chartFromDate, this.chartToDate]);
           this.chart.zoom(this.internalZoomDomain);
-      } 
-      catch (ex) {}
+      } catch (ex) {}
       //reset date pickers
       this.initDatePickers();
     },
@@ -1662,19 +1681,18 @@ Vue.component('gc-chart', {
           }
         }
         // console.debug(this.statistics);
-        const exactDate = this.getClosestDate(this.statistics.map(d => new Date(d.date)), 
-                                                new Date(newValue));
+        const exactDate = this.getClosestDate(this.statistics.map(d => new Date(d.date)),
+          new Date(newValue));
         let alreadySelected = false;
         if (this.internalQuerydate.hasOwnProperty(this.selectedChartId)) {
           alreadySelected = this.internalQuerydate[this.selectedChartId].simpleDate() === exactDate.simpleDate();
         }
         // console.debug(alreadySelected);
         if (alreadySelected === true) {
-            console.debug(this.selectedChartId + " already has date "+ exactDate.simpleDate()
-                        + " selected. Checking next one..");
-            return;
-        }
-        else {
+          console.debug(this.selectedChartId + " already has date " + exactDate.simpleDate() +
+            " selected. Checking next one..");
+          return;
+        } else {
           let index = this.getClosestTimeSeriesIndex(this.statistics, newValue);
           // reset selection of other selection points -> true
           this.chart.select(this.selectedChartId, [index], true);
@@ -1685,8 +1703,8 @@ Vue.component('gc-chart', {
         for (var i = 0; i < this.availableProducts.length; i++) {
           let product = this.availableProducts[i];
 
-          const exactDate = this.getClosestDate(this.statisticsMany[product].map(d => new Date(d.date)), 
-                                                new Date(newValue));
+          const exactDate = this.getClosestDate(this.statisticsMany[product].map(d => new Date(d.date)),
+            new Date(newValue));
 
           let alreadySelected = false;
           if (this.internalQuerydate.hasOwnProperty(product)) {
@@ -1694,11 +1712,10 @@ Vue.component('gc-chart', {
           }
           // console.debug(alreadySelected);
           if (alreadySelected === true) {
-              console.debug(product + " already has date "+ exactDate.simpleDate()
-                          + " selected. Checking next one..");
-              continue;
-          }
-          else {
+            console.debug(product + " already has date " + exactDate.simpleDate() +
+              " selected. Checking next one..");
+            continue;
+          } else {
             let index = this.getClosestTimeSeriesIndex(this.statisticsMany[product], newValue);
             // unselect on this product only
             this.chart.unselect(product);
@@ -1713,27 +1730,26 @@ Vue.component('gc-chart', {
         for (var i = 0; i < this.selectedParcelIds.length; i++) {
           let parcel_id = this.selectedParcelIds[i];
           //console.debug(parcel_id);
-          let p = this.statisticsMany.find(p=>p.parcel_id == parcel_id)
+          let p = this.statisticsMany.find(p => p.parcel_id == parcel_id)
           //console.debug(p);
-          const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)), 
-                                                new Date(newValue));
+          const exactDate = this.getClosestDate(p[this.selectedProduct].map(d => new Date(d.date)),
+            new Date(newValue));
 
           let alreadySelected = false;
-          if (this.internalQuerydate.hasOwnProperty(parcel_id+"")) {
-            alreadySelected = this.internalQuerydate[parcel_id+""].simpleDate() === exactDate.simpleDate();
+          if (this.internalQuerydate.hasOwnProperty(parcel_id + "")) {
+            alreadySelected = this.internalQuerydate[parcel_id + ""].simpleDate() === exactDate.simpleDate();
           }
           // console.debug(alreadySelected);
           if (alreadySelected === true) {
-              console.debug("parcel " +parcel_id + " already has date "+ exactDate.simpleDate()
-                          + " selected. Checking next one..");
-              continue;
-            }
-          else {
+            console.debug("parcel " + parcel_id + " already has date " + exactDate.simpleDate() +
+              " selected. Checking next one..");
+            continue;
+          } else {
             let index = this.getClosestTimeSeriesIndex(p[this.selectedProduct], newValue);
             // unselect on this parcel only
-            this.chart.unselect(parcel_id+"");
+            this.chart.unselect(parcel_id + "");
             // do not change the selection of other selection points on other parcels-> false
-            this.chart.select(parcel_id+"", [index], false);
+            this.chart.select(parcel_id + "", [index], false);
           }
         }
       }
@@ -1741,7 +1757,17 @@ Vue.component('gc-chart', {
     mode(newValue, oldValue) {
       //re init because mode has changed!
       if (this.mode == "many-indices") {
-        this.statisticsMany = {vitality: [], ndvi: [], ndre1: [], ndre2: [], ndwi: [], savi: [], evi2: [], cire: [], npcri: [] };
+        this.statisticsMany = {
+          vitality: [],
+          ndvi: [],
+          ndre1: [],
+          ndre2: [],
+          ndwi: [],
+          savi: [],
+          evi2: [],
+          cire: [],
+          npcri: []
+        };
       }
       if (this.mode == "many-parcels") {
         this.statisticsMany = [];
@@ -1756,7 +1782,7 @@ Vue.component('gc-chart', {
         this.refreshData();
       }
     },
-    minDate (newValue, oldValue) {
+    minDate(newValue, oldValue) {
       if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
         // console.debug(newValue);
         // update min/max date for date selector
@@ -1764,14 +1790,14 @@ Vue.component('gc-chart', {
         this.inpFilterDateToPicker.options["minDate"] = newValue;
       }
     },
-    maxDate (newValue, oldValue) {
+    maxDate(newValue, oldValue) {
       if (this.inpFilterDateFromPicker && this.inpFilterDateToPicker) {
         // update min/max date for date selector
         this.inpFilterDateFromPicker.options["maxDate"] = newValue;
         this.inpFilterDateToPicker.options["maxDate"] = newValue;
       }
     },
-    cloudFilter (newValue, oldValue){
+    cloudFilter(newValue, oldValue) {
 
       if (this.parcels.length > 0) {
         this.chart.unload();
@@ -1811,15 +1837,15 @@ Vue.component('gc-chart', {
       this.getAllParcels(undefined, this.offset, this.filterString);
       // }
     },
-    offset(newValue,oldValue) {
+    offset(newValue, oldValue) {
       //fetch next batch of parcels
       this.getAllParcels(undefined, newValue, this.filterString);
     },
-    phenology (newValue, oldValue) {
+    phenology(newValue, oldValue) {
       // redraw chart
       this.createChartData();
     },
-    similarity (newValue, oldValue) {
+    similarity(newValue, oldValue) {
       // redraw chart
       this.createChartData();
     },
@@ -1844,13 +1870,13 @@ Vue.component('gc-chart', {
       // if (this.apiEncodeParams) {
       //   endpoint = encodeURIComponent(endpoint);
       // }
-      
+
       // with or without apikey depending on gcProxy property
-      return (this.gcProxy ? 
-                protocol + '://' + this.gcProxy + this.apiBaseUrl + endpoint  : 
-                protocol + '://' + this.gcHost + this.apiBaseUrl + endpoint + "?key="+this.apiKey);
+      return (this.gcProxy ?
+        protocol + '://' + this.gcProxy + this.apiBaseUrl + endpoint :
+        protocol + '://' + this.gcHost + this.apiBaseUrl + endpoint + "?key=" + this.apiKey);
     },
-    getAllParcels: function(parcel_id, offset, filterString) {
+    getAllParcels: function (parcel_id, offset, filterString) {
 
       // show spinner
       this.isloading = true;
@@ -1859,102 +1885,96 @@ Vue.component('gc-chart', {
       let limit = this.limit; //this.pagingStep;
 
       const endpoint = "/parcels";
-      let params = "&limit="+limit; //set limit to maximum (default 1000)
-  
+      let params = "&limit=" + limit; //set limit to maximum (default 1000)
+
       if (offset) {
-          params = params + "&offset=" +offset;
+        params = params + "&offset=" + offset;
       }
       if (filterString) {
-          params = params + filterString;
+        params = params + filterString;
       }
-  
+
       let xmlHttp = new XMLHttpRequest();
       let async = true;
-      
+
       //Show requests on the DEBUG console for developers
       console.debug("getAllParcels()");
       console.debug("GET " + this.getApiUrl(endpoint) + params);
-  
-      xmlHttp.onreadystatechange=function()
-      {
-          if (xmlHttp.readyState==4)
-          {
-              var tmp  = JSON.parse(xmlHttp.responseText);
-              if (xmlHttp.status != 200) {
-                if (tmp.detail == "key is not authorized") {
-                  // show message, hide spinner, don't show chart
-                  this.api_err_msg = 'status_msg.unauthorized_key';
-                  this.isloading = false;
-                  return;
-                }
-                if (tmp.detail == "api key validity expired") {
-                  // show message, hide spinner, don't show chart
-                  this.api_err_msg = 'status_msg.invalid_key';
-                  this.isloading = false;
-                  return;
-                }
-                if (xmlHttp.status == 403) {
-                  // show message, hide spinner, don't show map
-                  this.api_err_msg = 'status_msg.missing_permissions';
-                  this.isloading = false;
-                  return;
-                }
-              } 
-              else {
-  
-                this.parcels = [];
-    
-                if (tmp.content.length == 0) {
-                    // show empty chart with no data msg
-                    this.createChartData();
-                    return;
-                }
-    
-                for (var i = 0; i < tmp.content.length; i++) {
-                    var item = tmp.content[i];
-                    this.parcels.push( item );
-                }
-  
-                try {
-                  if (this.mode == "one-index" || this.mode == "many-indices") {
-                    // if parcel_id was given as an argument to the function
-                    // set this value as currentParcelID
-                    if (parcel_id)  {
-                        this.currentParcelID = parcel_id;
-                        //console.debug("setting "+ parcel_id +" parcel id as current!");
-                        // hack needed to call the change explicitely if the filter includes the first element
-                        // of previously unfiltered parcels!
-                        // 1=1 -> no change in watch of vuejs
-                        this.handleCurrentParcelIDchange(-1, this.currentParcelID);
-                    }
-                    else {
-    
-                        console.debug("setting first parcel as current!");
-    
-                        this.currentParcelID = this.parcels[0].parcel_id;
-                        console.debug("currentParcelID: "+ this.currentParcelID);
-  
-                        // hack needed to call the change explicitely if the filter includes the first element
-                        // of previously unfiltered parcels!
-                        // 1=1 -> no change in watch of vuejs
-                        if (this.currentParcelID == this.parcels[0].parcel_id) {
-                            this.handleCurrentParcelIDchange(-1, this.parcels[0].parcel_id);
-                        }
-    
-                        console.debug("currentParcelID: "+ this.currentParcelID);
-                    }
-                  }
-                  else { 
-                    this.handleCurrentParcelIDchange();
-                  }
-                }
-                catch (err) {
-                    console.debug("error selecting parcel_id");
-                    console.debug(err);
-                }
-              }
 
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+          var tmp = JSON.parse(xmlHttp.responseText);
+          if (xmlHttp.status != 200) {
+            if (tmp.detail == "key is not authorized") {
+              // show message, hide spinner, don't show chart
+              this.api_err_msg = 'status_msg.unauthorized_key';
+              this.isloading = false;
+              return;
+            }
+            if (tmp.detail == "api key validity expired") {
+              // show message, hide spinner, don't show chart
+              this.api_err_msg = 'status_msg.invalid_key';
+              this.isloading = false;
+              return;
+            }
+            if (xmlHttp.status == 403) {
+              // show message, hide spinner, don't show map
+              this.api_err_msg = 'status_msg.missing_permissions';
+              this.isloading = false;
+              return;
+            }
+          } else {
+
+            this.parcels = [];
+
+            if (tmp.content.length == 0) {
+              // show empty chart with no data msg
+              this.createChartData();
+              return;
+            }
+
+            for (var i = 0; i < tmp.content.length; i++) {
+              var item = tmp.content[i];
+              this.parcels.push(item);
+            }
+
+            try {
+              if (this.mode == "one-index" || this.mode == "many-indices") {
+                // if parcel_id was given as an argument to the function
+                // set this value as currentParcelID
+                if (parcel_id) {
+                  this.currentParcelID = parcel_id;
+                  //console.debug("setting "+ parcel_id +" parcel id as current!");
+                  // hack needed to call the change explicitely if the filter includes the first element
+                  // of previously unfiltered parcels!
+                  // 1=1 -> no change in watch of vuejs
+                  this.handleCurrentParcelIDchange(-1, this.currentParcelID);
+                } else {
+
+                  console.debug("setting first parcel as current!");
+
+                  this.currentParcelID = this.parcels[0].parcel_id;
+                  console.debug("currentParcelID: " + this.currentParcelID);
+
+                  // hack needed to call the change explicitely if the filter includes the first element
+                  // of previously unfiltered parcels!
+                  // 1=1 -> no change in watch of vuejs
+                  if (this.currentParcelID == this.parcels[0].parcel_id) {
+                    this.handleCurrentParcelIDchange(-1, this.parcels[0].parcel_id);
+                  }
+
+                  console.debug("currentParcelID: " + this.currentParcelID);
+                }
+              } else {
+                this.handleCurrentParcelIDchange();
+              }
+            } catch (err) {
+              console.debug("error selecting parcel_id");
+              console.debug(err);
+            }
           }
+
+        }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
@@ -1968,11 +1988,10 @@ Vue.component('gc-chart', {
       if (this.currentParcelID > 0) {
         if (this.selectedMarkerType == "sn_marker") {
           //this.getMarkers(this.getCurrentParcel().parcel_id);
-        }
-        else {
+        } else {
           this.sn_markers = {};
         }
-      
+
         //reset phenology because it depends on date entries of parcels
         this.phenology = [];
 
@@ -1989,9 +2008,8 @@ Vue.component('gc-chart', {
             for (var i = 0; i < this.availableProducts.length; i++) {
               this.getIndexStats(currentParcel.parcel_id, this.dataSource, this.availableProducts[i]);
             }
-          } 
-        }
-        else {
+          }
+        } else {
           this.api_err_msg = "status_msg.parcel_id_not_found";
           this.isloading = false;
           return;
@@ -2017,20 +2035,19 @@ Vue.component('gc-chart', {
       let params;
 
       if (this.apiMajorVersion == 3) {
-        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-        "&order=date&statistics=true";
+        params = "&source=" + source + //landsat8 | sentinel2 | <empty string>
+          "&order=date&statistics=true";
       }
       // no empty params for API v4!
       if (this.apiMajorVersion == 4) {
         if (["ndre1", "ndre2", "cire"].includes(product)) {
           source = "sentinel2" // always sentinel2 for red edge indices
-        }
-        else {
+        } else {
           if (source.length == 0) {
             source = "combined"
           }
         }
-        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
+        params = "&source=" + source + //landsat8 | sentinel2 | <empty string>
           "&order=date&statistics=true";
       }
 
@@ -2057,16 +2074,16 @@ Vue.component('gc-chart', {
           let row = this.getCurrentParcel();
 
           // if (tmp.content.length > 0) {
-            // add new attributes via Vue.set
+          // add new attributes via Vue.set
 
-            // one parcel can have 1-n rasters of the same product (time series!)
-            // add all rasters (=time series)
-            Vue.set(row, "timeSeries", tmp.content); //url + tmp.content[0].png + "?key=" + key);
+          // one parcel can have 1-n rasters of the same product (time series!)
+          // add all rasters (=time series)
+          Vue.set(row, "timeSeries", tmp.content); //url + tmp.content[0].png + "?key=" + key);
           // }
           // else {
           // // show empty chart with no data msg
-            // this.createChartData();
-            // this.isloading = false;
+          // this.createChartData();
+          // this.isloading = false;
           // }
 
         }
@@ -2090,7 +2107,7 @@ Vue.component('gc-chart', {
         return this.parcels.filter(p => p.parcel_id + "" == parcel_id + "")[0];
       }
     },
-    getIndexStats: function(parcel_id, source, product) {
+    getIndexStats: function (parcel_id, source, product) {
 
       this.isloading = true; // hide chart with this boolean
       this.api_err_msg = ""; // empty api messages
@@ -2098,107 +2115,105 @@ Vue.component('gc-chart', {
       this.watermark_msg = "";
 
       let productName = product;
-  
+
       // may happen on selected product visible and change to another parcel
       if (productName == "visible") {
-          // so local product name to vitality so it fetches NDVI stats
-          productName = "vitality";
+        // so local product name to vitality so it fetches NDVI stats
+        productName = "vitality";
       }
-      
+
       const endpoint = "/parcels/" + parcel_id + "/" + productName;
 
       let params;
       if (this.apiMajorVersion == 3) {
-        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-        "&order=date&statistics=true" + "&cloud_filter="+ this.cloudFilter;
+        params = "&source=" + source + //landsat8 | sentinel2 | <empty string>
+          "&order=date&statistics=true" + "&cloud_filter=" + this.cloudFilter;
       }
       // no empty params for API v4!
       if (this.apiMajorVersion == 4) {
         if (["ndre1", "ndre2", "cire"].includes(product)) {
           source = "sentinel2" // always sentinel2 for red edge indices
-        }
-        else {
+        } else {
           if (source.length == 0) {
             source = "combined"
           }
         }
-        params = "&source="+ source + //landsat8 | sentinel2 | <empty string>
-          "&order=date&statistics=true"+ "&cloud_filter="+ this.cloudFilter;
+        params = "&source=" + source + //landsat8 | sentinel2 | <empty string>
+          "&order=date&statistics=true" + "&cloud_filter=" + this.cloudFilter;
       }
 
-  
+
       let xmlHttp = new XMLHttpRequest();
       let async = true;
-  
+
       //Show requests on the DEBUG console for developers
       console.debug("getIndexStats()");
       console.debug("GET " + this.getApiUrl(endpoint) + params);
-  
+
       //clear chart
       this.chart.unload();
-  
-      xmlHttp.onreadystatechange=function()
-      {
-          if (xmlHttp.readyState==4)
-          {
 
-            if (xmlHttp.status == 403) {
-              // show watermark on widget
-              this.watermark_msg = 'status_msg.missing_permissions';
-              this.isloading = false;
-              return;
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+
+          if (xmlHttp.status == 403) {
+            // show watermark on widget
+            this.watermark_msg = 'status_msg.missing_permissions';
+            this.isloading = false;
+            return;
+          }
+
+          //console.log(xmlHttp.responseText);
+          var tmp = JSON.parse(xmlHttp.responseText);
+          var row = this.getParcel(parcel_id);
+
+          // note that even an empty reponse will work in the following lines
+          // just producing empty arrays
+
+          // which one is active stats or phenology?
+          this.currentGraphContent = "statistics";
+
+          // only chart data is necessary here
+          if (this.mode == "one-index") {
+            this.statistics = tmp.content;
+          }
+          if (this.mode == "many-parcels") {
+
+            let parcel = this.statisticsMany.find(p => parseInt(p.parcel_id) == parseInt(parcel_id));
+
+            if (parcel) {
+
+              let idx = this.statisticsMany.indexOf(parcel);
+              parcel[productName] = tmp.content;
+              // existent -> update with new product
+              this.statisticsMany.splice(idx, 1, parcel);
+            } else {
+              //console.debug("before insert - this.statisticsMany.length: " +this.statisticsMany.length);
+              //console.debug("parcel_id: " +parcel_id);
+              parcel = {
+                "parcel_id": parseInt(parcel_id)
+              };
+              parcel[productName] = tmp.content;
+              //new -> insert
+              this.statisticsMany.push(parcel);
+              //console.debug("after insert - this.statisticsMany.length: " +this.statisticsMany.length);
             }
+          }
+          if (this.mode == "many-indices") {
+            this.statisticsMany[productName] = tmp.content;
+          }
 
-            //console.log(xmlHttp.responseText);
-            var tmp  = JSON.parse(xmlHttp.responseText);
-            var row = this.getParcel(parcel_id);
-            
-            // note that even an empty reponse will work in the following lines
-            // just producing empty arrays
-
-            // which one is active stats or phenology?
-            this.currentGraphContent = "statistics";
-
-            // only chart data is necessary here
-            if (this.mode == "one-index") {
-              this.statistics = tmp.content;
-            }
-            if (this.mode == "many-parcels") {
-
-              let parcel = this.statisticsMany.find(p=>parseInt(p.parcel_id) == parseInt(parcel_id));
-
-              if (parcel) {
-
-                let idx = this.statisticsMany.indexOf(parcel);
-                parcel[productName] = tmp.content;
-                // existent -> update with new product
-                this.statisticsMany.splice(idx, 1, parcel);
-              }
-              else {
-                //console.debug("before insert - this.statisticsMany.length: " +this.statisticsMany.length);
-                //console.debug("parcel_id: " +parcel_id);
-                parcel =  {"parcel_id": parseInt(parcel_id)};
-                parcel[productName] = tmp.content;
-                //new -> insert
-                this.statisticsMany.push(parcel);
-                //console.debug("after insert - this.statisticsMany.length: " +this.statisticsMany.length);
-              }
-            }
-            if (this.mode == "many-indices") {
-              this.statisticsMany[productName] = tmp.content;
-            }
-
-            // init datepickers now as the timeseries is ready
-            // load external Javascript file has to exists prior to this!
-            // should be handled in an init script
-            this.initDatePickers();
+          // init datepickers now as the timeseries is ready
+          // load external Javascript file has to exists prior to this!
+          // should be handled in an init script
+          this.initDatePickers();
         }
       }.bind(this);
 
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
-    getPhenology: function() {
+    getPhenology: function () {
 
       /* only available for API v4 */
       if (this.apiMajorVersion < 4) {
@@ -2211,53 +2226,51 @@ Vue.component('gc-chart', {
       // hide watermark message
       this.watermark_msg = "";
 
-      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";      
-      
-      let params = ""; 
+      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "phenology";
+
+      let params = "";
 
       if (this.gcPhStartdate)
-        params = params + "&startdate="+this.gcPhStartdate;
+        params = params + "&startdate=" + this.gcPhStartdate;
 
       if (this.gcPhEnddate)
-        params = params + "&enddate="+this.gcPhEnddate;
+        params = params + "&enddate=" + this.gcPhEnddate;
 
       console.debug("getPhenology()");
       console.debug("GET " + this.getApiUrl(endpoint));
-      
+
       let xmlHttp = new XMLHttpRequest();
       let async = true;
 
-      xmlHttp.onreadystatechange=function()
-      {
-          if (xmlHttp.readyState==4)
-          {
-            if (xmlHttp.status == 403) {
-              // show watermark on widget
-              this.watermark_msg = 'status_msg.missing_permissions';
-              this.isloading = false;
-              return;
-            }
-
-            var tmp  = JSON.parse(xmlHttp.responseText);            
-            
-            this.phenology = [];
-            for (var i = 0; i < tmp.content.length; i++) {
-                var item = tmp.content[i];
-                this.phenology.push( item );
-            }
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+          if (xmlHttp.status == 403) {
+            // show watermark on widget
+            this.watermark_msg = 'status_msg.missing_permissions';
+            this.isloading = false;
+            return;
           }
+
+          var tmp = JSON.parse(xmlHttp.responseText);
+
+          this.phenology = [];
+          for (var i = 0; i < tmp.content.length; i++) {
+            var item = tmp.content[i];
+            this.phenology.push(item);
+          }
+        }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
-      xmlHttp.send();      
+      xmlHttp.send();
     },
-    getSimilarity: function() {
+    getSimilarity: function () {
 
       /* only available for API v4 */
       if (this.apiMajorVersion < 4) {
         return;
       }
       this.isloading = true;
-      
+
       this.$root.$emit("resetPhenology");
       this.$root.$emit('resetSimilarity');
 
@@ -2265,65 +2278,63 @@ Vue.component('gc-chart', {
       // hide watermark message
       this.watermark_msg = "";
 
-      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "similarity";      
-      
-      let params = ""; 
-      params = "&radius=" + this.simRadius + 
-                "&entity=" + this.simEntity + 
-                "&crop=" + this.simCrop +
-                "&interval=" + this.simInterval +
-                "&references=" +this.simReferences
+      const endpoint = "/parcels/" + this.gcCurrentParcelId + "/" + "similarity";
+
+      let params = "";
+      params = "&radius=" + this.simRadius +
+        "&entity=" + this.simEntity +
+        "&crop=" + this.simCrop +
+        "&interval=" + this.simInterval +
+        "&references=" + this.simReferences
 
       if (this.gcSimStartdate)
-        params = params + "&startdate="+this.gcSimStartdate;
+        params = params + "&startdate=" + this.gcSimStartdate;
 
       if (this.gcSimEnddate)
-        params = params + "&enddate="+this.gcSimEnddate;
+        params = params + "&enddate=" + this.gcSimEnddate;
 
       if (this.gcSimVerification === true) {
-          params = params + "&classification=" + this.gcSimVerification;
+        params = params + "&classification=" + this.gcSimVerification;
       }
       console.debug("getSimilarity()");
       console.debug("GET " + this.getApiUrl(endpoint) + params);
-      
+
       let xmlHttp = new XMLHttpRequest();
       let async = true;
 
-      xmlHttp.onreadystatechange=function()
-      {
-          if (xmlHttp.readyState==4)
-          {
-            if (xmlHttp.status == 403) {
-              // show watermark on widget
-              this.watermark_msg = 'status_msg.missing_permissions';
-              this.isloading = false;
-              return;
-            }
-
-            var tmp  = JSON.parse(xmlHttp.responseText);            
-
-            if (xmlHttp.status == 200) {
-              tmp = tmp.content;
-
-              let classification = {};
-              if (tmp.classification) {
-                classification = tmp.classification;
-              }
-              this.similarity = {
-                "reference_timeseries" : tmp.reference_timeseries, 
-                "parcel_timeseries" : tmp.parcel_timeseries,
-                "similarity": tmp.similarity,
-                "classification": classification 
-              };
-              // which one is active
-              this.currentGraphContent = "similarity";
-            }
+      xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+          if (xmlHttp.status == 403) {
+            // show watermark on widget
+            this.watermark_msg = 'status_msg.missing_permissions';
+            this.isloading = false;
+            return;
           }
+
+          var tmp = JSON.parse(xmlHttp.responseText);
+
+          if (xmlHttp.status == 200) {
+            tmp = tmp.content;
+
+            let classification = {};
+            if (tmp.classification) {
+              classification = tmp.classification;
+            }
+            this.similarity = {
+              "reference_timeseries": tmp.reference_timeseries,
+              "parcel_timeseries": tmp.parcel_timeseries,
+              "similarity": tmp.similarity,
+              "classification": classification
+            };
+            // which one is active
+            this.currentGraphContent = "similarity";
+          }
+        }
       }.bind(this);
       xmlHttp.open("GET", this.getApiUrl(endpoint) + params, async);
       xmlHttp.send();
     },
-    createChartData: function() {
+    createChartData: function () {
       console.debug("createChartData()");
 
       let chartType = this.currentGraphContent;
@@ -2333,10 +2344,10 @@ Vue.component('gc-chart', {
         if (this.mode == "one-index") {
           if (this.statistics.length > 0) {
 
-            let filteredStats = this.statistics.filter(s=>s.statistics != null);                       
+            let filteredStats = this.statistics.filter(s => s.statistics != null);
 
             // map axis to values
-            columns[0] = ["x"].concat( filteredStats.map( r => r.date) );
+            columns[0] = ["x"].concat(filteredStats.map(r => r.date));
 
             // format values to 2 decimals
             let means = [];
@@ -2347,55 +2358,61 @@ Vue.component('gc-chart', {
             //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
             // }
             columns[1] = ["mean"].concat(means);
-            columns[2] = ["std.dev."].concat( filteredStats.map( r => this.formatDecimal(r.statistics.stddev, 3)));
-            columns[3] = ["min"].concat( filteredStats.map( r => this.formatDecimal(r.statistics.min, 3)));
-            columns[4] = ["max"].concat( filteredStats.map( r => this.formatDecimal(r.statistics.max, 3)));            
-            columns[5] = ["meanl8"].concat( filteredStats.map(function(r) { if (r.source === "landsat8") { 
-                                                                                    return this.formatDecimal(r.statistics.mean, 3); }
-                                                                                else { return null;} 
-                                                                    }.bind(this)));
-            columns[6] = ["means2"].concat( filteredStats.map(function(r) { if (r.source === "sentinel2") { 
-                                                                                    return this.formatDecimal(r.statistics.mean, 3); } 
-                                                                                else { return null;} 
-                                                                    }.bind(this)));
+            columns[2] = ["std.dev."].concat(filteredStats.map(r => this.formatDecimal(r.statistics.stddev, 3)));
+            columns[3] = ["min"].concat(filteredStats.map(r => this.formatDecimal(r.statistics.min, 3)));
+            columns[4] = ["max"].concat(filteredStats.map(r => this.formatDecimal(r.statistics.max, 3)));
+            columns[5] = ["meanl8"].concat(filteredStats.map(function (r) {
+              if (r.source === "landsat8") {
+                return this.formatDecimal(r.statistics.mean, 3);
+              } else {
+                return null;
+              }
+            }.bind(this)));
+            columns[6] = ["means2"].concat(filteredStats.map(function (r) {
+              if (r.source === "sentinel2") {
+                return this.formatDecimal(r.statistics.mean, 3);
+              } else {
+                return null;
+              }
+            }.bind(this)));
           }
         }
         if (this.mode == "many-indices") {
 
           // map x axis to values of first available product
-          columns[0] = ["x"].concat( this.statisticsMany[this.availableProducts[0]].map( r => r.date) );
-          
+          columns[0] = ["x"].concat(this.statisticsMany[this.availableProducts[0]].map(r => r.date));
+
           //console.debug("first x axis is "+this.availableProducts[0]);
 
           // API v3
           // vitality may have other dates than the dynamic indices (because of processing mode 'basic' vs 'reflectances') -> another x axis necessary
           // not true for API v4
           if (this.apiMajorVersion === 3) {
-            if (this.availableProducts.includes("vitality")){
-              columns[1] = ["x3"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
+            if (this.availableProducts.includes("vitality")) {
+              columns[1] = ["x3"].concat(this.statisticsMany["vitality"].filter(s => s.statistics != null).map(r => r.date));
             }
           }
           if (this.apiMajorVersion === 4) {
-            columns[1] = ["x"].concat( this.statisticsMany["vitality"].filter(s=>s.statistics != null).map( r => r.date) );
+            columns[1] = ["x"].concat(this.statisticsMany["vitality"].filter(s => s.statistics != null).map(r => r.date));
           }
 
           // APIv3 & API v4: 
           // TODO: mixed lengths of sentinel2/landsat8 if Red Edge Products are requested (NDRE1+2, CIRE)
           //
-          if (this.availableProducts.includes("ndre1")){
-            columns[1] = ["x4"].concat( this.statisticsMany["ndre1"].filter(s=>s.statistics != null).map( r => r.date) );
+          if (this.availableProducts.includes("ndre1")) {
+            columns[1] = ["x4"].concat(this.statisticsMany["ndre1"].filter(s => s.statistics != null).map(r => r.date));
           }
-          if (this.availableProducts.includes("ndre2")){
-            columns[1] = ["x4"].concat( this.statisticsMany["ndre2"].filter(s=>s.statistics != null).map( r => r.date) );
+          if (this.availableProducts.includes("ndre2")) {
+            columns[1] = ["x4"].concat(this.statisticsMany["ndre2"].filter(s => s.statistics != null).map(r => r.date));
           }
-          if (this.availableProducts.includes("cire")){
-            columns[1] = ["x4"].concat( this.statisticsMany["cire"].filter(s=>s.statistics != null).map( r => r.date) );
+          if (this.availableProducts.includes("cire")) {
+            columns[1] = ["x4"].concat(this.statisticsMany["cire"].filter(s => s.statistics != null).map(r => r.date));
           }
 
           // map y axis
-          for (var i=0; i < this.availableProducts.length; i++) {
+          for (var i = 0; i < this.availableProducts.length; i++) {
             const product = this.availableProducts[i];
-            const filteredStats = this.statisticsMany[product].filter(s=>s.statistics != null);
+            const filteredStats = this.statisticsMany[product].filter(s => s.statistics != null);
             //place the new column after the existing one(s)
 
             let means = [];
@@ -2406,7 +2423,7 @@ Vue.component('gc-chart', {
             // else {
             //   means = filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3));
             // }
-            columns[columns.length] = [product].concat( means );
+            columns[columns.length] = [product].concat(means);
           }
           // style:
           // columns[2] = ["ndvi"].concat( this.statisticsMany["ndvi"].map( r => this.formatDecimal(r.statistics.mean, 3)));
@@ -2438,7 +2455,7 @@ Vue.component('gc-chart', {
           if (this.statisticsMany.length > 0) {
 
             // create x axis for each parcel to map values index based y values to it
-            for (var i=0; i < this.selectedParcelIds.length; i++) {
+            for (var i = 0; i < this.selectedParcelIds.length; i++) {
               let parcel_id = this.selectedParcelIds[i];
               let idx = this.selectedParcelIds.indexOf(parcel_id);
               let parcel = this.statisticsMany.find(p => p.parcel_id == parcel_id);
@@ -2450,14 +2467,14 @@ Vue.component('gc-chart', {
                   //then the correct x axis may be mapped later in createChart()
 
                   //exclude null statistics
-                  let filteredStats = parcelStats.filter(s=>s.statistics != null);
-                  columns[idx] = ["x"+idx].concat( filteredStats.map( r => r.date) );
+                  let filteredStats = parcelStats.filter(s => s.statistics != null);
+                  columns[idx] = ["x" + idx].concat(filteredStats.map(r => r.date));
                 }
               }
             }
-            
+
             // fill columns with data (i.e. map y axis)
-            for (var i=0; i < this.selectedParcelIds.length; i++) {
+            for (var i = 0; i < this.selectedParcelIds.length; i++) {
               let parcel_id = this.selectedParcelIds[i];
               let parcel = this.statisticsMany.find(p => p.parcel_id == parcel_id);
 
@@ -2466,13 +2483,13 @@ Vue.component('gc-chart', {
                 if (parcelStats) {
                   //place the new column after the existing one(s)
                   //exclude null statistics
-                  const filteredStats = parcelStats.filter(s=>s.statistics != null);
+                  const filteredStats = parcelStats.filter(s => s.statistics != null);
 
                   // create errorBand
                   const means = this.createErrorBand(filteredStats);
 
                   //columns[columns.length] = [parcel_id].concat( filteredStats.map( r => this.formatDecimal(r.statistics.mean, 3)));
-                  columns[columns.length] = [parcel_id].concat( means );
+                  columns[columns.length] = [parcel_id].concat(means);
                 }
               }
             }
@@ -2483,31 +2500,31 @@ Vue.component('gc-chart', {
         if (this.selectedMarkerType == "phenology") {
           // only for many-indices & one-index at the moment
           if (this.mode !== "many-parcels") {
-            
+
             try {
               // TODO: check if we can merge all markers to one date array
               // columns[columns.length] = ["x5"].concat(this.sos, this.pos, this.eos);     
-              columns[columns.length] = ["x5"].concat(this.sos);            
-              columns[columns.length] = ["x6"].concat(this.pos);            
+              columns[columns.length] = ["x5"].concat(this.sos);
+              columns[columns.length] = ["x6"].concat(this.pos);
               columns[columns.length] = ["x7"].concat(this.eos);
 
               let max;
               let min;
 
               if (this.gcYScale === "dynamic") {
-                
+
                 // max computed from values & exclude null stats first!
-                let maxStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.max);
+                let maxStats = this.statistics.filter(r => r.statistics !== null).map(r => r.statistics.max);
                 max = Number.NEGATIVE_INFINITY;
-                for (let i = 0; i < maxStats.length; i++ ) {
+                for (let i = 0; i < maxStats.length; i++) {
                   if (maxStats[i] > max) {
                     max = maxStats[i];
                   }
                 }
                 // min computed from values & exclude null stats first!
-                let minStats = this.statistics.filter(r=>r.statistics !== null).map(r => r.statistics.min);
+                let minStats = this.statistics.filter(r => r.statistics !== null).map(r => r.statistics.min);
                 min = Number.POSITIVE_INFINITY;
-                for (let i = 0; i < minStats.length; i++ ) {
+                for (let i = 0; i < minStats.length; i++) {
                   if (minStats[i] < min) {
                     min = minStats[i];
                   }
@@ -2518,23 +2535,26 @@ Vue.component('gc-chart', {
                 max = this.chart.axis.max().y;
                 min = this.chart.axis.min().y;
               }
-              
-              
-              let minMax = {min: min, max: max};
 
-                
+
+              let minMax = {
+                min: min,
+                max: max
+              };
+
+
               // assign the maximum of the y axis to the bar charts of phenology markers
               //TODO: minimum is not possible for bars at the moment!
-              columns[columns.length] = ["sos"].concat(this.sos.map( r => max));
-              columns[columns.length] = ["pos"].concat(this.pos.map( r => max));
-              columns[columns.length] = ["eos"].concat(this.eos.map( r => max));
+              columns[columns.length] = ["sos"].concat(this.sos.map(r => max));
+              columns[columns.length] = ["pos"].concat(this.pos.map(r => max));
+              columns[columns.length] = ["eos"].concat(this.eos.map(r => max));
 
               // assign the min & max of the y axis to the candlestick charts of phenology markers
               // columns[columns.length] = ["sos"].concat(this.createCandleStickVals(this.sos.map( r => minMax)));
               // columns[columns.length] = ["pos"].concat(this.createCandleStickVals(this.pos.map( r => minMax)));
               // columns[columns.length] = ["eos"].concat(this.createCandleStickVals(this.eos.map( r => minMax)));
 
-            } catch ( ex ) {
+            } catch (ex) {
               console.debug("could not add phenology data to chart..")
               console.log(ex)
             }
@@ -2558,7 +2578,7 @@ Vue.component('gc-chart', {
         //     // if (markers) {
         //     //     // sort object by date in place
         //     //     markers.sort((a, b) => (a.date > b.date) ? 1 : -1);
-            
+
         //     //     if (markers.length > 0) {
         //     //         //workaround for unfinished API: filter out date: "None"
         //     //         let dates_markers = markers.map( r => r.date != "None" ? r.date : NaN );
@@ -2585,37 +2605,35 @@ Vue.component('gc-chart', {
           // create chart when all data is ready - not earlier as this leads to undefined entries in data array
           // error: t[i] is undefined in bb.js
           // columns.length is double the size of the selectedParcelIds (x array + y array)
-          if (columns.length === this.selectedParcelIds.length*2) {
+          if (columns.length === this.selectedParcelIds.length * 2) {
             // clean array: remove empty time series (which have length == 1 because of the id of the axis and the parcel_id)
             const cleanedColumns = [];
-            for (var i=0;i<columns.length;i++) {
+            for (var i = 0; i < columns.length; i++) {
               if (columns[i].length > 1)
                 cleanedColumns.push(columns[i]);
             }
             // console.debug(cleanedColumns);
             this.createChart(cleanedColumns);
-          }
-          else {
+          } else {
             console.debug("createChartData() - not ready yet: not all statistics processed!")
             // console.debug(columns);
           }
-        }
-        else {
+        } else {
           this.createChart(columns);
         }
       }
       if (chartType === "similarity") {
-          
-          if (this.similarity.parcel_timeseries.length > 0) {
-              let columns = [];
-              // empty chart first
-              this.createChart(columns);
-              // prepare data & create chart with data
-              this.prepareSimilarityData();
-          }
+
+        if (this.similarity.parcel_timeseries.length > 0) {
+          let columns = [];
+          // empty chart first
+          this.createChart(columns);
+          // prepare data & create chart with data
+          this.prepareSimilarityData();
+        }
       }
     },
-    createChart: function(data) {
+    createChart: function (data) {
 
       console.debug("createChart()");
       // console.debug(data);
@@ -2626,39 +2644,40 @@ Vue.component('gc-chart', {
       // will be changed for many-parcels gcMode
       let meanType;
       // if (!this.hiddenStats.includes("errorBand")) {
-        if (this.selectedGraphType != "area") {
-          meanType = 'area-' + this.selectedGraphType + '-range';
-        }
+      if (this.selectedGraphType != "area") {
+        meanType = 'area-' + this.selectedGraphType + '-range';
+      }
       // } else {
       //   meanType = this.selectedGraphType;
       // }
-      let types_options = { "mean": meanType,
-                            'std.dev.' : 'bar', 
-                            'min': this.selectedGraphType,
-                            'max':this.selectedGraphType, 
-                            'meanl8' : 'scatter', 
-                            'means2' : 'scatter',
-                            //'parcel (mean)': this.selectedGraphType , 
-                            //'reference (mean)' : this.selectedGraphType,
-                            'marker': 'scatter',
-                            'sos' : 'bar', //'candlestick', //
-                            'pos' : 'bar', //'candlestick', //
-                            'eos' : 'bar', //'candlestick', //
-                        };
+      let types_options = {
+        "mean": meanType,
+        'std.dev.': 'bar',
+        'min': this.selectedGraphType,
+        'max': this.selectedGraphType,
+        'meanl8': 'scatter',
+        'means2': 'scatter',
+        //'parcel (mean)': this.selectedGraphType , 
+        //'reference (mean)' : this.selectedGraphType,
+        'marker': 'scatter',
+        'sos': 'bar', //'candlestick', //
+        'pos': 'bar', //'candlestick', //
+        'eos': 'bar', //'candlestick', //
+      };
       if (this.mode == "one-index") {
         xs_options = {
           "mean": "x",
           "means2": "x",
           "meanl8": "x",
-          "min" : "x",
-          "max" : "x",
-          "std.dev." : "x",
-          "parcel (mean)" : "x",
-          "reference (mean)" : "x2",
-          "marker" : "x2",
-          "sos" : "x5", 
-          "pos" : "x6", 
-          "eos" : "x7",
+          "min": "x",
+          "max": "x",
+          "std.dev.": "x",
+          "parcel (mean)": "x",
+          "reference (mean)": "x2",
+          "marker": "x2",
+          "sos": "x5",
+          "pos": "x6",
+          "eos": "x7",
         }
         ys_options = {
           "max": this.gcYScale == 'dynamic' ? undefined : this.selectedProduct == 'cire' ? 5.0 : 1.0,
@@ -2667,9 +2686,9 @@ Vue.component('gc-chart', {
       }
       if (this.mode == "many-indices") {
 
-        for (var i=0; i < this.availableProducts.length; i++) {
+        for (var i = 0; i < this.availableProducts.length; i++) {
           const product = this.availableProducts[i];
-          if (!["vitality","ndre1","ndre2","cire"].includes(product)) {
+          if (!["vitality", "ndre1", "ndre2", "cire"].includes(product)) {
             xs_options[product] = "x";
             types_options[product] = meanType; // this.selectedGraphType;
           }
@@ -2682,7 +2701,7 @@ Vue.component('gc-chart', {
             }
             types_options[product] = meanType; // this.selectedGraphType;
           }
-          if (["ndre1","ndre2","cire"].includes(product)) {
+          if (["ndre1", "ndre2", "cire"].includes(product)) {
             xs_options[product] = "x4";
             types_options[product] = meanType; // this.selectedGraphType;
           }
@@ -2693,7 +2712,7 @@ Vue.component('gc-chart', {
 
         // phenology 
         xs_options["sos"] = "x5";
-        xs_options["pos"] = "x6";//"x6";
+        xs_options["pos"] = "x6"; //"x6";
         xs_options["eos"] = "x7"; //"x7";
 
         ys_options = {
@@ -2703,10 +2722,10 @@ Vue.component('gc-chart', {
       }
       if (this.mode == "many-parcels") {
 
-        for (var i=0; i < this.selectedParcelIds.length; i++) {
+        for (var i = 0; i < this.selectedParcelIds.length; i++) {
           const parcel_id = this.selectedParcelIds[i];
           const idx = this.selectedParcelIds.indexOf(parcel_id);
-          xs_options[parcel_id] = "x"+idx;
+          xs_options[parcel_id] = "x" + idx;
           types_options[parcel_id] = meanType; // this.selectedGraphType;
         }
         ys_options = {
@@ -2717,300 +2736,304 @@ Vue.component('gc-chart', {
 
       var axis_label;
       if (this.mode == "one-index") {
-        if (this.selectedProduct == "vitality" || this.selectedProduct == "variations" ||  this.selectedProduct == "visible") {
-            axis_label = this.$t("products.vitality");
-        }
-        else {
+        if (this.selectedProduct == "vitality" || this.selectedProduct == "variations" || this.selectedProduct == "visible") {
+          axis_label = this.$t("products.vitality");
+        } else {
           if (this.selectedProduct == "maturity") {
             axis_label = this.$t("products.ndre1");
           }
-          axis_label = this.$t("products."+ this.selectedProduct);
+          axis_label = this.$t("products." + this.selectedProduct);
         }
         if (this.currentGraphContent == "similarity") {
           axis_label = this.$t("products.ndvi");
         }
+      } else {
+        axis_label = "Index [" + this.$t("statistics.mean") + "]";
       }
-      else {
-        axis_label = "Index ["+ this.$t("statistics.mean") +"]";
-      }
-  
+
       //set i18n for time x axis
       d3.timeFormatDefaultLocale(this.d3locales[this.currentLanguage]);
 
       // generate without data
       this.chart = bb.generate({
-        bindto: '#chart_'+this.gcWidgetId,
+        bindto: '#chart_' + this.gcWidgetId,
         //fixHeightResizing: true,
         data: {
-            selection: {
-                enabled: true,
-                multiple: false,
-                grouped: false,
-                isselectable: function (d) { 
-                    // disable selection for marker & reference of similarity
-                    if (d.id == "marker" || d.id == "reference (mean)" )
-                    {
-                        return false;
-                    }
-                    else {
-                        return true;
-                    }
-                },
-            },
-            // single x axis
-            //x: 'x',
-            // multiple x axis mapping
-            xs: xs_options,
-            //xFormat: '%Y-%m-%d', // how the date is parsed
-            columns: [], // empty data first - will be loaded below with chart.load()
-            names: { //with i18n
-                "mean": this.$t("statistics.mean"),
-                "min": this.$t("statistics.min"),
-                "max": this.$t("statistics.max"),
-                "std.dev.": this.$t("statistics.stddev"),
-                "meanl8": 'Landsat-8',
-                "means2": 'Sentinel-2',
-                "sos": this.$t("products.sos"),
-                "pos": this.$t("products.pos"),
-                "eos": this.$t("products.eos"),
-                "vitality": this.$t("products.vitality"),
-                "ndvi": this.$t("products.ndvi"),
-                "ndre1": this.$t("products.ndre1"),
-                "ndre2": this.$t("products.ndre2"),
-                "ndwi": this.$t("products.ndwi"),
-                "savi": this.$t("products.savi"),
-                "evi2": this.$t("products.evi2"),
-                "cire": this.$t("products.cire"),
-                "npcri": this.$t("products.npcri"),
-                "parcel (mean)": this.$t("similarity.parcel_mean"),
-                "reference (mean)": this.$t("similarity.reference_mean"),
-            },
-            empty: {
-              label: {
-                  text: this.$t("chart.no_data_msg")
+          selection: {
+            enabled: true,
+            multiple: false,
+            grouped: false,
+            isselectable: function (d) {
+              // disable selection for marker & reference of similarity
+              if (d.id == "marker" || d.id == "reference (mean)") {
+                return false;
+              } else {
+                return true;
               }
             },
-            //hide: [ data[3], data[4] ], //hide min and max
-            hide: this.hiddenStats,
-            type: 'line', //default,
-            types: types_options,
-            labels: {
-              format: function (value, id, index, subindex) { 
-                      // //only label phenology bars
-                      if (["sos","pos","eos"].includes(id)) {
-                        return id;
-                      }
-                  }
-            },
-            colors: {
-                "mean": '#EF7D00', //orange
-                "std.dev.": ' #d6d6d6', //'#7d00ef', //light purple
-                "min": '#EF7D00', 
-                "max": '#EF7D00',
-                "meanl8" : '#0500ef', //light blue
-                "means2" : '#00eaef', //turquoise
-                "parcel (mean)" : '#EF7D00', //orange
-                "reference (mean)" : '#1f77b4', //blue
-                "marker" : 'grey', //{fill: 'darkgrey', stroke: 'black'}
-                 // blue , green, crimson / brown
-                'sos' : '#00578A', //'#003366', //'#A97D5D', // brown '#A37B45',
-                'pos' : '#298F00', //'teal', //'#99CC99', //'#86942A',
-                'eos' : '#993300'  //'#507642'
-            },
-            color: function (color, d) {
-                // d will be 'id' when called for legends
-                // otherwise: {id, value, index}
-                // console.log(d);
+          },
+          // single x axis
+          //x: 'x',
+          // multiple x axis mapping
+          xs: xs_options,
+          //xFormat: '%Y-%m-%d', // how the date is parsed
+          columns: [], // empty data first - will be loaded below with chart.load()
+          names: { //with i18n
+            "mean": this.$t("statistics.mean"),
+            "min": this.$t("statistics.min"),
+            "max": this.$t("statistics.max"),
+            "std.dev.": this.$t("statistics.stddev"),
+            "meanl8": 'Landsat-8',
+            "means2": 'Sentinel-2',
+            "sos": this.$t("products.sos"),
+            "pos": this.$t("products.pos"),
+            "eos": this.$t("products.eos"),
+            "vitality": this.$t("products.vitality"),
+            "ndvi": this.$t("products.ndvi"),
+            "ndre1": this.$t("products.ndre1"),
+            "ndre2": this.$t("products.ndre2"),
+            "ndwi": this.$t("products.ndwi"),
+            "savi": this.$t("products.savi"),
+            "evi2": this.$t("products.evi2"),
+            "cire": this.$t("products.cire"),
+            "npcri": this.$t("products.npcri"),
+            "backscatter_vv": this.$t("products.backscatter_vv"),
+            "backscatter_vh": this.$t("products.backscatter_vh"),
+            "sbmi": this.$t("products.sbmi"),
+            "parcel (mean)": this.$t("similarity.parcel_mean"),
+            "reference (mean)": this.$t("similarity.reference_mean"),
+          },
+          empty: {
+            label: {
+              text: this.$t("chart.no_data_msg")
+            }
+          },
+          //hide: [ data[3], data[4] ], //hide min and max
+          hide: this.hiddenStats,
+          type: 'line', //default,
+          types: types_options,
+          labels: {
+            format: function (value, id, index, subindex) {
+              // //only label phenology bars
+              if (["sos", "pos", "eos"].includes(id)) {
+                return id;
+              }
+            }
+          },
+          colors: {
+            "mean": '#EF7D00', //orange
+            "std.dev.": ' #d6d6d6', //'#7d00ef', //light purple
+            "min": '#EF7D00',
+            "max": '#EF7D00',
+            "meanl8": '#0500ef', //light blue
+            "means2": '#00eaef', //turquoise
+            "parcel (mean)": '#EF7D00', //orange
+            "reference (mean)": '#1f77b4', //blue
+            "marker": 'grey', //{fill: 'darkgrey', stroke: 'black'}
+            // blue , green, crimson / brown
+            'sos': '#00578A', //'#003366', //'#A97D5D', // brown '#A37B45',
+            'pos': '#298F00', //'teal', //'#99CC99', //'#86942A',
+            'eos': '#993300' //'#507642'
+          },
+          color: function (color, d) {
+            // d will be 'id' when called for legends
+            // otherwise: {id, value, index}
+            // console.log(d);
 
-                //must return a color string (e.g. #0000ff)
-                // if (d.id == "min" || d == "min") {
-                // if (d.index) {
-                //     if (this.statistics[d.index].source == "landsat8") {
-                //         return "#000000";
-                //     }
-                //     //else return previously defined color
-                //     else { return color; }
+            //must return a color string (e.g. #0000ff)
+            // if (d.id == "min" || d == "min") {
+            // if (d.index) {
+            //     if (this.statistics[d.index].source == "landsat8") {
+            //         return "#000000";
+            //     }
+            //     //else return previously defined color
+            //     else { return color; }
+            // }
+
+            //return color by marker status
+            if (d.id == "marker") {
+              //return color by marker status of json (green, yellow, red)
+              let c;
+              if (this.selectedMarkerType == "sn_marker") {
+                c = this.sn_markers.markers[d.index].status;
+              }
+              if (this.selectedMarkerType == "phenology") {
+                c = this.phenology[d.index].status;
+              }
+
+              return c;
+            } else {
+              return color; //default
+            }
+          },
+          onselected: function (e, svgElement, b, c) {
+            console.debug("onselected()");
+            // only enabled if current graph content is statistics
+            if (this.currentGraphContent == "statistics") {
+              if (e.x) {
+                // save also to internal - value is being checked in watcher
+                // if (this.mode === "many-parcels") {
+                this.internalQuerydate[e.id + ""] = e.x;
                 // }
+                this.selectedChartId = e.id;
 
-                //return color by marker status
-                if (d.id == "marker") {
-                    //return color by marker status of json (green, yellow, red)
-                    let c;
-                    if (this.selectedMarkerType == "sn_marker") {
-                        c = this.sn_markers.markers[d.index].status;
-                    }
-                    if (this.selectedMarkerType == "phenology") {
-                        c = this.phenology[d.index].status;
-                    }
+                // for queryDate of portfolio map
+                this.selectedDate = e.x.simpleDate();
+              }
+            }
+            if (this.currentGraphContent == "similarity") {
+              if (e.x) {
+                // save also to internal - value is being checked in watcher
+                // if (this.mode === "many-parcels") {
+                this.internalQuerydate[e.id + ""] = e.x;
+                // }
+                this.selectedChartId = e.id;
 
-                    return c;
-                }
-                else {
-                    return color; //default
-                }
-            },
-            onselected: function(e, svgElement, b, c) {
-              console.debug("onselected()");
-              // only enabled if current graph content is statistics
-              if (this.currentGraphContent == "statistics") {
-                  if (e.x) {
-                    // save also to internal - value is being checked in watcher
-                    // if (this.mode === "many-parcels") {
-                    this.internalQuerydate[e.id+""] = e.x;
-                    // }
-                    this.selectedChartId = e.id;
-
-                    // for queryDate of portfolio map
-                    this.selectedDate = e.x.simpleDate(); 
-                  }
+                // for queryDate of portfolio map
+                this.selectedDate = e.x.simpleDate();
               }
-              if (this.currentGraphContent == "similarity") {
-                if (e.x) {
-                  // save also to internal - value is being checked in watcher
-                  // if (this.mode === "many-parcels") {
-                  this.internalQuerydate[e.id+""] = e.x;
-                  // }
-                  this.selectedChartId = e.id;
-
-                  // for queryDate of portfolio map
-                  this.selectedDate = e.x.simpleDate(); 
-                }
-              }
-            }.bind(this),
-            onhidden: function(ids) {
-              if (ids.includes("mean")) {
-                // also hide means2 & meanl8
-                this.chart.hide("means2");
-                this.chart.hide("meanl8");
-              }
-            }.bind(this),
-            onshown: function(ids) {
-              if (ids.includes("mean")) {
-                // also show means2 & meanl8
-                // this.chart.show("means2");
-                // this.chart.show("meanl8");
-              }
-            }.bind(this)
+            }
+          }.bind(this),
+          onhidden: function (ids) {
+            if (ids.includes("mean")) {
+              // also hide means2 & meanl8
+              this.chart.hide("means2");
+              this.chart.hide("meanl8");
+            }
+          }.bind(this),
+          onshown: function (ids) {
+            if (ids.includes("mean")) {
+              // also show means2 & meanl8
+              // this.chart.show("means2");
+              // this.chart.show("meanl8");
+            }
+          }.bind(this)
         },
         //nicer splines, default is "cardinal"
         spline: {
-            interpolation: {
-              type: 'monotone'
-            }
+          interpolation: {
+            type: 'monotone'
+          }
         },
         legend: {
-            show: this.availableOptions.includes('legend'),
-            item: {
-              onclick: function (id) {
-                  if (this.mode == "many-parcels") {
-                    //disable toggle!
-                    return;
-                  }
-                  //special case for mean, toggle also sentinel2 and landsat8 scatter points
-                  if (id == "mean") {
-                      this.chart.toggle("mean");
-                      //this.chart.toggle("meanl8");
-                      //this.chart.toggle("means2");
-                  }
-                  else { this.chart.toggle(id); }
-                }.bind(this),
-              onover: function (id) {
-                if (this.mode == "many-parcels") {
-                  //send selection of current parcel to root
-                  this.currentParcelID = id;
-                }
-              }.bind(this)
-            },
+          show: this.availableOptions.includes('legend'),
+          item: {
+            onclick: function (id) {
+              if (this.mode == "many-parcels") {
+                //disable toggle!
+                return;
+              }
+              //special case for mean, toggle also sentinel2 and landsat8 scatter points
+              if (id == "mean") {
+                this.chart.toggle("mean");
+                //this.chart.toggle("meanl8");
+                //this.chart.toggle("means2");
+              } else {
+                this.chart.toggle(id);
+              }
+            }.bind(this),
+            onover: function (id) {
+              if (this.mode == "many-parcels") {
+                //send selection of current parcel to root
+                this.currentParcelID = id;
+              }
+            }.bind(this)
+          },
         },
         line: {
-            connectNull: true
+          connectNull: true
         },
         point: {
-            show: true,  //show data points in line chart
-            //r: 3, //radius of points in line chart
-            focus: {
-                expand: {
-                  r: 6
-                }
-            },
-            // issue in billboard 3.1.5: value will override opacity for any point (even for null values)
-            // will be fixed with https://github.com/naver/billboard.js/blob/6ff9aec01d831c8fe2449da6b87121281829f209/src/ChartInternal/shape/point.ts#L42
-            opacity: 1.0, 
-            // size dependent of source
-            r: function (d) {
-              // workaround for opacity issue
-              // set radius to 0 if we have a null value
-              if (d.value == null) {
-                return 0;
-              }
-              if (d.id == "marker") {
-                  return 6;
-              }
-              return 3; //default
+          show: true, //show data points in line chart
+          //r: 3, //radius of points in line chart
+          focus: {
+            expand: {
+              r: 6
             }
+          },
+          // issue in billboard 3.1.5: value will override opacity for any point (even for null values)
+          // will be fixed with https://github.com/naver/billboard.js/blob/6ff9aec01d831c8fe2449da6b87121281829f209/src/ChartInternal/shape/point.ts#L42
+          opacity: 1.0,
+          // size dependent of source
+          r: function (d) {
+            // workaround for opacity issue
+            // set radius to 0 if we have a null value
+            if (d.value == null) {
+              return 0;
+            }
+            if (d.id == "marker") {
+              return 6;
+            }
+            return 3; //default
+          }
         },
         transition: {
-            duration: 300
+          duration: 300
         },
         grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
+          x: {
+            show: true
+          },
+          y: {
+            show: true
+          }
         },
         axis: {
           x: {
-              type: 'timeseries',
-              tick: {
-                  rotate: 60,
-                  multiline: true,
-                  //format: '%d.%m.%Y',
-                  fit: false, //false means evenly spaced- ticks - otherwise the time spans will be honored between dates 
-                  format: "%e %b %y"
-                  //format: function (x) { return x.getFullYear(); }
-              },
-               //timeseries -> milliseconds as units; 1814400000 -> 3 weeks
-              padding: {
-                right: 1814400000,
-                left: 1814400000
-              },
+            type: 'timeseries',
+            tick: {
+              rotate: 60,
+              multiline: true,
+              //format: '%d.%m.%Y',
+              fit: false, //false means evenly spaced- ticks - otherwise the time spans will be honored between dates 
+              format: "%e %b %y"
+              //format: function (x) { return x.getFullYear(); }
+            },
+            //timeseries -> milliseconds as units; 1814400000 -> 3 weeks
+            padding: {
+              right: 1814400000,
+              left: 1814400000
+            },
           },
           y: {
-              label: {text: axis_label,
-                      position: 'outer-top'},
-              // fixed values vs dynamically scaling
-              max: ys_options["max"],
-              min: ys_options["min"],
-              // max: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
-              // min: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
-              padding: {top:10, bottom:0}
+            label: {
+              text: axis_label,
+              position: 'outer-top'
+            },
+            // fixed values vs dynamically scaling
+            max: ys_options["max"],
+            min: ys_options["min"],
+            // max: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 5.0 : 1.0,
+            // min: this.gcYScale == 'dynamic' ? undefined : this.availableProducts.includes('cire') ? 0.0 : -0.2,
+            padding: {
+              top: 10,
+              bottom: 0
+            }
           },
           // y2: { show: true}
         },
         zoom: {
-            enabled: true, //only by chartFrom and chartTo fields!
-            type: 'drag', // 'wheel'
-            resetButton: false,
-            onzoomend: function(domain) {
-              // update chartFromDate & chartToDate when zooming per drag
-              
-              // and only trigger zoom when both values of the tuple are being modified!
-                this.chartFromDate = domain[0].simpleDate();
-                this.chartToDate = domain[1].simpleDate();
+          enabled: true, //only by chartFrom and chartTo fields!
+          type: 'drag', // 'wheel'
+          resetButton: false,
+          onzoomend: function (domain) {
+            // update chartFromDate & chartToDate when zooming per drag
 
-            }.bind(this)
+            // and only trigger zoom when both values of the tuple are being modified!
+            this.chartFromDate = domain[0].simpleDate();
+            this.chartToDate = domain[1].simpleDate();
+
+          }.bind(this)
         },
         tooltip: {
           grouped: true,
           format: {
-              /*title: function(x) {
-                  return x.toISOString().split("T")[0];
-              },*/
-              name: function(name, ratio, id, index) { 
-                return name; 
-              },
+            /*title: function(x) {
+                return x.toISOString().split("T")[0];
+            },*/
+            name: function (name, ratio, id, index) {
+              return name;
+            },
             //   value: function (value, ratio, id, index) {
 
             //     // hide meanl8 and means2 in tooltip
@@ -3097,14 +3120,14 @@ Vue.component('gc-chart', {
 
           // // overriding the contents of the tooltip for more customization
           contents: function (d, defaultTitleFormat, defaultValueFormat, color) {
-            
+
             console.debug(d);
 
             let html = '<table class="bb-tooltip">' +
-                        '<tbody>'+
-                          '<tr><th colspan="2">'+ defaultTitleFormat(d[0].x) +'</th></tr>';
+              '<tbody>' +
+              '<tr><th colspan="2">' + defaultTitleFormat(d[0].x) + '</th></tr>';
 
-            for (let i=0;i<d.length;i++) {
+            for (let i = 0; i < d.length; i++) {
               let value, id, index, name, x;
               value = d[i].value;
               id = d[i].id;
@@ -3124,68 +3147,67 @@ Vue.component('gc-chart', {
               let marker_value;
 
               // adjust phenology styling
-              if (["sos","pos","eos"].includes(id)) {
+              if (["sos", "pos", "eos"].includes(id)) {
                 // resolve simple date to index in phenology marker array -> then query this.phenology for all data
                 let arr_index = this[id].indexOf(x.simpleDate());
 
                 season = this.phenology[arr_index].season;
                 marker_value = this.formatDecimal(this.phenology[arr_index].marker.filter(s => s.name === name.toLowerCase())[0].mean, 3);
 
-                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
-                '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + ' '+ season + '</td>';
+                html += '<tr class="' + 'bb-tooltip-' + name + '"></tr>' +
+                  '<td class="bb-tooltip"><span style="background-color: ' + color(d[i]) + '"></span>' + name + ' ' + season + '</td>';
+              } else {
+                html += '<tr class="' + 'bb-tooltip-' + name + '"></tr>' +
+                  '<td class="bb-tooltip"><span style="background-color: ' + color(d[i]) + '"></span>' + name + '</td>';
               }
-              else {
-                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
-                        '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + '</td>';
-              }
-              
+
               // for area range value skip high & low
               if (this.chart.internal.isTypeOf(d[i], ['area-line-range', 'area-spline-range'])) {
                 // values is an array now; index 1 is mid value
                 if (this.mode === "one-index") {
                   // phenology markers are different
-                  if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ marker_value +'</td>';
+                  if (["sos", "pos", "eos"].includes(id)) {
+                    html += '<td>' + marker_value + '</td>';
                   } else {
-                    html += '<td>'+ value[1] + ' ('+this.statistics[index].source + ')' +'</td>';
+                    html += '<td>' + value[1] + ' (' + this.statistics[index].source + ')' + '</td>';
                   }
                 }
                 if (this.mode === "many-indices") {
                   // phenology markers are different
-                  if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ marker_value +'</td>';
+                  if (["sos", "pos", "eos"].includes(id)) {
+                    html += '<td>' + marker_value + '</td>';
                   } else {
-                    html += '<td>'+ value[1] + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                    html += '<td>' + value[1] + ' (' + this.statisticsMany[id][index].source + ')' + '</td>';
                   }
                 }
                 if (this.mode === "many-parcels") {
                   let parcel = this.statisticsMany.filter(p => p.parcel_id === parseInt(id))[0];
-                  html += '<td>'+ value[1] + ' ('+parcel[this.selectedProduct][index].source + ')' +'</td>';
+                  html += '<td>' + value[1] + ' (' + parcel[this.selectedProduct][index].source + ')' + '</td>';
                 }
-              } 
+              }
               // value is a single value
               else {
                 if (this.mode === "one-index") {
-                  if (["sos","pos","eos"].includes(id)) {
+                  if (["sos", "pos", "eos"].includes(id)) {
                     // console.debug(id, index, value, name);
-                    html += '<td>'+ marker_value +'</td>';
+                    html += '<td>' + marker_value + '</td>';
                   } else {
-                    html += '<td>'+ value + ' ('+this.statistics[index].source + ')' +'</td>';
+                    html += '<td>' + value + ' (' + this.statistics[index].source + ')' + '</td>';
                   }
                 }
                 if (this.mode === "many-indices") {
                   // phenology markers are different
-                  if (["sos","pos","eos"].includes(id)) {
-                    html += '<td>'+ marker_value +'</td>';
+                  if (["sos", "pos", "eos"].includes(id)) {
+                    html += '<td>' + marker_value + '</td>';
                   } else {
-                    html += '<td>'+ value + ' ('+this.statisticsMany[id][index].source + ')' +'</td>';
+                    html += '<td>' + value + ' (' + this.statisticsMany[id][index].source + ')' + '</td>';
                   }
                 }
               }
               html += '</tr>';
             }
-            html += '</tbody>'+
-                  '</table>';
+            html += '</tbody>' +
+              '</table>';
 
             return html;
 
@@ -3205,7 +3227,7 @@ Vue.component('gc-chart', {
       // then load data
       this.chart.load({
         columns: data,
-        done: function() {
+        done: function () {
           // hide some data
           this.chart.hide(this.hiddenStats);
 
@@ -3214,39 +3236,39 @@ Vue.component('gc-chart', {
           this.isloading = false;
           //}.bind(this), 2000
           //);
-          
+
         }.bind(this)
       });
-    
-      
+
+
     },
     prepareSimilarityData() {
 
       let columns = [];
-  
+
       if (this.similarity.parcel_timeseries.length != this.similarity.reference_timeseries.length) {
-          // warn if the date ranges differ
-          console.debug("date ranges in similarity functon differ!");
-          console.debug("parcel_timeseries.length: "+ this.similarity.parcel_timeseries.length);
-          console.debug("reference_timeseries.length: "+ this.similarity.reference_timeseries.length);
+        // warn if the date ranges differ
+        console.debug("date ranges in similarity functon differ!");
+        console.debug("parcel_timeseries.length: " + this.similarity.parcel_timeseries.length);
+        console.debug("reference_timeseries.length: " + this.similarity.reference_timeseries.length);
       }
-  
+
       // take all dates from content_parcel and content_reference
-      let dates_parcel = this.similarity.parcel_timeseries.map( r => r.date);
-      let dates_reference = this.similarity.reference_timeseries.map( r => r.date);
-  
+      let dates_parcel = this.similarity.parcel_timeseries.map(r => r.date);
+      let dates_reference = this.similarity.reference_timeseries.map(r => r.date);
+
       if (this.similarity.parcel_timeseries.length > 0) {
-  
-          // map date values to the first x axis
-          columns[0] = ["x"].concat(dates_parcel);
-          // format values to 2 decimals
-          columns[1] = ["parcel (mean)"].concat( this.similarity.parcel_timeseries.map( r => this.formatDecimal(r.mean, 3)));
-          // map date values to the second x axis
-          columns[2] = ["x2"].concat(dates_reference);
-          // format values to 2 decimals
-          columns[3] = ["reference (mean)"].concat( this.similarity.reference_timeseries.map( r => this.formatDecimal(r.mean, 3)));
-         
-          this.createChart(columns);
+
+        // map date values to the first x axis
+        columns[0] = ["x"].concat(dates_parcel);
+        // format values to 2 decimals
+        columns[1] = ["parcel (mean)"].concat(this.similarity.parcel_timeseries.map(r => this.formatDecimal(r.mean, 3)));
+        // map date values to the second x axis
+        columns[2] = ["x2"].concat(dates_reference);
+        // format values to 2 decimals
+        columns[3] = ["reference (mean)"].concat(this.similarity.reference_timeseries.map(r => this.formatDecimal(r.mean, 3)));
+
+        this.createChart(columns);
       }
     },
     refreshData() {
@@ -3289,49 +3311,49 @@ Vue.component('gc-chart', {
       }
     },
     /* GUI helper */
-    toggleChartOptions: function() {
+    toggleChartOptions: function () {
       this.gcOptionsCollapsed = !this.gcOptionsCollapsed;
-    },  
+    },
     containerSizeChange(size) {
       /* handles the resize of the chart if parent container size changes */
-      setTimeout(function(){ 
-        this.chart.resize();
-      }.bind(this),
-      200
+      setTimeout(function () {
+          this.chart.resize();
+        }.bind(this),
+        200
       );
     },
     /* helper functions */
-    removeFromArray: function(arry, value) {
+    removeFromArray: function (arry, value) {
       let index = arry.indexOf(value);
       if (index > -1) {
-          arry.splice(index, 1);
+        arry.splice(index, 1);
       }
       return arry;
     },
-    formatDecimal: function(decimal, numberOfDecimals) {
+    formatDecimal: function (decimal, numberOfDecimals) {
       /* Helper function for formatting numbers to given number of decimals */
-  
+
       var factor = 100;
-  
-      if ( isNaN(parseFloat(decimal)) ) {
-          return NaN;
+
+      if (isNaN(parseFloat(decimal))) {
+        return NaN;
       }
       if (numberOfDecimals == 1) {
-          factor = 10;
+        factor = 10;
       }
       if (numberOfDecimals == 2) {
-          factor = 100;
+        factor = 100;
       }
       if (numberOfDecimals == 3) {
-          factor = 1000;
+        factor = 1000;
       }
       if (numberOfDecimals == 4) {
-          factor = 10000;
+        factor = 10000;
       }
       if (numberOfDecimals == 5) {
-          factor = 100000;
+        factor = 100000;
       }
-      return Math.ceil(decimal * factor)/factor;
+      return Math.ceil(decimal * factor) / factor;
     },
     capitalize: function (s) {
       if (typeof s !== 'string') return ''
@@ -3340,10 +3362,9 @@ Vue.component('gc-chart', {
     isDateValid: function (date_str) {
       /* Validates a given date string */
       if (!isNaN(new Date(date_str))) {
-          return true;
-      }
-      else {
-          return false;
+        return true;
+      } else {
+        return false;
       }
     },
     isDateWithinRange: function (arr, date_str) {
@@ -3352,19 +3373,19 @@ Vue.component('gc-chart', {
 
       let test_date = new Date(date_str);
       let min_date = new Date(arr[0]);
-      let max_date = new Date(arr[arr.length-1]);
-    
-      if ( (test_date.getTime() >= min_date.getTime()) && (test_date.getTime() <= max_date.getTime()) )
+      let max_date = new Date(arr[arr.length - 1]);
+
+      if ((test_date.getTime() >= min_date.getTime()) && (test_date.getTime() <= max_date.getTime()))
         return true
       else
         return false
-    
+
     },
     loadJSscript: function (url, callback) {
-      let script = document.createElement("script");  // create a script DOM node
-      script.src = url;  // set its src to the provided URL
+      let script = document.createElement("script"); // create a script DOM node
+      script.src = url; // set its src to the provided URL
       script.async = true;
-      document.body.appendChild(script);  // add it to the end of the body section of the page 
+      document.body.appendChild(script); // add it to the end of the body section of the page 
       script.onload = function () {
         callback();
       };
@@ -3375,7 +3396,7 @@ Vue.component('gc-chart', {
         this.inpFilterDateFromPicker.destroy();
       }
 
-      this.inpFilterDateFromPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateFrom_'+this.gcWidgetId ), {
+      this.inpFilterDateFromPicker = new bulmaCalendar(document.getElementById('inpFilterDateFrom_' + this.gcWidgetId), {
         minDate: new Date(this.chartFromDate),
         maxDate: new Date(this.chartToDate),
         startDate: new Date(this.chartFromDate), // Date selected by default
@@ -3385,18 +3406,18 @@ Vue.component('gc-chart', {
         closeOnOverlayClick: true,
         closeOnSelect: true,
         // callback functions
-        onSelect: function (e) { 
-                    // hack +1 day
-                    var a = new Date(e.valueOf() + 1000*3600*24);
-                    this.chartFromDate = a.toISOString().split("T")[0]; //ISO String splits at T between date and time
-                    }.bind(this),
+        onSelect: function (e) {
+          // hack +1 day
+          var a = new Date(e.valueOf() + 1000 * 3600 * 24);
+          this.chartFromDate = a.toISOString().split("T")[0]; //ISO String splits at T between date and time
+        }.bind(this),
       });
 
       if (this.inpFilterDateToPicker) {
         this.inpFilterDateToPicker.destroy();
       }
-      
-      this.inpFilterDateToPicker = new bulmaCalendar( document.getElementById( 'inpFilterDateTo_'+this.gcWidgetId ), {
+
+      this.inpFilterDateToPicker = new bulmaCalendar(document.getElementById('inpFilterDateTo_' + this.gcWidgetId), {
         minDate: new Date(this.chartFromDate),
         maxDate: new Date(this.chartToDate),
         startDate: new Date(this.chartToDate), // Date selected by default
@@ -3406,11 +3427,11 @@ Vue.component('gc-chart', {
         closeOnOverlayClick: true,
         closeOnSelect: true,
         // callback functions
-        onSelect: function (e) { 
-                    // hack +1 day
-                    var a = new Date(e.valueOf() + 1000*3600*24);
-                    this.chartToDate = a.toISOString().split("T")[0]; //ISO String splits at T between date and time
-                    }.bind(this),
+        onSelect: function (e) {
+          // hack +1 day
+          var a = new Date(e.valueOf() + 1000 * 3600 * 24);
+          this.chartToDate = a.toISOString().split("T")[0]; //ISO String splits at T between date and time
+        }.bind(this),
       });
     },
     changeLanguage() {
@@ -3420,7 +3441,7 @@ Vue.component('gc-chart', {
       console.debug("getClosestDate()");
       /* Returns the closest date in a array of dates
          with the sort function */
-      let i = arr.sort(function(a, b) {
+      let i = arr.sort(function (a, b) {
         var distancea = Math.abs(queryDate - a);
         var distanceb = Math.abs(queryDate - b);
         return distancea - distanceb; // sort a before b when the distance is smaller
@@ -3431,52 +3452,55 @@ Vue.component('gc-chart', {
       /* returns the nearest Date to the given parcel_id and query date */
       const exactDate = this.getClosestDate(timeseries.map(d => new Date(d.date)), new Date(queryDate));
       if (exactDate !== undefined) {
-        console.debug("closest date of given date "+ queryDate + " is "+ exactDate.simpleDate());
+        console.debug("closest date of given date " + queryDate + " is " + exactDate.simpleDate());
         // find the index of the closest date in timeseries now
         return timeseries.map(d => d.date).indexOf(exactDate.simpleDate());
       }
     },
-    filterDatasourceProductCompat: function(source, products) {
+    filterDatasourceProductCompat: function (source, products) {
       /*
           Handles compatibility of products & data_source
       */
-      console.debug("filterDatasourceProductCompat("+source+")");
-  
-      let matrix = {"landsat8": ["visible", "vitality", "variations","ndvi", "ndwi", "savi", "evi2", "npcri"],
-                    "sentinel2": ["visible", "vitality", "variations", "ndvi", "ndre1", "ndre2", "ndre3",
-                                      "ndwi", "savi", "evi2", "cire", "npcri"]
-                    };
-  
+      console.debug("filterDatasourceProductCompat(" + source + ")");
+
+      let matrix = {
+        "landsat8": ["visible", "vitality", "variations", "ndvi", "ndwi", "savi", "evi2", "npcri"],
+        "sentinel2": ["visible", "vitality", "variations", "ndvi", "ndre1", "ndre2", "ndre3",
+          "ndwi", "savi", "evi2", "cire", "npcri"
+        ],
+        "sentinel1": ["backscatter_vv", "backscatter_vh"],
+        "sentinel12": ["sbmi"]
+      };
+
       // source may be "landsat8", "sentinel2" or "" so check for length
-      if (source.length > 0){
+      if (source.length > 0) {
         // filter out the ones which do not fit in
-        return products.filter(p=>matrix[source].includes(p))
-      }
-      else { //defaults to sentinel2 products if source not set
-        return products.filter(p=>matrix["sentinel2"].includes(p))
+        return products.filter(p => matrix[source].includes(p))
+      } else { //defaults to sentinel2 products if source not set
+        return products.filter(p => matrix["sentinel2"].includes(p))
       }
     },
     resetDateZoom() {
 
       if (this.mode === "one-index") {
         // set this.chartFromDate / ToDate appropriate!
-        this.chartFromDate  = this.statistics[0].date;
-        this.chartToDate    = this.statistics[this.statistics.length-1].date;
+        this.chartFromDate = this.statistics[0].date;
+        this.chartToDate = this.statistics[this.statistics.length - 1].date;
       }
       if (this.mode === "many-indices") {
         for (var i = 0; i < this.availableProducts.length; i++) {
           // set this.chartFromDate / ToDate appropriate!
           const firstProduct = this.availableProducts[0];
-          this.chartFromDate  = this.statisticsMany[firstProduct][0].date;
-          this.chartToDate    = this.statisticsMany[firstProduct][this.statisticsMany[firstProduct].length-1].date;
+          this.chartFromDate = this.statisticsMany[firstProduct][0].date;
+          this.chartToDate = this.statisticsMany[firstProduct][this.statisticsMany[firstProduct].length - 1].date;
         }
       }
       if (this.mode === "many-parcels") {
         for (var i = 0; i < this.parcels.length; i++) {
           // set this.chartFromDate / ToDate appropriate!
           const firstParcel = this.parcels[0];
-          this.chartFromDate  = this.statisticsMany[firstParcel][0].date;
-          this.chartToDate    = this.statisticsMany[firstParcel][this.statisticsMany[firstParcel].length-1].date;
+          this.chartFromDate = this.statisticsMany[firstParcel][0].date;
+          this.chartToDate = this.statisticsMany[firstParcel][this.statisticsMany[firstParcel].length - 1].date;
         }
       }
       // notify root
@@ -3488,9 +3512,9 @@ Vue.component('gc-chart', {
       // simple array to [high, mid, low] with std.dev. for error band
       for (let i = 0; i < filteredStats.length; i++) {
         let r = filteredStats[i];
-        let high = this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
-        let mid = this.formatDecimal(r.statistics.mean,3);
-        let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
+        let high = this.formatDecimal((r.statistics.mean + r.statistics.stddev), 3);
+        let mid = this.formatDecimal(r.statistics.mean, 3);
+        let low = this.formatDecimal((r.statistics.mean - r.statistics.stddev), 3);
         means.push([high, mid, low]);
       }
       return means;
@@ -3503,7 +3527,7 @@ Vue.component('gc-chart', {
         let r = stats[i];
         let open = this.formatDecimal(r.min, 3); // this.formatDecimal(r.statistics.mean,3);
         let high = this.formatDecimal(r.max, 3); // this.formatDecimal((r.statistics.mean + r.statistics.stddev),3);
-        let low =  this.formatDecimal(r.min, 3); // this.formatDecimal(r.statistics.mean,3);
+        let low = this.formatDecimal(r.min, 3); // this.formatDecimal(r.statistics.mean,3);
         let close = this.formatDecimal(r.max, 3); // this.formatDecimal((r.statistics.mean - r.statistics.stddev),3);
 
         values.push([open, high, low, close]);
