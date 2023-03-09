@@ -71,7 +71,8 @@ const gcChartLocales = {
       "npcri": "NPCRI",
       "backscatter_vv": "Backscatter VV",
       "backscatter_vh": "Backscatter VH",
-      "sbmi": "SBMI"
+      "sbmi": "SBMI",
+      "bsi": "BSI"
     },
     "status_msg": {
       "unauthorized_key": "Sorry, the API key is not authorized.",
@@ -154,7 +155,8 @@ const gcChartLocales = {
       "npcri": "NPCRI",
       "backscatter_vv": "Backscatter VV",
       "backscatter_vh": "Backscatter VH",
-      "sbmi": "SBMI"
+      "sbmi": "SBMI",
+      "bsi": "BSI"
     },
     "status_msg": {
       "unauthorized_key": "Tut uns leid, der angegebene API Schlüssel existiert nicht!",
@@ -228,7 +230,7 @@ Vue.component('gc-chart', {
     },
     gcAvailableProducts: {
       type: String,
-      default: "vitality,ndvi,ndwi,ndre1,ndre2,savi,evi2,cire,npcri,backscatter_vv,backscatter_vh,sbmi"
+      default: "vitality,ndvi,ndwi,ndre1,ndre2,savi,evi2,cire,npcri,backscatter_vv,backscatter_vh,sbmi,bsi"
     },
     gcMode: {
       type: String,
@@ -1226,7 +1228,8 @@ Vue.component('gc-chart', {
         savi: [],
         evi2: [],
         cire: [],
-        npcri: []
+        npcri: [],
+        bsi: []
       };
     }
     if (this.mode == "many-parcels") {
@@ -1766,7 +1769,8 @@ Vue.component('gc-chart', {
           savi: [],
           evi2: [],
           cire: [],
-          npcri: []
+          npcri: [],
+          bsi: []
         };
       }
       if (this.mode == "many-parcels") {
@@ -2800,6 +2804,7 @@ Vue.component('gc-chart', {
             "backscatter_vv": this.$t("products.backscatter_vv"),
             "backscatter_vh": this.$t("products.backscatter_vh"),
             "sbmi": this.$t("products.sbmi"),
+            "bsi": this.$t("products.bsi"),
             "parcel (mean)": this.$t("similarity.parcel_mean"),
             "reference (mean)": this.$t("similarity.reference_mean"),
           },
@@ -3466,7 +3471,7 @@ Vue.component('gc-chart', {
       let matrix = {
         "landsat8": ["visible", "vitality", "variations", "ndvi", "ndwi", "savi", "evi2", "npcri"],
         "sentinel2": ["visible", "vitality", "variations", "ndvi", "ndre1", "ndre2", "ndre3",
-          "ndwi", "savi", "evi2", "cire", "npcri"
+          "ndwi", "savi", "evi2", "cire", "npcri", "bsi"
         ],
         "sentinel1": ["backscatter_vv", "backscatter_vh"],
         "sentinel12": ["sbmi"]
