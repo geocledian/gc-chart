@@ -175,6 +175,86 @@ const gcChartLocales = {
       "reference_mean": "Umgebende Felder (Mittelwert)",
     }
   },
+  "lt": {
+    "options": {
+      "title": "Grafiko parinktys",
+      "graph_type": {
+        "label": "Graph type",
+        "line": "Line",
+        "spline": "Spline",
+        "area": "Area"
+      },
+      "hide_graphs": {
+        "label": "Hide",
+        "marker": "Marker"
+      },
+      "marker": {
+        "label": "Marker",
+        "phenology": "Phenology",
+        "sn_marker": "SN Marker"
+      },
+      "date_zoom": {
+        "from": "From",
+        "to": "To",
+        "date_format_hint": "YYYY-MM-DD",
+        "invalid_date_range": "Invalid date range!"
+      },
+      "mode": {
+        "label": "Mode",
+        "one_index": "one product, all statistics",
+        "many_indices": "many products, means"
+      },
+      "cloudFilter": {
+        "label": "Cloud filter"
+      },
+      "date_reset": "Reset"
+    },
+    "statistics": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "mean": "Mean",
+      "stddev": "Standard Deviation",
+      "errorBand": "Error Band"
+    },
+    "products": {
+      "sos": "Start of season",
+      "pos": "Peak of season",
+      "eos": "End of season",
+      "vitality": "Gyvybingumas",
+      "ndvi": "NDVI",
+      "ndre1": "NDRE1",
+      "ndre2": "NDRE2",
+      "ndwi": "NDWI",
+      "savi": "SAVI",
+      "evi2": "EVI2",
+      "cire": "CIRE",
+      "npcri": "NPCRI"
+    },
+    "status_msg": {
+      "unauthorized_key": "Sorry, the API key is not authorized.",
+      "invalid_key": "Sorry, the API key's validity expired.",
+      "missing_permissions": "Sorry, the API key doesn't have the given permissions to access this product or resource.",
+      "support": "Please contact <a href='https://www.geocledian.com'>geo|cledian</a> for support.",
+      "parcel_id_not_found": "Parcel ID not found!"
+    },
+    "productSelector": {
+      "tooltip": "Choose a product!"
+    },
+    "chart": {
+      "no_data_msg": "No data available"
+    },
+    "similarity": {
+      "title": "Similarity",
+      "euclidean_distance": "Euclidean distance",
+      "references_found": "References found",
+      "references_used": "References used",
+      "covariance": "Covariance",
+      "cosine": "Cosine",
+      "correlation": "Correlation",
+      "parcel_mean": "Current Parcel (mean)",
+      "reference_mean": "Reference parcels (mean)",
+    }
+  },
 }
 
 Vue.component('gc-chart', {
