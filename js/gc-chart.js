@@ -2508,14 +2508,6 @@ Vue.component('gc-chart', {
             try {
               // TODO: check if we can merge all markers to one date array
               // columns[columns.length] = ["x5"].concat(this.sos, this.pos, this.eos);     
-              // FIX: filter null dates before building x/y pairs — a null in x5/x6/x7
-              // causes billboard.js to misalign all subsequent bars positionally.
-              const sosPairs = this.sos.map(date => ({ date, max })).filter(p => p.date !== null);
-              const posPairs = this.pos.map(date => ({ date, max })).filter(p => p.date !== null);
-              const eosPairs = this.eos.map(date => ({ date, max })).filter(p => p.date !== null);
-              columns[columns.length] = ["x5"].concat(sosPairs.map(p => p.date));
-              columns[columns.length] = ["x6"].concat(posPairs.map(p => p.date));
-              columns[columns.length] = ["x7"].concat(eosPairs.map(p => p.date));
 
               let max;
               let min;
@@ -2547,22 +2539,20 @@ Vue.component('gc-chart', {
 
               }
 
-              // guard: fallback if statistics was empty (e.g. many-indices mode)
-              // guard: if statistics was empty (e.g. in many-indices mode this.statistics
-              // is never filled), max/min stay at their sentinel values -> NaN in SVG y attr
-              if (max === Number.NEGATIVE_INFINITY || max === undefined) {
-                max = 1.0;
-              }
-              if (min === Number.POSITIVE_INFINITY || min === undefined) {
-                min = 0.0;
-              }
-
               let minMax = {
                 min: min,
                 max: max
               };
 
 
+              // FIX: filter null dates before building x/y pairs — a null in x5/x6/x7
+              // causes billboard.js to misalign all subsequent bars positionally.
+              const sosPairs = this.sos.map(date => ({ date: date, max: max })).filter(p => p.date !== null);
+              const posPairs = this.pos.map(date => ({ date: date, max: max })).filter(p => p.date !== null);
+              const eosPairs = this.eos.map(date => ({ date: date, max: max })).filter(p => p.date !== null);
+              columns[columns.length] = ["x5"].concat(sosPairs.map(p => p.date));
+              columns[columns.length] = ["x6"].concat(posPairs.map(p => p.date));
+              columns[columns.length] = ["x7"].concat(eosPairs.map(p => p.date));
               // assign the maximum of the y axis to the bar charts of phenology markers
               //TODO: minimum is not possible for bars at the moment!
               columns[columns.length] = ["sos"].concat(sosPairs.map(p => p.max));
