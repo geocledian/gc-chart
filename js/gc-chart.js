@@ -2508,9 +2508,14 @@ Vue.component('gc-chart', {
             try {
               // TODO: check if we can merge all markers to one date array
               // columns[columns.length] = ["x5"].concat(this.sos, this.pos, this.eos);     
-              columns[columns.length] = ["x5"].concat(this.sos);
-              columns[columns.length] = ["x6"].concat(this.pos);
-              columns[columns.length] = ["x7"].concat(this.eos);
+              // FIX: filter null dates before building x/y pairs — a null in x5/x6/x7
+              // causes billboard.js to misalign all subsequent bars positionally.
+              const sosPairs = this.sos.map(date => ({ date, max })).filter(p => p.date !== null);
+              const posPairs = this.pos.map(date => ({ date, max })).filter(p => p.date !== null);
+              const eosPairs = this.eos.map(date => ({ date, max })).filter(p => p.date !== null);
+              columns[columns.length] = ["x5"].concat(sosPairs.map(p => p.date));
+              columns[columns.length] = ["x6"].concat(posPairs.map(p => p.date));
+              columns[columns.length] = ["x7"].concat(eosPairs.map(p => p.date));
 
               let max;
               let min;
@@ -2549,9 +2554,9 @@ Vue.component('gc-chart', {
 
               // assign the maximum of the y axis to the bar charts of phenology markers
               //TODO: minimum is not possible for bars at the moment!
-              columns[columns.length] = ["sos"].concat(this.sos.map(r => max));
-              columns[columns.length] = ["pos"].concat(this.pos.map(r => max));
-              columns[columns.length] = ["eos"].concat(this.eos.map(r => max));
+              columns[columns.length] = ["sos"].concat(sosPairs.map(p => p.max));
+              columns[columns.length] = ["pos"].concat(posPairs.map(p => p.max));
+              columns[columns.length] = ["eos"].concat(eosPairs.map(p => p.max));
 
               // assign the min & max of the y axis to the candlestick charts of phenology markers
               // columns[columns.length] = ["sos"].concat(this.createCandleStickVals(this.sos.map( r => minMax)));
@@ -3154,16 +3159,27 @@ Vue.component('gc-chart', {
               // adjust phenology styling
               if (["sos", "pos", "eos"].includes(id)) {
                 // resolve simple date to index in phenology marker array -> then query this.phenology for all data
-                let arr_index = this[id].indexOf(x.simpleDate());
-
-                season = this.phenology[arr_index].season;
-                marker_value = this.formatDecimal(this.phenology[arr_index].marker.filter(s => s.name === name.toLowerCase())[0].mean, 3);
-
-                html += '<tr class="' + 'bb-tooltip-' + name + '"></tr>' +
-                  '<td class="bb-tooltip"><span style="background-color: ' + color(d[i]) + '"></span>' + name + ' ' + season + '</td>';
-              } else {
-                html += '<tr class="' + 'bb-tooltip-' + name + '"></tr>' +
-                  '<td class="bb-tooltip"><span style="background-color: ' + color(d[i]) + '"></span>' + name + '</td>';
+                // FIX: use find() instead of arr_index positional lookup — after null-filtering
+                // above, this.sos/pos/eos are shorter than this.phenology, so arr_index is wrong.
+                const markerNameMap = { "sos": "start of season", "pos": "peak of season", "eos": "end of season" };
+                const targetDate = x.simpleDate();
+                const targetMarkerName = markerNameMap[id];
+                const phenologyEntry = this.phenology.find(ph =>
+                  ph.marker.some(m => m.name === targetMarkerName && m.date === targetDate)
+                );
+                if (phenologyEntry) {
+                  season = phenologyEntry.season;
+                  marker_value = this.formatDecimal(phenologyEntry.marker.filter(m => m.name === targetMarkerName)[0].mean, 3);
+                } else {
+                  season = "";
+                  marker_value = "";
+                }
+                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
+                '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + ' '+ season + '</td>';
+              }
+              else {
+                html += '<tr class="'+'bb-tooltip-'+ name +'"></tr>'+
+                        '<td class="bb-tooltip"><span style="background-color: '+color(d[i])+'"></span>'+ name + '</td>';
               }
 
               // for area range value skip high & low
