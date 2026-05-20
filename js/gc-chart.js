@@ -2540,11 +2540,22 @@ Vue.component('gc-chart', {
                 }
               }
               if (this.gcYScale === "fixed") {
+
                 // max declared by axis min/max (in config of chart)
                 max = this.chart.axis.max().y;
                 min = this.chart.axis.min().y;
+
               }
 
+              // guard: fallback if statistics was empty (e.g. many-indices mode)
+              // guard: if statistics was empty (e.g. in many-indices mode this.statistics
+              // is never filled), max/min stay at their sentinel values -> NaN in SVG y attr
+              if (max === Number.NEGATIVE_INFINITY || max === undefined) {
+                max = 1.0;
+              }
+              if (min === Number.POSITIVE_INFINITY || min === undefined) {
+                min = 0.0;
+              }
 
               let minMax = {
                 min: min,
